@@ -1,0 +1,783 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+
+namespace AC
+{
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow : Window
+    {
+
+        Automat idealAutomat;
+        ArrayList setOfWords;
+        int[][] pairsOfRelation;
+        static Random random = new Random();
+        public MainWindow()
+        {
+            InitializeComponent();
+            setOfWords = new ArrayList();
+        }
+
+        /// <summary>
+        /// ladujemy plik z automatem
+        /// </summary>
+        private void LoadAutomata_Click(object sender, RoutedEventArgs e)
+        {
+            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog()
+            {
+                Filter = "Text Files(*.txt)|*.txt"
+            };
+
+            Nullable<bool> result = dlg.ShowDialog();
+
+            if (result == true)
+            {
+                LoadAutomata(dlg.FileName);
+                MessageBox.Show("Automata Loaded!");
+            }
+            else
+            {
+                MessageBox.Show("Loading Aborted!");
+                return;
+            }
+        }
+
+
+        /// <summary>
+        /// funkcja wyciaga z pliku z automatem dane, i tworzy instancje automatu
+        /// </summary>
+        void LoadAutomata(String path)
+        {
+            String input = File.ReadAllText(path);
+
+            Automat automata = Automat.fromString(input);
+            Console.WriteLine("zaladowano automat");
+            //gotowy automat : mamy funkcje stany i alfabet        
+            idealAutomat = automata;
+
+            //ArrayList test = automata.toVector();
+        }
+        /// <summary>
+        /// Otwieramy okno w ktorym generujemy plik slow
+        /// </summary>
+        private void CreateSet_Click(object sender, RoutedEventArgs e)
+        {
+            GeneratorWindow generator = new GeneratorWindow();
+
+            Nullable<bool> result =  generator.ShowDialog();
+            
+            if (result == true)
+            {
+                setOfWords.Clear();
+                setOfWords = generator.getWords();
+                Console.WriteLine("Words Generated");
+            }
+
+        }
+
+        /// <summary>
+        /// ladujemy plik z slowami
+        /// </summary>
+        private void LoadSet_Click(object sender, RoutedEventArgs e)
+        {
+            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog()
+            {
+                Filter = "Text Files(*.txt)|*.txt"
+            };
+
+            Nullable<bool> result = dlg.ShowDialog();
+
+            if (result == true)
+            {
+                LoadWordSet(dlg.FileName);
+                MessageBox.Show("Word Set Loaded!");
+            }
+            else
+            {
+                MessageBox.Show("Loading Aborted!");
+                return;
+            }
+        }
+
+        void LoadWordSet(String path)
+        {
+            String input = File.ReadAllText(path);
+
+            ArrayList words = new ArrayList(input.Split(new string[] { Environment.NewLine }, StringSplitOptions.None));
+            words.RemoveAt(words.Capacity - 1);
+            setOfWords.Clear();
+            setOfWords = words;
+            Console.WriteLine("zaladowano slowa");
+          
+        }
+
+        /// <summary>
+        /// z calego setu slow wyciagam alphabet
+        /// </summary>
+        /*ArrayList findAlphabet()
+        {
+            ArrayList alphabet = new ArrayList();
+
+            int wordAmount = setOfWords.Count;
+            for (int i = 0; i < wordAmount; i++)
+            {
+                char[] charArray = ((String)setOfWords[i]).ToCharArray();
+
+                for(int j = 0 ; j < charArray.Length ; j++)
+                {
+                    if(alphabet.Contains(charArray[j])==false)
+                    {
+                        alphabet.Add(charArray[j]);
+                    }
+                }
+            }
+
+            return alphabet;
+        }*/
+
+        /// <summary>
+        /// tutaj oba slowa puszczamy przez automat i sprawdzamy czy sie koncza w tym samym stanie
+        /// </summary>
+        bool areWordsRelated(Automat automata, String word1, String word2)
+        {
+            bool areThey = false;
+
+            List<int[][]> transitionTableList = new List<int[][]>();
+            transitionTableList = automata.getTransitionTableList();
+
+            int currentState1 = 0, currentState2 = 0;
+
+            char[] charArray1 = word1.ToCharArray();
+            char[] charArray2 = word2.ToCharArray();
+
+            for (int i = 0; i < word1.Length; i++)
+            {
+                char symbol = charArray1[i];
+                int[][] transitionTable = transitionTableList.ElementAt(int.Parse("" + symbol));
+                for (int j = 0; j < automata.getStatesNumber(); j++)
+                {
+                    if (transitionTable[currentState1][j] == 1)
+                    {
+                        currentState1 = j;
+                        break;
+                    }
+                }
+
+            }
+
+            for (int i = 0; i < word2.Length; i++)
+            {
+                char symbol = charArray2[i];
+                int[][] transitionTable = transitionTableList.ElementAt(int.Parse("" + symbol));
+                for (int j = 0; j < automata.getStatesNumber(); j++)
+                {
+                    if (transitionTable[currentState2][j] == 1)
+                    {
+                        currentState2 = j;
+                        break;
+                    }
+                }
+            }
+
+            if (currentState1 == currentState2)
+            {
+                areThey = true;
+            }
+            return areThey;
+        }
+
+        /// <summary>
+        /// wyliczamy najmniejsza liczbe klas abstrakcji
+        /// </summary>
+        int minValueOfStates()
+        {
+            /*
+             * FOR every word W in set DO:
+                Set FLAG to false;
+                 FOR every equivalence class EQ in set of classes DO:
+                     IF W is in relation with any word in EQ DO:
+                      add W to EQ;
+                      set FLAG to true;
+                      break;
+                    END IF
+                END FOR
+             IF FLAG is false DO:
+             add new class EQ to set of classes;
+             add W to new class EQ;
+            END OF
+            END FOR
+             */
+            int states = 0;
+            int wordAmount = setOfWords.Count;
+            ArrayList EQClasses = new ArrayList();
+
+            //dodaje jedna klasie bo zawsze jest jedna
+            ArrayList temp = new ArrayList();
+            temp.Add((String)setOfWords[0]);
+            EQClasses.Add(temp);
+
+            for (int i = 1; i < wordAmount; i++)
+            {
+                bool flag = false;
+                for (int j = 0; j < EQClasses.Count; j++)
+                {
+                    ArrayList currentClass = (ArrayList)EQClasses[j];
+                    for (int w = 0; w < currentClass.Count; w++)
+                    {
+                        if (currentClass.Count > 0)
+                        {
+                            if (areWordsRelated(idealAutomat, (String)setOfWords[i], (String)currentClass[w]))
+                            {
+                                flag = true;
+                                ((ArrayList)EQClasses[j]).Add((String)setOfWords[i]);
+                                break;
+                            }
+                        }
+                    }
+                    if (flag == true)
+                    {
+                        break;
+                    }
+                }
+                if (flag == false)
+                {
+                    ArrayList tmp = new ArrayList();
+                    tmp.Add((String)setOfWords[i]);
+                    EQClasses.Add(tmp);
+                }
+            }
+
+            states = EQClasses.Count;
+
+            return states;
+        }
+
+        /// <summary>
+        /// uzypelniamy tutaj tabele parami slow ktore sa w relacji
+        /// </summary>
+        /// 
+        void findRelationPairs()
+        {
+            //pairsOfRelation
+            pairsOfRelation = new int[setOfWords.Count][];
+
+            for (int j = 0; j < setOfWords.Count; j++)
+            {
+                pairsOfRelation[j] = new int[setOfWords.Count];
+            }
+
+            for (int i = 0; i < setOfWords.Count; i++)
+            {
+                for ( int j = 0 ; j < setOfWords.Count ; j++)
+                {
+                    if(i != j)
+                    {
+                        if(areWordsRelated(idealAutomat,(String)setOfWords[i], (String)setOfWords[j])==true)
+                        {
+                            pairsOfRelation[i][j] = 1;
+                            pairsOfRelation[j][i] = 1;
+                        }
+                        else
+                        {
+                            pairsOfRelation[i][j] = 0;
+                            pairsOfRelation[j][i] = 0;
+                        }
+                    }
+                    else
+                    {
+                        pairsOfRelation[i][j] = 1;
+                        pairsOfRelation[j][i] = 1;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Error liczy sie jako stosunek par w relacji z particle automatu
+        /// do automatu idealnego. Wynik jest procentem bledu
+        /// </summary>
+        /// 
+        double ErrorCalculation(Automat particle)
+        {
+            double error = 0.0;
+
+
+            int[][] currentParticlePairs;
+            currentParticlePairs = new int[setOfWords.Count][];
+
+            for (int j = 0; j < setOfWords.Count; j++)
+            {
+                currentParticlePairs[j] = new int[setOfWords.Count];
+            }
+
+            for (int i = 0; i < setOfWords.Count; i++)
+            {
+                for (int j = 0; j < setOfWords.Count; j++)
+                {
+                    if (i != j)
+                    {
+                        if (areWordsRelated(particle, (String)setOfWords[i], (String)setOfWords[j]) == true)
+                        {
+                            currentParticlePairs[i][j] = 1;
+                            currentParticlePairs[j][i] = 1;
+                        }
+                        else
+                        {
+                            currentParticlePairs[i][j] = 0;
+                            currentParticlePairs[j][i] = 0;
+                        }
+                    }
+                    else
+                    {
+                        currentParticlePairs[i][j] = 1;
+                        currentParticlePairs[j][i] = 1;
+                    }
+                }
+            }
+
+            //relacjie idealnego automatu mam w globalnej zmiennej a teraz
+            //policzono relacje dla particla . Teraz mamy dwie tabele i je porownujemy
+            //i liczymy roznice
+            double errorCounter = 0.0;
+            for (int i = 0; i < setOfWords.Count; i++)
+            {
+                for (int j = 0; j < setOfWords.Count; j++)
+                {
+                    if (i != j && pairsOfRelation[i][j] != currentParticlePairs[i][j])
+                    {
+                        errorCounter = errorCounter + 1.0;
+                    }
+                }
+            }
+
+            errorCounter = errorCounter / 2.0 ;
+
+            error = (errorCounter / ((setOfWords.Count * setOfWords.Count) - setOfWords.Count)) * 100.0;
+
+            return error;
+        }
+
+        /// <summary>
+        /// PSO ^^
+        /// </summary>
+        /// 
+        void PSO()
+        {
+
+            ArrayList BestAutomatForStates = new ArrayList();
+            ArrayList BestErrorsForAutomats = new ArrayList();
+
+            findRelationPairs();
+            double roundAt = 0.70;
+
+            int particlesNumber = int.Parse(ParticleAmountTxt.Text);
+            int maxIteration = 60;
+            double c2 = 0.2, c1 = 0.2;
+            int numberOfNeighbors = 6;
+
+            ArrayList particlesPos = new ArrayList();
+            ArrayList particlesVel = new ArrayList();
+
+            ArrayList particlesLocBest = new ArrayList();
+            int particlesGlobBest = 0;
+            ArrayList particleError = new ArrayList();
+            int dimensions = 0;
+            int currentStateNumber = minValueOfStates() - 1;
+
+            bool continuePSO = true;
+            bool addStates = true;
+            int counter = 0;
+            while (continuePSO == true)
+            {
+
+                if (addStates == true)
+                {
+                    counter = 0;
+                    currentStateNumber++;
+
+                    if (currentStateNumber >= 10)
+                    {
+                        addStates = false;
+                        continuePSO = false;
+                        break;
+                    }
+
+
+
+                    dimensions = (int)Math.Pow(currentStateNumber, 2.0) * (int)idealAutomat.getAlphabetLength();
+
+                    particlesPos.Clear();
+                    particlesVel.Clear();
+                    particlesLocBest.Clear();
+                    particlesGlobBest = 0;
+                    particleError.Clear();
+
+                    //losujemy pozycje i predkosc particles
+                    for (int i = 0; i < particlesNumber; i++)
+                    {
+                        ArrayList singleVector = new ArrayList();
+                        ArrayList singleSpeedVector = new ArrayList();
+
+                        for (int j = 0; j < dimensions; j++)
+                        {
+                            double randomVal = GetRandomNumber();
+                            double randomVal2 = GetRandomNumber2();
+                            singleVector.Add(randomVal);
+                            singleSpeedVector.Add(randomVal2);
+                        }
+                        particlesPos.Add(singleVector);
+                        particlesVel.Add(singleSpeedVector);
+                        particlesLocBest.Add(0);
+                        particleError.Add(0.0);
+
+                    }
+
+                    addStates = false;
+                }
+                //ustalanie errorow
+
+                particleError.Clear();
+                for (int i = 0; i < particlesNumber; i++)
+                {
+
+                    ArrayList discretePosition = new ArrayList();
+                    discretePosition = makeVectorDiscrete((ArrayList)particlesPos[i], (ArrayList)particlesVel[i], roundAt, currentStateNumber, (int)idealAutomat.getAlphabetLength());
+
+                    double error = 0.0;
+                    Automat currentParticle = Automat.fromVector(zListyNaStringa(discretePosition), currentStateNumber, (int)idealAutomat.getAlphabetLength());
+                    error = ErrorCalculation(currentParticle);
+                    //particleError[i] = error;
+                    particleError.Add(error);
+
+                    if ((double)particleError[i] <= 2.0)
+                    {
+                        continuePSO = false;
+                        Console.WriteLine("One of particle is 98 % similar ! ");
+                        break;
+                    }
+
+                }
+
+                if (continuePSO == true)
+                {
+                    //ustalanieBestow
+
+                    double smallestError = 100.0;
+                    for (int i = 0; i < particlesNumber; i++)
+                    {
+
+                        if ((double)particleError[i] <= smallestError)
+                        {
+                            smallestError = (double)particleError[i];
+                            particlesGlobBest = i;
+                        }
+
+                        ArrayList distances = new ArrayList();
+                        ArrayList indexes = new ArrayList();
+                        for (int j = 0; j < particlesNumber; j++)
+                        {
+                            //tutaj od razu szukamu ktore particle sa najblizsze
+                            // i z nich wylaniamy local besta analogicznie jak globala
+                            // ale dla neighbournumber czy jakos tak
+                            if (true)
+                            {
+                                double dist = findDistance((ArrayList)particlesPos[i], (ArrayList)particlesPos[j]);
+                                if (distances.Count < numberOfNeighbors)
+                                {
+                                    distances.Add(dist);
+                                    indexes.Add(j);
+                                }
+                                else
+                                {
+                                    int maxInd = 0;
+                                    double tempmaxVal = 0.0;
+                                    for (int p = 0; p < distances.Count; p++)
+                                    {
+                                        if ((double)distances[p] > tempmaxVal)
+                                        {
+                                            tempmaxVal = (double)distances[p];
+                                            maxInd = p;
+                                        }
+                                    }
+                                    if (tempmaxVal > dist)
+                                    {
+                                        distances[maxInd] = dist;
+                                        indexes[maxInd] = j;
+                                    }
+                                }
+                            }
+                        }
+
+                        // teraz mam liste najblizszych particlow i szykamy tego z najmneijszym errorem.
+                        double minLocErr = 100.0;
+                        int minLocIndex = 0;
+                        for (int j = 0; j < distances.Count; j++)
+                        {
+                            if ((double)distances[j] < minLocErr)
+                            {
+                                minLocErr = (double)distances[j];
+                                minLocIndex = (int)indexes[j];
+                            }
+                        }
+                        particlesLocBest[i] = minLocIndex;
+
+                    }
+
+
+                    //teraz kazdy particle ma swojego globala i locala
+                    // obliczamy nowa predkosc dla kazdego
+
+                    for (int i = 0; i < particlesNumber; i++)
+                    {
+                        particlesVel[i] = (ArrayList)calculateVelocity((ArrayList)particlesPos[particlesGlobBest], (ArrayList)particlesPos[(int)particlesLocBest[i]],
+                            (ArrayList)particlesVel[i], (ArrayList)particlesPos[i], c1, c2);
+                        //jest predkosc to mozemy aplikowac ja do pozycji
+
+                        particlesPos[i] = calculatePosition((ArrayList)particlesVel[i], (ArrayList)particlesPos[i]);
+                    }
+
+
+                    counter++;
+
+                    Console.WriteLine("Iteration : " + counter + " for : " + currentStateNumber + " states. (" + particlesGlobBest + ")GlobBestErr = " + (double)particleError[particlesGlobBest]);
+
+
+                }
+                if (counter >= maxIteration)
+                {
+                    addStates = true;
+
+                    double minimalFinalErrtmp = 100.0;
+                    int bestFinalAutomatIndextmp = 0;
+                    for (int i = 0; i < particlesNumber; i++)
+                    {
+                        if ((double)particleError[i] < minimalFinalErrtmp)
+                        {
+                            minimalFinalErrtmp = (double)particleError[i];
+                            bestFinalAutomatIndextmp = i;
+                        }
+                    }
+
+                    ArrayList digitAutomattmp = makeVectorDiscrete((ArrayList)particlesPos[bestFinalAutomatIndextmp], (ArrayList)particlesVel[bestFinalAutomatIndextmp], roundAt, currentStateNumber, (int)idealAutomat.getAlphabetLength());
+                    Automat solutiontmp = Automat.fromVector(zListyNaStringa(digitAutomattmp), currentStateNumber, (int)idealAutomat.getAlphabetLength());
+
+
+                    BestAutomatForStates.Add(solutiontmp);
+                    BestErrorsForAutomats.Add(minimalFinalErrtmp);
+
+                }
+
+            }
+
+            //pso skonczone wybieramy najmniejsyz err
+            Console.WriteLine("PSO FINISHED");
+            double minimalFinalErr = 100.0;
+            int bestFinalAutomatIndex = 0;
+            for (int i = 0; i < BestAutomatForStates.Count; i++)
+            {
+                if ((double)BestErrorsForAutomats[i] < minimalFinalErr)
+                {
+                    minimalFinalErr = (double)BestErrorsForAutomats[i];
+                    bestFinalAutomatIndex = i;
+                }
+            }
+
+            /*ArrayList digitAutomat = makeVectorDiscrete((ArrayList)particlesPos[bestFinalAutomatIndex], (ArrayList)particlesVel[bestFinalAutomatIndex], roundAt, currentStateNumber, (int)idealAutomat.getAlphabetLength());
+             Automat solution = Automat.fromVector(zListyNaStringa(digitAutomat), currentStateNumber, (int)idealAutomat.getAlphabetLength());
+             */
+
+
+            Automat solution = (Automat)BestAutomatForStates[bestFinalAutomatIndex];
+
+            Console.WriteLine("SOLUTION : ");
+            Console.WriteLine("" + (zListyNaStringa((ArrayList)solution.toVector())));
+
+        }
+
+        String zListyNaStringa (ArrayList lista)
+        {
+            String wynik = "";
+            for (int i = 0; i < lista.Count; i++ )
+            {
+                wynik = wynik + lista[i];
+            }
+                return wynik;
+        }
+
+        /// <summary>
+        /// aplikowane predkosci do pozycji
+        /// </summary>
+        /// 
+        ArrayList calculatePosition(ArrayList currentVelocity, ArrayList currentPosition)
+        {
+            ArrayList newPosition = new ArrayList();
+
+            for (int i = 0; i < currentVelocity.Count; i++)
+            {
+                double pos = double.Parse(""+currentPosition[i]) + double.Parse(""+currentVelocity[i]);
+                if (pos > 1.0)
+                {
+                    newPosition.Add(1.0);
+                }
+                else if (pos < 0.0)
+                {
+                    newPosition.Add(0.0);
+                }
+                else 
+                {
+                    newPosition.Add(pos);
+                }
+            }
+
+            return newPosition;
+        }
+
+        /// <summary>
+        /// aplikowane predkosci wedlug wzoru z dokumentacji
+        /// nV = v + c1 *random * (local - position) + c2 * random*(global - position)
+        /// random z (0;1)
+        /// </summary>
+        /// 
+        ArrayList calculateVelocity(ArrayList globalBest, ArrayList localBest, ArrayList currentVelocity, ArrayList currentPosition, double c1, double c2)
+        {
+            ArrayList newVelocity = new ArrayList();
+
+            //c1 *random * (local - position)
+            double part1 = c1 * GetRandomNumber();
+            double part2 = c2 * GetRandomNumber();
+            
+            for (int i = 0; i < localBest.Count; i++ )
+            {
+                double tmp1 = ((double.Parse(localBest[i]+"") - double.Parse(""+currentPosition[i])) * part1);
+                double tmp2 = ((double.Parse(""+globalBest[i]) - double.Parse(""+currentPosition[i])) * part2);
+
+                newVelocity.Add(double.Parse(""+currentVelocity[i]) + tmp1 + tmp2);
+            }
+
+            return newVelocity;
+        }
+
+        double findDistance(ArrayList vector1, ArrayList vector2)
+        {
+            double distance = 0.0;
+
+            for (int i = 0; i < vector1.Count; i++ )
+            {
+                double val1 = double.Parse(""+vector1[i]);
+                double val2 = double.Parse(""+vector2[i]);
+                distance = distance + Math.Abs(val1 - val2);
+            }
+
+            return distance;
+        }
+
+        /// <summary>
+        /// dyskretyzacja vektora
+        /// </summary>
+        /// 
+        ArrayList makeVectorDiscrete(ArrayList vector, ArrayList speed, double roundparam, int _statesNumber, int _alphabetLength)
+        {
+            ArrayList output = new ArrayList();
+
+            for (int i = 0; i < _alphabetLength; i++)
+            {
+
+                for (int j = 0; j < _statesNumber; j++)
+                {
+                    ArrayList onesIndex = new ArrayList();
+                    
+                    for (int k = 0; k < _statesNumber; k++)
+                    {
+                        int index = (i * _statesNumber * _statesNumber) + (j * _statesNumber) + k;
+                        //int tmp = int.Parse(inputs[index]);
+                        if ((double)vector[index] >= roundparam)
+                        {
+                            output.Add(1);
+                            onesIndex.Add(index);
+                        }
+                        else
+                        {
+                            output.Add(0);
+                        }
+
+                    }
+                    if(onesIndex.Count>1)
+                    {
+                        int finalIndex = (int)onesIndex[0];
+                        double maxSpeed = Math.Abs((double)speed[finalIndex]);
+
+                        for(int p = 1 ; p < onesIndex.Count ; p++)
+                        {
+                            if (Math.Abs((double)speed[(int)onesIndex[p]]) > maxSpeed)
+                            {
+                                maxSpeed = Math.Abs((double)speed[(int)onesIndex[p]]);
+                                finalIndex = (int)onesIndex[p];
+                            }
+                            output[(int)onesIndex[p]] = 0;
+                        }
+
+                        output[finalIndex] = 1 ;
+                    }
+                    else if (onesIndex.Count<1)
+                    {
+                        double maxVal = 0.0;
+                        int maxIndex =0;
+                        for (int p = 0; p < _statesNumber; p++)
+                        {
+                            int index = (i * _statesNumber * _statesNumber) + (j * _statesNumber) + p;
+                            if((double)vector[index] >= maxVal)
+                            {
+                                maxVal = (double)vector[index];
+                                maxIndex = index;
+                            }
+                        }
+
+                        output[maxIndex] = 1;
+                    }
+                    
+
+                }
+
+            }
+
+
+            return output;
+        }
+
+        /// <summary>
+        /// random value from 0 to 1
+        /// </summary>
+        public double GetRandomNumber()
+        {
+            return random.NextDouble() * (1.0 - 0.0) + 0.0;
+        }
+
+        /// <summary>
+        /// random value from -1 to 1
+        /// </summary>
+        public double GetRandomNumber2()
+        {
+            return ((random.NextDouble() * 2.0) - 1.0);
+        }
+
+        private void PSO_Click(object sender, RoutedEventArgs e)
+        {
+            PSO();
+        }
+    }
+}
