@@ -138,32 +138,7 @@ namespace AC
             }
                 
             Console.WriteLine("zaladowano slowa");
-          
         }
-
-        /// <summary>
-        /// z calego setu slow wyciagam alphabet
-        /// </summary>
-        /*ArrayList findAlphabet()
-        {
-            ArrayList alphabet = new ArrayList();
-
-            int wordAmount = setOfWords.Count;
-            for (int i = 0; i < wordAmount; i++)
-            {
-                char[] charArray = ((String)setOfWords[i]).ToCharArray();
-
-                for(int j = 0 ; j < charArray.Length ; j++)
-                {
-                    if(alphabet.Contains(charArray[j])==false)
-                    {
-                        alphabet.Add(charArray[j]);
-                    }
-                }
-            }
-
-            return alphabet;
-        }*/
 
         /// <summary>
         /// tutaj oba slowa puszczamy przez automat i sprawdzamy czy sie koncza w tym samym stanie
@@ -397,12 +372,12 @@ namespace AC
             List<double> BestErrorsForAutomats = new List<double>();
 
             findRelationPairs();
-            double roundAt = 0.70;
+            double roundAt = 0.60;
 
             int particlesNumber = int.Parse(ParticleAmountTxt.Text);
             int maxIteration = 300;
-            double c2 = 0.2, c1 = 0.2;
-            int numberOfNeighbors = 6;
+            double c2 = 0.06, c1 = 0.02;
+            int numberOfNeighbors = 4;
 
             List<List<double>> particlesPos = new List<List<double>>();
             List<List<double>> particlesVel = new List<List<double>>();
