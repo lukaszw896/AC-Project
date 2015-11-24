@@ -596,10 +596,33 @@ namespace AC
                         if (errorRepeatCounter > 4)
                         {
                             Console.WriteLine("Randomizing position and velocity of 15 particles");
-                            Random random = new Random();
+
+                            double[][] errors =  new double[particlesNumber][];
+                            for(int i=0;i<particlesNumber;i++){
+                                double[] error = new double[2];
+                                error[0]=particleError[i];
+                                error[1]=i;
+                                errors[i]=error;
+                            }
+                            
+                            for(int i=0; i<particlesNumber;i++){
+                                for(int j=0;j<particlesNumber-1;j++){
+                                    if(errors[j][0]<errors[j+1][0]){
+                                        double[] tmp = errors[j];
+                                        errors[j] = errors[j+1];
+                                        errors[j+1] = tmp;
+                                    }
+                                }
+                            }
+
+
+
+
+
+                           //Random random = new Random();
                             for (int i = 0; i < 15; i++)
                             {
-                                int rand = random.Next(0, particlesNumber);
+                                int rand = (int)errors[i][1];
                                 //losujemy pozycje i predkosc particles
 
                                 List<double> singleVector = new List<double>();
