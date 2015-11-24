@@ -190,7 +190,6 @@ namespace AC
                         break;
                     }
                 }
-
             }
             for (int i = 0; i < word2Length; i++)
             {
@@ -732,66 +731,45 @@ namespace AC
             int index = -1;
             for (int i = 0; i < _alphabetLength; i++)
             {
-
                 for (int j = 0; j < _statesNumber; j++)
                 {
                     ArrayList onesIndex = new ArrayList();
-                    
+                    int maxIndex = -1;
+                    double maxSpeed = -1.0;
+                    int maxMinIndex = -1;
+                    double zeroMaxSpeed = -1.0;
                     for (int k = 0; k < _statesNumber; k++)
                     {
-                        index ++;
-                        //int tmp = int.Parse(inputs[index]);
-                        if ((double)vector[index] >= roundparam)
+                        index++;
+                        output.Add(0);
+                        if ((double)vector[index] > roundparam)
                         {
-                            output.Add(1);
-                            onesIndex.Add(index);
-                        }
-                        else
-                        {
-                            output.Add(0);
-                        }
-
-                    }
-                    if(onesIndex.Count>1)
-                    {
-                        int finalIndex = (int)onesIndex[0];
-                        double maxSpeed = Math.Abs((double)speed[finalIndex]);
-
-                        for(int p = 1 ; p < onesIndex.Count ; p++)
-                        {
-                            double tmpSpeed = Math.Abs((double)speed[(int)onesIndex[p]]);
-                            if (tmpSpeed > maxSpeed)
+                            if ((double)speed[index] > maxSpeed)
                             {
-                                maxSpeed = tmpSpeed;
-                                finalIndex = (int)onesIndex[p];
-                            }
-                            output[(int)onesIndex[p]] = 0;
-                        }
-
-                        output[finalIndex] = 1 ;
-                    }
-                    else if (onesIndex.Count<1)
-                    {
-                        double maxVal = 0.0;
-                        int maxIndex =0;
-                        for (int p = 0; p < _statesNumber; p++)
-                        {
-                            int indexer = (i * _statesNumber * _statesNumber) + (j * _statesNumber) + p;
-                            if((double)vector[indexer] >= maxVal)
-                            {
-                                maxVal = (double)vector[indexer];
-                                maxIndex = indexer;
+                                if (maxIndex != -1)
+                                {
+                                    vector[maxIndex] = roundparam - 0.2;
+                                }
+                                maxSpeed = (double)speed[index];
+                                maxIndex = index;
                             }
                         }
-
+                        if (maxIndex == -1 && (double)speed[index] > zeroMaxSpeed)
+                        {
+                            zeroMaxSpeed = (double)speed[index];
+                            maxMinIndex = index;
+                        }
+                    }
+                    if (maxIndex != -1)
+                    {
                         output[maxIndex] = 1;
                     }
-                    
-
+                    else
+                    {
+                        output[maxMinIndex] = 1;
+                    }
                 }
-
             }
-
 
             return output;
         }
