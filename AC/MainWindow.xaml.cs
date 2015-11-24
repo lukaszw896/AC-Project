@@ -629,6 +629,7 @@ namespace AC
 
             for (int i = 0; i < currentVelocity.Count; i++)
             {
+                
                 double pos = double.Parse(""+currentPosition[i]) + double.Parse(""+currentVelocity[i]);
                 if (pos > 1.0)
                 {
