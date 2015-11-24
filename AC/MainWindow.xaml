@@ -21,13 +21,15 @@
             <RowDefinition/>
 
             <RowDefinition/>
+
+            <RowDefinition/>
         </Grid.RowDefinitions>
         <Button Grid.Column="0" Grid.Row="0" Content="Load Ideal Automata" HorizontalAlignment="Center" VerticalAlignment="Center" Click="LoadAutomata_Click"/>
         <Button Grid.Column="0" Grid.Row="1" Content="Create Word Set" HorizontalAlignment="Center" VerticalAlignment="Center" Click="CreateSet_Click"/>
         <Button Grid.Column="0" Grid.Row="2" Content="Load Word Set" HorizontalAlignment="Center" VerticalAlignment="Center" Click="LoadSet_Click"/>
         <Label Content="Particle Number :" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <TextBox Name="ParticleAmountTxt" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="50" VerticalAlignment="Center"/>
-        <Button Content="PSO" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="8" VerticalAlignment="Center" Click="PSO_Click" />
+        <Button Content="PSO" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="9" VerticalAlignment="Center" Click="PSO_Click" />
         
         <Label Content="Round to 1 at :" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <TextBox Name="RountAtTxt" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0.7" VerticalAlignment="Center"/>
@@ -40,16 +42,16 @@
                 <ColumnDefinition/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <Label Content="C1 :" Grid.Column="0"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            <TextBox Name="c1Txt" Grid.Column="1" HorizontalAlignment="Center" TextWrapping="Wrap" Text="2.0" VerticalAlignment="Center"/>
+            <Label Content="(local) C1 :" Grid.Column="0"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <TextBox Name="c1Txt" Grid.Column="1" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0.2" VerticalAlignment="Center"/>
         </Grid>
         <Grid Grid.Row="4" Grid.Column="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <Label Content="C2 :" Grid.Column="0"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            <TextBox Name="c2Txt" Grid.Column="1" HorizontalAlignment="Center" TextWrapping="Wrap" Text="2.0" VerticalAlignment="Center"/>
+            <Label Content="(global) C2 :" Grid.Column="0"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <TextBox Name="c2Txt" Grid.Column="1" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0.5" VerticalAlignment="Center"/>
         </Grid>
         <Grid Grid.Row="5" Grid.Column="1">
             <Grid.ColumnDefinitions>
@@ -57,7 +59,7 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <Label Content="Speed Lowerbound :" Grid.Column="0"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            <TextBox Name="speedLowerBoundTxt" Grid.Column="1" HorizontalAlignment="Center" TextWrapping="Wrap" Text="GÓWNO" VerticalAlignment="Center"/>
+            <TextBox Name="speedLowerBoundTxt" Grid.Column="1" HorizontalAlignment="Center" TextWrapping="Wrap" Text="-0.02" VerticalAlignment="Center"/>
         </Grid>
         <Grid Grid.Row="5" Grid.Column="2">
             <Grid.ColumnDefinitions>
@@ -65,7 +67,7 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <Label Content="Speed Upperbound :" Grid.Column="0"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            <TextBox Name="speedUpperBoundTxt" Grid.Column="1" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0.2" VerticalAlignment="Center"/>
+            <TextBox Name="speedUpperBoundTxt" Grid.Column="1" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0.02" VerticalAlignment="Center"/>
         </Grid>
 
 
@@ -73,6 +75,8 @@
         <TextBox Name="ToleranceTxt" Grid.Row="6" Grid.Column="2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="2" VerticalAlignment="Center"/>
         <Label Content="Max states number :" Grid.Column="1" Grid.Row="7" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <TextBox Name="MaxstatesTXT" Grid.Row="7" Grid.Column="2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="10" VerticalAlignment="Center"/>
+        <Label Content="Max Particle Speed :" Grid.Column="1" Grid.Row="8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <TextBox Name="maxSpeedTxt" Grid.Row="8" Grid.Column="2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0.05" VerticalAlignment="Center"/>
 
 
     </Grid>

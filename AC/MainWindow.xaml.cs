@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -34,7 +35,7 @@ namespace AC
         {
             InitializeComponent();
             setOfWords = new List<List<int>>();
-           
+            idealAutomat = new Automat();
         }
 
         /// <summary>
@@ -69,7 +70,8 @@ namespace AC
         {
             String input = File.ReadAllText(path);
 
-            Automat automata = Automat.fromString(input);
+            Automat automata = new Automat();
+            automata.fromString(input);
             Console.WriteLine("zaladowano automat");
             //gotowy automat : mamy funkcje stany i alfabet        
             idealAutomat = automata;
@@ -370,21 +372,21 @@ namespace AC
         void PSO()
         {
 
-            //speedLowerBound = double.Parse( speedLowerBoundTxt.Text);
-            speedUpperBound = double.Parse(speedUpperBoundTxt.Text);
+            speedLowerBound = double.Parse(speedLowerBoundTxt.Text, CultureInfo.InvariantCulture);
+            speedUpperBound = double.Parse(speedUpperBoundTxt.Text, CultureInfo.InvariantCulture);
 
-
+            double maxSpeed = double.Parse(maxSpeedTxt.Text, CultureInfo.InvariantCulture);
 
             List<Automat> BestAutomatForStates = new List<Automat>();
             List<double> BestErrorsForAutomats = new List<double>();
 
             findRelationPairs();
-            double roundAt = double.Parse(RountAtTxt.Text);
+            double roundAt = double.Parse(RountAtTxt.Text, CultureInfo.InvariantCulture);
 
             int particlesNumber = int.Parse(ParticleAmountTxt.Text);
             int maxIteration = int.Parse(IterationTxt.Text);
-            double c2 = double.Parse(c1Txt.Text);
-            double c1 = double.Parse(c2Txt.Text);
+            double c2 = double.Parse(c1Txt.Text, CultureInfo.InvariantCulture);
+            double c1 = double.Parse(c2Txt.Text, CultureInfo.InvariantCulture);
             int numberOfNeighbors =int.Parse(neighboursTxt.Text);
 
             List<List<double>> particlesPos = new List<List<double>>();
@@ -396,7 +398,7 @@ namespace AC
             int dimensions = 0;
             int currentStateNumber = minValueOfStates() - 1;
 
-            double errTolerance = double.Parse(ToleranceTxt.Text);
+            double errTolerance = double.Parse(ToleranceTxt.Text, CultureInfo.InvariantCulture);
 
             int maxStateNumber = int.Parse(MaxstatesTXT.Text);
 
@@ -459,22 +461,18 @@ namespace AC
                 {
 
                     List<double> discretePosition = new List<double>();
-
                    
                     discretePosition = makeVectorDiscrete(particlesPos[i], particlesVel[i], roundAt, currentStateNumber, (int)idealAutomat.getAlphabetLength());
-                    
-
                     double error = 0.0;
 
                    // watch = Stopwatch.StartNew();
                     //////
-                    Automat currentParticle = Automat.fromVector(zListyNaStringa(discretePosition), currentStateNumber, (int)idealAutomat.getAlphabetLength());
+                    Automat currentParticle = new Automat();
+                    currentParticle = Automat.fromVector(zListyNaStringa(discretePosition), currentStateNumber, (int)idealAutomat.getAlphabetLength());
                     //////
                     //watch.Stop();
                     //elapsedMs = watch.ElapsedMilliseconds;
                     //Console.WriteLine("fromVector execution time: " + elapsedMs);
-
-
                     //watch = Stopwatch.StartNew();
                     //////
                     error = ErrorCalculation(currentParticle);
@@ -490,6 +488,13 @@ namespace AC
                     {
                         continuePSO = false;
                         Console.WriteLine("One of particle is 98 % similar ! ");
+
+                        //List<double> digitAutomattmp = makeVectorDiscrete(particlesPos[bestFinalAutomatIndextmp], particlesVel[bestFinalAutomatIndextmp], roundAt, currentStateNumber, (int)idealAutomat.getAlphabetLength());
+                        Automat solutiontmp = new Automat();
+                        solutiontmp = Automat.fromVector(zListyNaStringa(discretePosition), currentStateNumber, (int)idealAutomat.getAlphabetLength());
+                        BestAutomatForStates.Add(solutiontmp);
+                        BestErrorsForAutomats.Add((double)particleError[i]);
+
                         break;
                     }
 
@@ -570,8 +575,8 @@ namespace AC
 
                     for (int i = 0; i < particlesNumber; i++)
                     {
-                        particlesVel[i] = calculateVelocity(particlesPos[particlesGlobBest], particlesPos[particlesLocBest[i]],
-                            particlesVel[i], particlesPos[i], c1, c2);
+                        particlesVel[i] = calculateVelocity(maxSpeed, particlesPos[particlesGlobBest], particlesPos[particlesLocBest[i]],
+                        particlesVel[i], particlesPos[i], c1, c2);
                         //jest predkosc to mozemy aplikowac ja do pozycji
 
                         particlesPos[i] = calculatePosition(particlesVel[i], particlesPos[i]);
@@ -600,7 +605,8 @@ namespace AC
                     }
 
                     List<double> digitAutomattmp = makeVectorDiscrete(particlesPos[bestFinalAutomatIndextmp], particlesVel[bestFinalAutomatIndextmp], roundAt, currentStateNumber, (int)idealAutomat.getAlphabetLength());
-                    Automat solutiontmp = Automat.fromVector(zListyNaStringa(digitAutomattmp), currentStateNumber, (int)idealAutomat.getAlphabetLength());
+                    Automat solutiontmp = new Automat();
+                    solutiontmp = Automat.fromVector(zListyNaStringa(digitAutomattmp), currentStateNumber, (int)idealAutomat.getAlphabetLength());
 
 
                     BestAutomatForStates.Add(solutiontmp);
@@ -626,7 +632,7 @@ namespace AC
              */
             Automat solution = (Automat)BestAutomatForStates[bestFinalAutomatIndex];
 
-            Console.WriteLine("SOLUTION : ");
+            Console.WriteLine("SOLUTION error : " + minimalFinalErr);
             Console.WriteLine("" + (zListyNaStringa(solution.toVector())));
 
         }
@@ -676,7 +682,7 @@ namespace AC
         /// random z (0;1)
         /// </summary>
         /// 
-        List<double> calculateVelocity(List<double> globalBest, List<double> localBest, List<double> currentVelocity, List<double> currentPosition, double c1, double c2)
+        List<double> calculateVelocity(double maxSpeed, List<double> globalBest, List<double> localBest, List<double> currentVelocity, List<double> currentPosition, double c1, double c2)
         {
             List<double> newVelocity = new List<double>();
 
@@ -692,7 +698,19 @@ namespace AC
                 double tmp1 = ((localBest[i] - currentPosition[i]) * part1);
                 double tmp2 = ((globalBest[i] - currentPosition[i]) * part2);
 
-                newVelocity.Add(currentVelocity[i] + tmp1 + tmp2);
+                double speed = currentVelocity[i] + tmp1 + tmp2;
+                
+                if(speed> maxSpeed)
+                {
+                    speed = maxSpeed;
+                }
+                else if (speed < (0.0 - maxSpeed))
+                {
+                    speed = (0.0 - maxSpeed);
+                }
+                
+
+                newVelocity.Add(speed);
             }
 
             return newVelocity;
