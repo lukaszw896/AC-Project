@@ -28,14 +28,13 @@ namespace AC
         List<List<int>> setOfWords;
         int[][] pairsOfRelation;
         static Random random = new Random();
-        double speedLowerBound;
-        double speedUpperBound;
+        double speedLowerBound = -0.2;
+        double speedUpperBound = 0.2;
         public MainWindow()
         {
             InitializeComponent();
             setOfWords = new List<List<int>>();
-            speedLowerBound = -0.2;
-            speedUpperBound = 0.2;
+           
         }
 
         /// <summary>
@@ -141,29 +140,7 @@ namespace AC
           
         }
 
-        /// <summary>
-        /// z calego setu slow wyciagam alphabet
-        /// </summary>
-        /*ArrayList findAlphabet()
-        {
-            ArrayList alphabet = new ArrayList();
-
-            int wordAmount = setOfWords.Count;
-            for (int i = 0; i < wordAmount; i++)
-            {
-                char[] charArray = ((String)setOfWords[i]).ToCharArray();
-
-                for(int j = 0 ; j < charArray.Length ; j++)
-                {
-                    if(alphabet.Contains(charArray[j])==false)
-                    {
-                        alphabet.Add(charArray[j]);
-                    }
-                }
-            }
-
-            return alphabet;
-        }*/
+      
 
         /// <summary>
         /// tutaj oba slowa puszczamy przez automat i sprawdzamy czy sie koncza w tym samym stanie
@@ -393,16 +370,22 @@ namespace AC
         void PSO()
         {
 
+            //speedLowerBound = double.Parse( speedLowerBoundTxt.Text);
+            speedUpperBound = double.Parse(speedUpperBoundTxt.Text);
+
+
+
             List<Automat> BestAutomatForStates = new List<Automat>();
             List<double> BestErrorsForAutomats = new List<double>();
 
             findRelationPairs();
-            double roundAt = 0.70;
+            double roundAt = double.Parse(RountAtTxt.Text);
 
             int particlesNumber = int.Parse(ParticleAmountTxt.Text);
-            int maxIteration = 300;
-            double c2 = 0.2, c1 = 0.2;
-            int numberOfNeighbors = 6;
+            int maxIteration = int.Parse(IterationTxt.Text);
+            double c2 = double.Parse(c1Txt.Text);
+            double c1 = double.Parse(c2Txt.Text);
+            int numberOfNeighbors =int.Parse(neighboursTxt.Text);
 
             List<List<double>> particlesPos = new List<List<double>>();
             List<List<double>> particlesVel = new List<List<double>>();
@@ -412,6 +395,10 @@ namespace AC
             List<double> particleError = new List<double>();
             int dimensions = 0;
             int currentStateNumber = minValueOfStates() - 1;
+
+            double errTolerance = double.Parse(ToleranceTxt.Text);
+
+            int maxStateNumber = int.Parse(MaxstatesTXT.Text);
 
             bool continuePSO = true;
             bool addStates = true;
@@ -424,7 +411,7 @@ namespace AC
                     counter = 0;
                     currentStateNumber++;
 
-                    if (currentStateNumber >= 10)
+                    if (currentStateNumber >= maxStateNumber)
                     {
                         addStates = false;
                         continuePSO = false;
@@ -499,7 +486,7 @@ namespace AC
                     //particleError[i] = error;
                     particleError.Add(error);
 
-                    if ((double)particleError[i] <= 2.0)
+                    if ((double)particleError[i] <= errTolerance)
                     {
                         continuePSO = false;
                         Console.WriteLine("One of particle is 98 % similar ! ");
