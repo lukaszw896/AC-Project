@@ -47,7 +47,7 @@ namespace AC
         /// </summary>
         /// <param name="input"></param>
 
-        public Automat(String input)
+       /* public Automat(String input)
         {
             string[] inputs = input.Split(',');
             statesNumber = int.Parse(inputs[0]);
@@ -84,7 +84,7 @@ namespace AC
                 transitionTableList.Add(transitionTable);
 
             }
-        }
+        }*/
 
         /// <summary>
         /// Method returns a List which represents automat as vector
@@ -132,19 +132,22 @@ namespace AC
             for (int i = 0; i < alphabetLength; i++)
             {
                 //init transition table
+                List<int> symbolsForletter = new List<int>();
                 int[][] transitionTable = new int[statesNumber][];
 
                 for (int j = 0; j < statesNumber; j++)
                 {
                     transitionTable[j] = new int[statesNumber];
+                    symbolsForletter.Add(int.Parse(inputs[(j * alphabetLength) + 2 + i]));
                 }
 
                 for (int j = 0; j < statesNumber; j++)
                 {
                     for (int k = 0; k < statesNumber; k++)
                     {
-                        int index = 2 + (i * statesNumber) + j;
-                        int tmp = int.Parse(inputs[index]);
+                        //int index = 2 + (i * statesNumber) + j;
+                        //int index = 2 + (i * statesNumber) + j;
+                        int tmp = symbolsForletter[j] - 1;
                         if (tmp == k)
                         {
                             transitionTable[j][k] = 1;
@@ -245,7 +248,7 @@ namespace AC
         {
             alphabetLength = _alphabet;
         }
-        public void getTransitionTableList(List<int[][]> _transition)
+        public void setTransitionTableList(List<int[][]> _transition)
         {
             transitionTableList.Clear();
             transitionTableList = new List<int[][]>();
