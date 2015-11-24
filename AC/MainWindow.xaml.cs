@@ -393,8 +393,8 @@ namespace AC
         void PSO()
         {
 
-            ArrayList BestAutomatForStates = new ArrayList();
-            ArrayList BestErrorsForAutomats = new ArrayList();
+            List<Automat> BestAutomatForStates = new List<Automat>();
+            List<double> BestErrorsForAutomats = new List<double>();
 
             findRelationPairs();
             double roundAt = 0.70;
@@ -404,12 +404,12 @@ namespace AC
             double c2 = 0.2, c1 = 0.2;
             int numberOfNeighbors = 6;
 
-            ArrayList particlesPos = new ArrayList();
-            ArrayList particlesVel = new ArrayList();
+            List<List<double>> particlesPos = new List<List<double>>();
+            List<List<double>> particlesVel = new List<List<double>>();
 
-            ArrayList particlesLocBest = new ArrayList();
+            List<int> particlesLocBest = new List<int>();
             int particlesGlobBest = 0;
-            ArrayList particleError = new ArrayList();
+            List<double> particleError = new List<double>();
             int dimensions = 0;
             int currentStateNumber = minValueOfStates() - 1;
 
@@ -444,8 +444,8 @@ namespace AC
                     //losujemy pozycje i predkosc particles
                     for (int i = 0; i < particlesNumber; i++)
                     {
-                        ArrayList singleVector = new ArrayList();
-                        ArrayList singleSpeedVector = new ArrayList();
+                        List<double> singleVector = new List<double>();
+                        List<double> singleSpeedVector = new List<double>();
 
                         for (int j = 0; j < dimensions; j++)
                         {
@@ -471,10 +471,10 @@ namespace AC
                 for (int i = 0; i < particlesNumber; i++)
                 {
 
-                    ArrayList discretePosition = new ArrayList();
+                    List<double> discretePosition = new List<double>();
 
                    
-                    discretePosition = makeVectorDiscrete((ArrayList)particlesPos[i], (ArrayList)particlesVel[i], roundAt, currentStateNumber, (int)idealAutomat.getAlphabetLength());
+                    discretePosition = makeVectorDiscrete(particlesPos[i], particlesVel[i], roundAt, currentStateNumber, (int)idealAutomat.getAlphabetLength());
                     
 
                     double error = 0.0;
@@ -526,8 +526,8 @@ namespace AC
                             particlesGlobBest = i;
                         }
 
-                        ArrayList distances = new ArrayList();
-                        ArrayList indexes = new ArrayList();
+                        List<double> distances = new List<double>();
+                        List<int> indexes = new List<int>();
                         for (int j = 0; j < particlesNumber; j++)
                         {
                             //tutaj od razu szukamu ktore particle sa najblizsze
@@ -535,7 +535,7 @@ namespace AC
                             // ale dla neighbournumber czy jakos tak
                             if (true)
                             {
-                                double dist = findDistance((ArrayList)particlesPos[i], (ArrayList)particlesPos[j]);
+                                double dist = findDistance(particlesPos[i], particlesPos[j]);
                                 if (distances.Count < numberOfNeighbors)
                                 {
                                     distances.Add(dist);
@@ -547,9 +547,9 @@ namespace AC
                                     double tempmaxVal = 0.0;
                                     for (int p = 0; p < distances.Count; p++)
                                     {
-                                        if ((double)distances[p] > tempmaxVal)
+                                        if (distances[p] > tempmaxVal)
                                         {
-                                            tempmaxVal = (double)distances[p];
+                                            tempmaxVal = distances[p];
                                             maxInd = p;
                                         }
                                     }
@@ -567,10 +567,10 @@ namespace AC
                         int minLocIndex = 0;
                         for (int j = 0; j < distances.Count; j++)
                         {
-                            if ((double)distances[j] < minLocErr)
+                            if (distances[j] < minLocErr)
                             {
-                                minLocErr = (double)distances[j];
-                                minLocIndex = (int)indexes[j];
+                                minLocErr = distances[j];
+                                minLocIndex = indexes[j];
                             }
                         }
                         particlesLocBest[i] = minLocIndex;
@@ -583,11 +583,11 @@ namespace AC
 
                     for (int i = 0; i < particlesNumber; i++)
                     {
-                        particlesVel[i] = (ArrayList)calculateVelocity((ArrayList)particlesPos[particlesGlobBest], (ArrayList)particlesPos[(int)particlesLocBest[i]],
-                            (ArrayList)particlesVel[i], (ArrayList)particlesPos[i], c1, c2);
+                        particlesVel[i] = calculateVelocity(particlesPos[particlesGlobBest], particlesPos[particlesLocBest[i]],
+                            particlesVel[i], particlesPos[i], c1, c2);
                         //jest predkosc to mozemy aplikowac ja do pozycji
 
-                        particlesPos[i] = calculatePosition((ArrayList)particlesVel[i], (ArrayList)particlesPos[i]);
+                        particlesPos[i] = calculatePosition(particlesVel[i], particlesPos[i]);
                     }
 
 
@@ -612,7 +612,7 @@ namespace AC
                         }
                     }
 
-                    ArrayList digitAutomattmp = makeVectorDiscrete((ArrayList)particlesPos[bestFinalAutomatIndextmp], (ArrayList)particlesVel[bestFinalAutomatIndextmp], roundAt, currentStateNumber, (int)idealAutomat.getAlphabetLength());
+                    List<double> digitAutomattmp = makeVectorDiscrete(particlesPos[bestFinalAutomatIndextmp], particlesVel[bestFinalAutomatIndextmp], roundAt, currentStateNumber, (int)idealAutomat.getAlphabetLength());
                     Automat solutiontmp = Automat.fromVector(zListyNaStringa(digitAutomattmp), currentStateNumber, (int)idealAutomat.getAlphabetLength());
 
 
@@ -640,11 +640,11 @@ namespace AC
             Automat solution = (Automat)BestAutomatForStates[bestFinalAutomatIndex];
 
             Console.WriteLine("SOLUTION : ");
-            Console.WriteLine("" + (zListyNaStringa((ArrayList)solution.toVector())));
+            Console.WriteLine("" + (zListyNaStringa(solution.toVector())));
 
         }
 
-        String zListyNaStringa (ArrayList lista)
+        String zListyNaStringa(List<double> lista)
         {
             String wynik = "";
             for (int i = 0; i < lista.Count; i++ )
@@ -658,13 +658,14 @@ namespace AC
         /// aplikowane predkosci do pozycji
         /// </summary>
         /// 
-        ArrayList calculatePosition(ArrayList currentVelocity, ArrayList currentPosition)
+        List<double> calculatePosition(List<double> currentVelocity, List<double> currentPosition)
         {
-            ArrayList newPosition = new ArrayList();
+            List<double> newPosition = new List<double>();
 
             for (int i = 0; i < currentVelocity.Count; i++)
             {
-                double pos = double.Parse(""+currentPosition[i]) + double.Parse(""+currentVelocity[i]);
+                
+                double pos = currentPosition[i] + currentVelocity[i];
                 if (pos > 1.0)
                 {
                     newPosition.Add(1.0);
@@ -688,9 +689,9 @@ namespace AC
         /// random z (0;1)
         /// </summary>
         /// 
-        ArrayList calculateVelocity(ArrayList globalBest, ArrayList localBest, ArrayList currentVelocity, ArrayList currentPosition, double c1, double c2)
+        List<double> calculateVelocity(List<double> globalBest, List<double> localBest, List<double> currentVelocity, List<double> currentPosition, double c1, double c2)
         {
-            ArrayList newVelocity = new ArrayList();
+            List<double> newVelocity = new List<double>();
 
             //c1 *random * (local - position)
             double part1 = c1 * GetRandomNumber();
@@ -698,24 +699,29 @@ namespace AC
             
             for (int i = 0; i < localBest.Count; i++ )
             {
-                double tmp1 = ((double.Parse(localBest[i]+"") - double.Parse(""+currentPosition[i])) * part1);
-                double tmp2 = ((double.Parse(""+globalBest[i]) - double.Parse(""+currentPosition[i])) * part2);
+                /*double tmp1 = ((double.Parse(localBest[i]+"") - double.Parse(""+currentPosition[i])) * part1);
+                double tmp2 = ((double.Parse(""+globalBest[i]) - double.Parse(""+currentPosition[i])) * part2);*/
 
-                newVelocity.Add(double.Parse(""+currentVelocity[i]) + tmp1 + tmp2);
+                double tmp1 = ((localBest[i] - currentPosition[i]) * part1);
+                double tmp2 = ((globalBest[i] - currentPosition[i]) * part2);
+
+                newVelocity.Add(currentVelocity[i] + tmp1 + tmp2);
             }
 
             return newVelocity;
         }
 
-        double findDistance(ArrayList vector1, ArrayList vector2)
+        double findDistance(List<double> vector1, List<double> vector2)
         {
             double distance = 0.0;
 
             for (int i = 0; i < vector1.Count; i++ )
             {
-                double val1 = double.Parse(""+vector1[i]);
-                double val2 = double.Parse(""+vector2[i]);
-                distance = distance + Math.Abs(val1 - val2);
+               /* double val1 = double.Parse(vector1[i].ToString());
+                double val2 = double.Parse(vector2[i].ToString());
+                */
+
+                distance = distance + Math.Abs(vector1[i] - vector2[i]);
             }
 
             return distance;
@@ -725,9 +731,9 @@ namespace AC
         /// dyskretyzacja vektora
         /// </summary>
         /// 
-        ArrayList makeVectorDiscrete(ArrayList vector, ArrayList speed, double roundparam, int _statesNumber, int _alphabetLength)
+        List<double> makeVectorDiscrete(List<double> vector, List<double> speed, double roundparam, int _statesNumber, int _alphabetLength)
         {
-            ArrayList output = new ArrayList();
+            List<double> output = new List<double>();
             int index = -1;
             for (int i = 0; i < _alphabetLength; i++)
             {

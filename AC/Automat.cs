@@ -46,6 +46,7 @@ namespace AC
         /// Automat constructor from txt string
         /// </summary>
         /// <param name="input"></param>
+
         public Automat(String input)
         {
             string[] inputs = input.Split(',');
@@ -86,11 +87,11 @@ namespace AC
         }
 
         /// <summary>
-        /// Method returns a ArrayList which represents automat as vector
+        /// Method returns a List which represents automat as vector
         /// </summary>
-        public ArrayList toVector()
+        public List<double> toVector()
         {
-            ArrayList vector = new ArrayList();
+            List<double> vector = new List<double>();
 
             for (int i = 0; i < alphabetLength; i++)
             {
@@ -166,16 +167,20 @@ namespace AC
         /// <summary>
         /// method to create automata from PSO vector
         /// </summary>
+
         public static Automat fromVector(String vector, int _statesNumber, int _alphabetLength)
         {
             char[] inputs = vector.ToCharArray();
 
-            ArrayList data = new ArrayList();
+            List<int> data = new List<int>();
 
             for (int i = 0; i < inputs.Length; i++)
             {
+                /*char symbol = inputs[i];
+                data.Add(int.Parse("" + symbol));*/
+
                 char symbol = inputs[i];
-                data.Add(int.Parse("" + symbol));
+                data.Add(int.Parse(inputs[i].ToString()));
             }
 
             statesNumber = _statesNumber;
