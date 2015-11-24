@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -24,13 +25,17 @@ namespace AC
     {
 
         Automat idealAutomat;
-        ArrayList setOfWords;
+        List<List<int>> setOfWords;
         int[][] pairsOfRelation;
         static Random random = new Random();
+        double speedLowerBound;
+        double speedUpperBound;
         public MainWindow()
         {
             InitializeComponent();
-            setOfWords = new ArrayList();
+            setOfWords = new List<List<int>>();
+            speedLowerBound = -0.2;
+            speedUpperBound = 0.2;
         }
 
         /// <summary>
@@ -118,10 +123,20 @@ namespace AC
         {
             String input = File.ReadAllText(path);
 
-            ArrayList words = new ArrayList(input.Split(new string[] { Environment.NewLine }, StringSplitOptions.None));
+            List<string> words = new List<string>(input.Split(new string[] { Environment.NewLine }, StringSplitOptions.None));
             words.RemoveAt(words.Capacity - 1);
             setOfWords.Clear();
-            setOfWords = words;
+            for (int i = 0; i < words.Count; i++)
+            {
+                List<int> word = new List<int>();
+
+                foreach (char a in words[i])
+                {
+                    word.Add(int.Parse(a.ToString()));
+                }
+                setOfWords.Add(word);
+            }
+                
             Console.WriteLine("zaladowano slowa");
           
         }
@@ -153,23 +168,21 @@ namespace AC
         /// <summary>
         /// tutaj oba slowa puszczamy przez automat i sprawdzamy czy sie koncza w tym samym stanie
         /// </summary>
-        bool areWordsRelated(Automat automata, String word1, String word2)
+        bool areWordsRelated(Automat automata, List<int> word1, List<int> word2)
         {
-            bool areThey = false;
-
+            int numberOfStates = automata.getStatesNumber();
             List<int[][]> transitionTableList = new List<int[][]>();
             transitionTableList = automata.getTransitionTableList();
+            int word1Length = word1.Count;
+            int word2Length = word2.Count;
 
             int currentState1 = 0, currentState2 = 0;
 
-            char[] charArray1 = word1.ToCharArray();
-            char[] charArray2 = word2.ToCharArray();
-
-            for (int i = 0; i < word1.Length; i++)
+            int[][] transitionTable;
+            for (int i = 0; i < word1Length; i++)
             {
-                char symbol = charArray1[i];
-                int[][] transitionTable = transitionTableList.ElementAt(int.Parse("" + symbol));
-                for (int j = 0; j < automata.getStatesNumber(); j++)
+                transitionTable = transitionTableList[word1[i]];
+                for (int j = 0; j < numberOfStates; j++)
                 {
                     if (transitionTable[currentState1][j] == 1)
                     {
@@ -179,12 +192,10 @@ namespace AC
                 }
 
             }
-
-            for (int i = 0; i < word2.Length; i++)
+            for (int i = 0; i < word2Length; i++)
             {
-                char symbol = charArray2[i];
-                int[][] transitionTable = transitionTableList.ElementAt(int.Parse("" + symbol));
-                for (int j = 0; j < automata.getStatesNumber(); j++)
+                transitionTable = transitionTableList[word2[i]];
+                for (int j = 0; j < numberOfStates; j++)
                 {
                     if (transitionTable[currentState2][j] == 1)
                     {
@@ -194,11 +205,7 @@ namespace AC
                 }
             }
 
-            if (currentState1 == currentState2)
-            {
-                areThey = true;
-            }
-            return areThey;
+            return (currentState1 == currentState2);
         }
 
         /// <summary>
@@ -224,11 +231,11 @@ namespace AC
              */
             int states = 0;
             int wordAmount = setOfWords.Count;
-            ArrayList EQClasses = new ArrayList();
+            List<List<List<int>>> EQClasses = new List<List<List<int>>>();
 
             //dodaje jedna klasie bo zawsze jest jedna
-            ArrayList temp = new ArrayList();
-            temp.Add((String)setOfWords[0]);
+            List<List<int>> temp = new List<List<int>>();
+            temp.Add(setOfWords[0]);
             EQClasses.Add(temp);
 
             for (int i = 1; i < wordAmount; i++)
@@ -236,15 +243,15 @@ namespace AC
                 bool flag = false;
                 for (int j = 0; j < EQClasses.Count; j++)
                 {
-                    ArrayList currentClass = (ArrayList)EQClasses[j];
+                    List<List<int>> currentClass = EQClasses[j];
                     for (int w = 0; w < currentClass.Count; w++)
                     {
                         if (currentClass.Count > 0)
                         {
-                            if (areWordsRelated(idealAutomat, (String)setOfWords[i], (String)currentClass[w]))
+                            if (areWordsRelated(idealAutomat, setOfWords[i], currentClass[w]))
                             {
                                 flag = true;
-                                ((ArrayList)EQClasses[j]).Add((String)setOfWords[i]);
+                                EQClasses[j].Add(setOfWords[i]);
                                 break;
                             }
                         }
@@ -256,8 +263,8 @@ namespace AC
                 }
                 if (flag == false)
                 {
-                    ArrayList tmp = new ArrayList();
-                    tmp.Add((String)setOfWords[i]);
+                    List<List<int>> tmp = new List<List<int>>();
+                    tmp.Add(setOfWords[i]);
                     EQClasses.Add(tmp);
                 }
             }
@@ -287,7 +294,7 @@ namespace AC
                 {
                     if(i != j)
                     {
-                        if(areWordsRelated(idealAutomat,(String)setOfWords[i], (String)setOfWords[j])==true)
+                        if(areWordsRelated(idealAutomat,setOfWords[i], setOfWords[j])==true)
                         {
                             pairsOfRelation[i][j] = 1;
                             pairsOfRelation[j][i] = 1;
@@ -316,7 +323,6 @@ namespace AC
         {
             double error = 0.0;
 
-
             int[][] currentParticlePairs;
             currentParticlePairs = new int[setOfWords.Count][];
 
@@ -325,34 +331,37 @@ namespace AC
                 currentParticlePairs[j] = new int[setOfWords.Count];
             }
 
+            var watch = Stopwatch.StartNew();
+            //////
             for (int i = 0; i < setOfWords.Count; i++)
             {
-                for (int j = 0; j < setOfWords.Count; j++)
+                for (int j = i + 1; j < setOfWords.Count; j++)
                 {
-                    if (i != j)
-                    {
-                        if (areWordsRelated(particle, (String)setOfWords[i], (String)setOfWords[j]) == true)
-                        {
-                            currentParticlePairs[i][j] = 1;
-                            currentParticlePairs[j][i] = 1;
-                        }
-                        else
-                        {
-                            currentParticlePairs[i][j] = 0;
-                            currentParticlePairs[j][i] = 0;
-                        }
-                    }
-                    else
+                    if (areWordsRelated(particle, setOfWords[i], setOfWords[j]) == true)
                     {
                         currentParticlePairs[i][j] = 1;
                         currentParticlePairs[j][i] = 1;
                     }
+                    else
+                    {
+                        currentParticlePairs[i][j] = 0;
+                        currentParticlePairs[j][i] = 0;
+                    }
+
                 }
             }
+            //////
+            watch.Stop();
+            var elapsedMs = watch.ElapsedMilliseconds;
+         //   Console.WriteLine("Related Words checking execution time: " + elapsedMs);
 
             //relacjie idealnego automatu mam w globalnej zmiennej a teraz
             //policzono relacje dla particla . Teraz mamy dwie tabele i je porownujemy
             //i liczymy roznice
+            
+
+            watch = Stopwatch.StartNew();
+            //////
             double errorCounter = 0.0;
             for (int i = 0; i < setOfWords.Count; i++)
             {
@@ -364,6 +373,12 @@ namespace AC
                     }
                 }
             }
+            //////
+            watch.Stop();
+            elapsedMs = watch.ElapsedMilliseconds;
+            //Console.WriteLine("ErrorChecking execution time: " + elapsedMs);
+
+
 
             errorCounter = errorCounter / 2.0 ;
 
@@ -386,7 +401,7 @@ namespace AC
             double roundAt = 0.70;
 
             int particlesNumber = int.Parse(ParticleAmountTxt.Text);
-            int maxIteration = 60;
+            int maxIteration = 300;
             double c2 = 0.2, c1 = 0.2;
             int numberOfNeighbors = 6;
 
@@ -436,7 +451,7 @@ namespace AC
                         for (int j = 0; j < dimensions; j++)
                         {
                             double randomVal = GetRandomNumber();
-                            double randomVal2 = GetRandomNumber2();
+                            double randomVal2 = GetRandomParticleSpeed(speedLowerBound,speedUpperBound);
                             singleVector.Add(randomVal);
                             singleSpeedVector.Add(randomVal2);
                         }
@@ -449,18 +464,39 @@ namespace AC
 
                     addStates = false;
                 }
-                //ustalanie errorow
 
+                var watch = Stopwatch.StartNew();
+                //////
+                //ustalanie errorow
                 particleError.Clear();
                 for (int i = 0; i < particlesNumber; i++)
                 {
 
                     ArrayList discretePosition = new ArrayList();
+
+                   
                     discretePosition = makeVectorDiscrete((ArrayList)particlesPos[i], (ArrayList)particlesVel[i], roundAt, currentStateNumber, (int)idealAutomat.getAlphabetLength());
+                    
 
                     double error = 0.0;
+
+                   // watch = Stopwatch.StartNew();
+                    //////
                     Automat currentParticle = Automat.fromVector(zListyNaStringa(discretePosition), currentStateNumber, (int)idealAutomat.getAlphabetLength());
+                    //////
+                    //watch.Stop();
+                    //elapsedMs = watch.ElapsedMilliseconds;
+                    //Console.WriteLine("fromVector execution time: " + elapsedMs);
+
+
+                    //watch = Stopwatch.StartNew();
+                    //////
                     error = ErrorCalculation(currentParticle);
+                    //////
+                    //watch.Stop();
+                    //elapsedMs = watch.ElapsedMilliseconds;
+                    //Console.WriteLine("ErrorCalculation execution time: " + elapsedMs);
+                    
                     //particleError[i] = error;
                     particleError.Add(error);
 
@@ -472,6 +508,10 @@ namespace AC
                     }
 
                 }
+                //////
+                watch.Stop();
+                var elapsedMs = watch.ElapsedMilliseconds;
+                Console.WriteLine("Fitness function execution time: " + elapsedMs);
 
                 if (continuePSO == true)
                 {
@@ -579,9 +619,7 @@ namespace AC
 
                     BestAutomatForStates.Add(solutiontmp);
                     BestErrorsForAutomats.Add(minimalFinalErrtmp);
-
                 }
-
             }
 
             //pso skonczone wybieramy najmniejsyz err
@@ -600,8 +638,6 @@ namespace AC
             /*ArrayList digitAutomat = makeVectorDiscrete((ArrayList)particlesPos[bestFinalAutomatIndex], (ArrayList)particlesVel[bestFinalAutomatIndex], roundAt, currentStateNumber, (int)idealAutomat.getAlphabetLength());
              Automat solution = Automat.fromVector(zListyNaStringa(digitAutomat), currentStateNumber, (int)idealAutomat.getAlphabetLength());
              */
-
-
             Automat solution = (Automat)BestAutomatForStates[bestFinalAutomatIndex];
 
             Console.WriteLine("SOLUTION : ");
@@ -694,7 +730,7 @@ namespace AC
         ArrayList makeVectorDiscrete(ArrayList vector, ArrayList speed, double roundparam, int _statesNumber, int _alphabetLength)
         {
             ArrayList output = new ArrayList();
-
+            int index = -1;
             for (int i = 0; i < _alphabetLength; i++)
             {
 
@@ -704,7 +740,7 @@ namespace AC
                     
                     for (int k = 0; k < _statesNumber; k++)
                     {
-                        int index = (i * _statesNumber * _statesNumber) + (j * _statesNumber) + k;
+                        index ++;
                         //int tmp = int.Parse(inputs[index]);
                         if ((double)vector[index] >= roundparam)
                         {
@@ -724,9 +760,10 @@ namespace AC
 
                         for(int p = 1 ; p < onesIndex.Count ; p++)
                         {
-                            if (Math.Abs((double)speed[(int)onesIndex[p]]) > maxSpeed)
+                            double tmpSpeed = Math.Abs((double)speed[(int)onesIndex[p]]);
+                            if (tmpSpeed > maxSpeed)
                             {
-                                maxSpeed = Math.Abs((double)speed[(int)onesIndex[p]]);
+                                maxSpeed = tmpSpeed;
                                 finalIndex = (int)onesIndex[p];
                             }
                             output[(int)onesIndex[p]] = 0;
@@ -740,11 +777,11 @@ namespace AC
                         int maxIndex =0;
                         for (int p = 0; p < _statesNumber; p++)
                         {
-                            int index = (i * _statesNumber * _statesNumber) + (j * _statesNumber) + p;
-                            if((double)vector[index] >= maxVal)
+                            int indexer = (i * _statesNumber * _statesNumber) + (j * _statesNumber) + p;
+                            if((double)vector[indexer] >= maxVal)
                             {
-                                maxVal = (double)vector[index];
-                                maxIndex = index;
+                                maxVal = (double)vector[indexer];
+                                maxIndex = indexer;
                             }
                         }
 
@@ -771,9 +808,14 @@ namespace AC
         /// <summary>
         /// random value from -1 to 1
         /// </summary>
-        public double GetRandomNumber2()
+        public double GetRandomParticleSpeed(double lowerBound, double upperBound)
         {
-            return ((random.NextDouble() * 2.0) - 1.0);
+            double speed;
+            do
+            {
+                speed = (random.NextDouble() * 2.0) - 1.0;
+            } while (speed < lowerBound || speed > upperBound);
+            return speed;
         }
 
         private void PSO_Click(object sender, RoutedEventArgs e)

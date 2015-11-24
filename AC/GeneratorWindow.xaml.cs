@@ -23,16 +23,16 @@ namespace AC
     public partial class GeneratorWindow : Window
    {
 
-        public ArrayList setOfWords;
+        public List<List<int>> setOfWords;
 
         public GeneratorWindow()
         {
             InitializeComponent();
-            setOfWords = new ArrayList();
+            setOfWords = new List<List<int>>();
             
         }
 
-        public ArrayList getWords()
+        public List<List<int>> getWords()
         {
             return setOfWords;
         }
@@ -127,9 +127,16 @@ namespace AC
                     templist.Add(tempWord);
                 }
 
+
+
                 for (int p = 0; p < templist.Count; p++)
                 {
-                    setOfWords.Add(templist[p]);
+                    List<int> word = new List<int>();
+                    foreach (char c in (string)templist[p])
+                    {
+                        word.Add(int.Parse(c.ToString()));
+                    }
+                    setOfWords.Add(word);
                 }
             }
 
@@ -215,7 +222,12 @@ namespace AC
                 {
                     for (int i = 0; i < setOfWords.Count; i++)
                     {
-                        sw.WriteLine(setOfWords[i]);
+                        string tmpString = "";
+                        foreach (int num in setOfWords[i])
+                        {
+                            tmpString = tmpString + num;
+                        }
+                        sw.WriteLine(tmpString);
                     }
                 }
                 MessageBox.Show("Words Created and file saved!");
