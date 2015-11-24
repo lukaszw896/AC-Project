@@ -72,7 +72,7 @@
 
 
         <Label Content="Error tolerance (%) :" Grid.Column="1" Grid.Row="6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <TextBox Name="ToleranceTxt" Grid.Row="6" Grid.Column="2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="2" VerticalAlignment="Center"/>
+        <TextBox Name="ToleranceTxt" Grid.Row="6" Grid.Column="2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0" VerticalAlignment="Center"/>
         <Label Content="Max states number :" Grid.Column="1" Grid.Row="7" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <TextBox Name="MaxstatesTXT" Grid.Row="7" Grid.Column="2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="10" VerticalAlignment="Center"/>
         <Label Content="Max Particle Speed :" Grid.Column="1" Grid.Row="8" HorizontalAlignment="Center" VerticalAlignment="Center"/>

@@ -404,6 +404,10 @@ namespace AC
             bool continuePSO = true;
             bool addStates = true;
             int counter = 0;
+
+            double lastErrorValue = 0;
+            double errorRepeatCounter = 0;
+
             while (continuePSO == true)
             {
 
@@ -586,6 +590,39 @@ namespace AC
 
                     Console.WriteLine("Iteration : " + counter + " for : " + currentStateNumber + " states. (" + particlesGlobBest + ")GlobBestErr = " + (double)particleError[particlesGlobBest]);
 
+                    if (lastErrorValue == (double)particleError[particlesGlobBest])
+                    {
+                        errorRepeatCounter++;
+                        if (errorRepeatCounter > 4)
+                        {
+                            Console.WriteLine("Randomizing position and velocity of 15 particles");
+                            Random random = new Random();
+                            for (int i = 0; i < 15; i++)
+                            {
+                                int rand = random.Next(0, particlesNumber);
+                                //losujemy pozycje i predkosc particles
+
+                                List<double> singleVector = new List<double>();
+                                List<double> singleSpeedVector = new List<double>();
+
+                                for (int j = 0; j < dimensions; j++)
+                                {
+                                    double randomVal = GetRandomNumber();
+                                    double randomVal2 = GetRandomParticleSpeed(speedLowerBound, speedUpperBound);
+                                    singleVector.Add(randomVal);
+                                    singleSpeedVector.Add(randomVal2);
+                                }
+                                particlesPos[rand] = singleSpeedVector;
+                                particlesVel[rand] = singleSpeedVector;
+                            }
+                            errorRepeatCounter = 0;
+                        }
+                    }
+                    else
+                    {
+                        lastErrorValue = (double)particleError[particlesGlobBest];
+                        errorRepeatCounter = 0;
+                    }
 
                 }
                 if (counter >= maxIteration)
@@ -758,10 +795,14 @@ namespace AC
                             {
                                 if (maxIndex != -1)
                                 {
-                                    vector[maxIndex] = roundparam - 0.2;
+                                    vector[maxIndex] = roundparam - 0.3;
                                 }
                                 maxSpeed = (double)speed[index];
                                 maxIndex = index;
+                            }
+                            else
+                            {
+                                vector[index] = roundparam - 0.3;
                             }
                         }
                         if (maxIndex == -1 && (double)speed[index] > zeroMaxSpeed)
