@@ -388,9 +388,17 @@ namespace AC
             double c1 = double.Parse(c2Txt.Text, CultureInfo.InvariantCulture);
             int numberOfNeighbors =int.Parse(neighboursTxt.Text);
 
+            int maxStopError = int.Parse(maxErrIterationTxt.Text);
+            int particleRandomNumber = int.Parse(particlerandomnumber.Text);
+
+
             List<List<double>> particlesPos = new List<List<double>>();
             List<List<double>> particlesVel = new List<List<double>>();
+            List<List<double>> particlesBestPos = new List<List<double>>();
+            List<double> particleBest = new List<double>();
+            List<int> particlesStopNumber = new List<int>();
 
+            
             List<int> particlesLocBest = new List<int>();
             int particlesGlobBest = 0;
             List<double> particleError = new List<double>();
@@ -432,6 +440,10 @@ namespace AC
                     particlesLocBest.Clear();
                     particlesGlobBest = 0;
                     particleError.Clear();
+                    particleBest.Clear();
+                    particlesStopNumber.Clear();
+                    particlesBestPos.Clear();
+
 
                     //losujemy pozycje i predkosc particles
                     for (int i = 0; i < particlesNumber; i++)
@@ -450,7 +462,9 @@ namespace AC
                         particlesVel.Add(singleSpeedVector);
                         particlesLocBest.Add(0);
                         particleError.Add(0.0);
-
+                        particleBest.Add(100.0);
+                        particlesStopNumber.Add(0);
+                        particlesBestPos.Add(singleVector);
                     }
 
                     addStates = false;
@@ -487,10 +501,31 @@ namespace AC
                     //particleError[i] = error;
                     particleError.Add(error);
 
+              
+
+                    if (particleBest[i] != error)
+                    {
+                        particlesStopNumber[i] = 0;
+                    }
+
+                     if (particleBest[i] > error)
+                    {
+                        particleBest[i] = error;
+                        particlesBestPos[i]= particlesPos[i];
+                        
+                    }
+
+                     if (particleBest[i] == error)
+                    {
+                        particlesStopNumber[i]= particlesStopNumber[i] + 1;
+                    }
+                    
+
+
                     if ((double)particleError[i] <= errTolerance)
                     {
                         continuePSO = false;
-                        Console.WriteLine("One of particle is 98 % similar ! ");
+                        Console.WriteLine("One of particle is very similar ! ");
 
                         //List<double> digitAutomattmp = makeVectorDiscrete(particlesPos[bestFinalAutomatIndextmp], particlesVel[bestFinalAutomatIndextmp], roundAt, currentStateNumber, (int)idealAutomat.getAlphabetLength());
                         Automat solutiontmp = new Automat();
@@ -583,6 +618,13 @@ namespace AC
                         //jest predkosc to mozemy aplikowac ja do pozycji
 
                         particlesPos[i] = calculatePosition(particlesVel[i], particlesPos[i]);
+
+                        if(particlesStopNumber[i] >= maxStopError)
+                        {
+                            Console.WriteLine("Particle " + i + " has the same error " + particlesStopNumber[i]+" times. Restoring best");
+                            particlesStopNumber[i] = 0;
+                            particlesPos[i] = particlesBestPos[i];
+                        }
                     }
 
 
@@ -590,12 +632,13 @@ namespace AC
 
                     Console.WriteLine("Iteration : " + counter + " for : " + currentStateNumber + " states. (" + particlesGlobBest + ")GlobBestErr = " + (double)particleError[particlesGlobBest]);
 
+                    //randomizacja particlow jezeli error sie zatrzymal
                     if (lastErrorValue == (double)particleError[particlesGlobBest])
                     {
                         errorRepeatCounter++;
-                        if (errorRepeatCounter > 4)
+                        if (errorRepeatCounter > 9)
                         {
-                            Console.WriteLine("Randomizing position and velocity of 15 particles");
+                            Console.WriteLine("Randomizing position and velocity of " + particleRandomNumber + " particles");
 
                             double[][] errors =  new double[particlesNumber][];
                             for(int i=0;i<particlesNumber;i++){
@@ -620,7 +663,7 @@ namespace AC
 
 
                            //Random random = new Random();
-                            for (int i = 0; i < 15; i++)
+                            for (int i = 0; i < particleRandomNumber; i++)
                             {
                                 int rand = (int)errors[i][1];
                                 //losujemy pozycje i predkosc particles
@@ -648,6 +691,7 @@ namespace AC
                     }
 
                 }
+                Console.WriteLine("------------------------------------------------------------------------");
                 if (counter >= maxIteration)
                 {
                     addStates = true;
