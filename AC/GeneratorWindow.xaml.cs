@@ -67,6 +67,11 @@ namespace AC
                 if(i==0)
                 {
                     wordlengths.Add(minLen);
+                    if(minLen == 0)
+                    {
+                        wordlengths.Add(1);
+                        i++;
+                    }
                 }
                 else if (i == setNumber -1)
                 {
@@ -186,7 +191,7 @@ namespace AC
         {
             bool returned = true;
 
-            if (int.Parse(MinWordTxt.Text) < 1 || int.Parse(MinWordTxt.Text)>int.Parse(MaxWordTxt.Text))
+            if (int.Parse(MinWordTxt.Text) < 0 || int.Parse(MinWordTxt.Text)>int.Parse(MaxWordTxt.Text))
             {
                 returned = false;
             }

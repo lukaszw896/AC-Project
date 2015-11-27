@@ -137,8 +137,8 @@ namespace AC
                 }
                 setOfWords.Add(word);
             }
-                
-            Console.WriteLine("zaladowano slowa");
+
+            Console.WriteLine("zaladowano slowa ( " + setOfWords.Count + " )");
         }
 
       
