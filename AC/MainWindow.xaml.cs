@@ -376,6 +376,8 @@ namespace AC
 
             double maxSpeed = double.Parse(maxSpeedTxt.Text, CultureInfo.InvariantCulture);
 
+            int iterationToRandomise = int.Parse(errorSameRepetition.Text);
+
             List<Automat> BestAutomatForStates = new List<Automat>();
             List<double> BestErrorsForAutomats = new List<double>();
 
@@ -636,7 +638,7 @@ namespace AC
                     if (lastErrorValue == (double)particleError[particlesGlobBest])
                     {
                         errorRepeatCounter++;
-                        if (errorRepeatCounter > 9)
+                        if (errorRepeatCounter > iterationToRandomise)
                         {
                             Console.WriteLine("Randomizing position and velocity of " + particleRandomNumber + " particles");
 
