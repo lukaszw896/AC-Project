@@ -34,6 +34,8 @@ namespace AC
         public MainWindow()
         {
             InitializeComponent();
+            DisplayGraph displayGraph = new DisplayGraph();
+            displayGraph.Show();
             setOfWords = new List<List<int>>();
             idealAutomat = new Automat();
         }
