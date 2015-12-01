@@ -793,6 +793,12 @@ namespace AC
             Console.WriteLine("SOLUTION error : " + minimalFinalErr);
             Console.WriteLine("" + (zListyNaStringa(solution.toVector())));
 
+
+            List<int>[][] wynikDlaLukasza = doWydruku(solution);
+
+            List<int>[][] idealnyDlaLukasza = doWydruku(idealAutomat);
+
+
         }
 
         String zListyNaStringa(List<double> lista)
@@ -979,6 +985,7 @@ namespace AC
                 return true;
             }
         }
+
         private void PSO_Click(object sender, RoutedEventArgs e)
         {
             if (valideData() == true)
@@ -991,5 +998,43 @@ namespace AC
                 return;
             }
         }
+
+        List<int>[][] doWydruku(Automat wynik)
+        {
+            int wymiar = wynik.getStatesNumber();
+
+            List<int>[][] macierz = new List<int>[wymiar][];
+            for (int i = 0; i < wymiar; i++)
+            {
+                List<int>[] tmp = new List<int>[wymiar];
+                for (int j = 0; j < wymiar; j++)
+                {
+                    tmp[j] = new List<int>();
+                }
+                macierz[i] = tmp;
+            }
+
+
+
+            for (int i = 0; i < wynik.getAlphabetLength(); i++)
+            {
+                int[][] transition = wynik.getTransitionTableList()[i];
+                for (int y = 0; y < wynik.getStatesNumber(); y++)
+                {
+                    for (int x = 0; x < wynik.getStatesNumber(); x++)
+                    {
+                        if (transition[x][y] == 1)
+                        {
+                            macierz[x][y].Add(i);
+                        }
+                    }
+                }
+            }
+
+            return macierz;
+
+
+        }
+
     }
 }
