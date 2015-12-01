@@ -86,6 +86,7 @@
         <TextBox Name="errorSameRepetition" Grid.Row="11" Grid.Column="2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="8" VerticalAlignment="Center"/>
         <Label Content="Untouched iteration number :" Grid.Column="1" Grid.Row="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <TextBox Name="untouchedIteration" Grid.Row="12" Grid.Column="2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="50" VerticalAlignment="Center"/>
+        <CheckBox Name="freezGlobal" Content="Freeze global best" HorizontalAlignment="Center" Grid.Row="9" VerticalAlignment="Center" />
 
 
     </Grid>

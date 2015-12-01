@@ -41,7 +41,7 @@ namespace AC
                                               registerLayoutPluginCommand);
 
             byte[] orginal = wrapper.GenerateGraph(GenerateDotString(orginalAutomaton), Enums.GraphReturnType.Png);
-            byte[] found = wrapper.GenerateGraph(GenerateDotString(orginalAutomaton), Enums.GraphReturnType.Png);
+            byte[] found = wrapper.GenerateGraph(GenerateDotString(foundAutomaton), Enums.GraphReturnType.Png);
             orginalAutomatonImage.Source = LoadImage(orginal);
             foundAutomatonImage.Source = LoadImage(found);
            // graphImage.Source = LoadImage(orginal);
@@ -52,7 +52,7 @@ namespace AC
 
             for (int i = 0; i < automaton.Count(); i++)
             {
-                for (int j = i + 1; j < automaton[i].Count(); j++)
+                for (int j = 0; j < automaton[i].Count(); j++)
                 {
                     if (automaton[i][j].Count > 0)
                     {
@@ -60,12 +60,13 @@ namespace AC
                         for (int k = 0; k < automaton[i][j].Count; k++)
                         {
                             stateToState += automaton[i][j][k];
-                            if (k != automaton[i][j].Count)
+                            if (k < automaton[i][j].Count - 1)
                             {
                                 stateToState += ",";
                             }
                         }
                         stateToState += @"""] ;";
+                        dotString += stateToState;
                     }
                 }
             }
