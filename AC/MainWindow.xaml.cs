@@ -26,7 +26,11 @@ namespace AC
     {
 
         Automat idealAutomat;
+
         List<List<int>> setOfWords;
+        List<List<int>> LearningSetOfWords;
+        List<List<int>> TrainingSetOfWords;
+
         int[][] pairsOfRelation;
         static Random random = new Random();
         double speedLowerBound = -0.2;
@@ -34,7 +38,9 @@ namespace AC
         public MainWindow()
         {
             InitializeComponent();
+
             setOfWords = new List<List<int>>();
+          
             idealAutomat = new Automat();
         }
 
@@ -91,6 +97,7 @@ namespace AC
             {
                 setOfWords.Clear();
                 setOfWords = generator.getWords();
+                splitWordsToSets();
                 Console.WriteLine("Words Generated");
             }
 
@@ -139,9 +146,25 @@ namespace AC
             }
 
             Console.WriteLine("zaladowano slowa ( " + setOfWords.Count + " )");
+            splitWordsToSets();
         }
 
-      
+        void splitWordsToSets()
+        {
+            LearningSetOfWords = new List<List<int>>();
+            TrainingSetOfWords = new List<List<int>>();
+
+            LearningSetOfWords.Add(setOfWords[0]);
+            TrainingSetOfWords.Add(setOfWords[0]);
+            if (setOfWords.Count >= 1)
+            {
+                for (int i = 1; i < setOfWords.Count; i+=2)
+                {
+                    LearningSetOfWords.Add(setOfWords[i]);
+                    TrainingSetOfWords.Add(setOfWords[i+1]);
+                }
+            }
+        }
 
         /// <summary>
         /// tutaj oba slowa puszczamy przez automat i sprawdzamy czy sie koncza w tym samym stanie
@@ -255,23 +278,23 @@ namespace AC
         /// uzypelniamy tutaj tabele parami slow ktore sa w relacji
         /// </summary>
         /// 
-        void findRelationPairs()
+        void findRelationPairs(List<List<int>> words)
         {
             //pairsOfRelation
-            pairsOfRelation = new int[setOfWords.Count][];
+            pairsOfRelation = new int[words.Count][];
 
-            for (int j = 0; j < setOfWords.Count; j++)
+            for (int j = 0; j < words.Count; j++)
             {
-                pairsOfRelation[j] = new int[setOfWords.Count];
+                pairsOfRelation[j] = new int[words.Count];
             }
 
-            for (int i = 0; i < setOfWords.Count; i++)
+            for (int i = 0; i < words.Count; i++)
             {
-                for ( int j = 0 ; j < setOfWords.Count ; j++)
+                for (int j = 0; j < words.Count; j++)
                 {
                     if(i != j)
                     {
-                        if(areWordsRelated(idealAutomat,setOfWords[i], setOfWords[j])==true)
+                        if (areWordsRelated(idealAutomat, words[i], words[j]) == true)
                         {
                             pairsOfRelation[i][j] = 1;
                             pairsOfRelation[j][i] = 1;
@@ -296,25 +319,25 @@ namespace AC
         /// do automatu idealnego. Wynik jest procentem bledu
         /// </summary>
         /// 
-        double ErrorCalculation(Automat particle)
+        double ErrorCalculation(List<List<int>> Words , Automat particle)
         {
             double error = 0.0;
 
             int[][] currentParticlePairs;
-            currentParticlePairs = new int[setOfWords.Count][];
+            currentParticlePairs = new int[Words.Count][];
 
-            for (int j = 0; j < setOfWords.Count; j++)
+            for (int j = 0; j < Words.Count; j++)
             {
-                currentParticlePairs[j] = new int[setOfWords.Count];
+                currentParticlePairs[j] = new int[Words.Count];
             }
 
             var watch = Stopwatch.StartNew();
             //////
-            for (int i = 0; i < setOfWords.Count; i++)
+            for (int i = 0; i < Words.Count; i++)
             {
-                for (int j = i + 1; j < setOfWords.Count; j++)
+                for (int j = i + 1; j < Words.Count; j++)
                 {
-                    if (areWordsRelated(particle, setOfWords[i], setOfWords[j]) == true)
+                    if (areWordsRelated(particle, Words[i], Words[j]) == true)
                     {
                         currentParticlePairs[i][j] = 1;
                         currentParticlePairs[j][i] = 1;
@@ -340,9 +363,9 @@ namespace AC
             watch = Stopwatch.StartNew();
             //////
             double errorCounter = 0.0;
-            for (int i = 0; i < setOfWords.Count; i++)
+            for (int i = 0; i < Words.Count; i++)
             {
-                for (int j = 0; j < setOfWords.Count; j++)
+                for (int j = 0; j < Words.Count; j++)
                 {
                     if (i != j && pairsOfRelation[i][j] != currentParticlePairs[i][j])
                     {
@@ -359,7 +382,7 @@ namespace AC
 
             errorCounter = errorCounter / 2.0 ;
 
-            error = (errorCounter / ((setOfWords.Count * setOfWords.Count) - setOfWords.Count)) * 100.0;
+            error = (errorCounter / ((Words.Count * Words.Count) - Words.Count)) * 100.0;
 
             return error;
         }
@@ -371,6 +394,10 @@ namespace AC
         void PSO()
         {
 
+            Console.WriteLine("Learning set size : "+ LearningSetOfWords.Count + ", Training set size: " + TrainingSetOfWords.Count+ " out of total words : "+ setOfWords.Count);
+            List<List<int>> slowa = new List<List<int>>();
+            slowa = LearningSetOfWords;
+
             speedLowerBound = double.Parse(speedLowerBoundTxt.Text, CultureInfo.InvariantCulture);
             speedUpperBound = double.Parse(speedUpperBoundTxt.Text, CultureInfo.InvariantCulture);
 
@@ -381,7 +408,9 @@ namespace AC
             List<Automat> BestAutomatForStates = new List<Automat>();
             List<double> BestErrorsForAutomats = new List<double>();
 
-            findRelationPairs();
+            List<double> BestErrorsForAutomats2Set = new List<double>();
+
+            findRelationPairs(slowa);
             double roundAt = double.Parse(RountAtTxt.Text, CultureInfo.InvariantCulture);
 
             int particlesNumber = int.Parse(ParticleAmountTxt.Text);
@@ -417,6 +446,8 @@ namespace AC
 
             double lastErrorValue = 0;
             double errorRepeatCounter = 0;
+
+            bool freez = freezGlobal.IsChecked.Value;
 
             while (continuePSO == true)
             {
@@ -494,7 +525,7 @@ namespace AC
                     //Console.WriteLine("fromVector execution time: " + elapsedMs);
                     //watch = Stopwatch.StartNew();
                     //////
-                    error = ErrorCalculation(currentParticle);
+                    error = ErrorCalculation(slowa, currentParticle);
                     //////
                     //watch.Stop();
                     //elapsedMs = watch.ElapsedMilliseconds;
@@ -552,7 +583,7 @@ namespace AC
                     for (int i = 0; i < particlesNumber; i++)
                     {
 
-                        if ((double)particleError[i] <= smallestError)
+                        if ((double)particleError[i] < smallestError)
                         {
                             smallestError = (double)particleError[i];
                             particlesGlobBest = i;
@@ -615,17 +646,24 @@ namespace AC
 
                     for (int i = 0; i < particlesNumber; i++)
                     {
-                        particlesVel[i] = calculateVelocity(maxSpeed, particlesPos[particlesGlobBest], particlesPos[particlesLocBest[i]],
-                        particlesVel[i], particlesPos[i], c1, c2);
-                        //jest predkosc to mozemy aplikowac ja do pozycji
-
-                        particlesPos[i] = calculatePosition(particlesVel[i], particlesPos[i]);
-
-                        if(particlesStopNumber[i] >= maxStopError)
+                        if (freez == true && i == particlesGlobBest)
                         {
-                            Console.WriteLine("Particle " + i + " has the same error " + particlesStopNumber[i]+" times. Restoring best");
-                            particlesStopNumber[i] = 0;
-                            particlesPos[i] = particlesBestPos[i];
+                            //lol zamorozony best
+                        }
+                        else
+                        {
+                            particlesVel[i] = calculateVelocity(maxSpeed, particlesPos[particlesGlobBest], particlesPos[particlesLocBest[i]],
+                            particlesVel[i], particlesPos[i], c1, c2);
+                            //jest predkosc to mozemy aplikowac ja do pozycji
+
+                            particlesPos[i] = calculatePosition(particlesVel[i], particlesPos[i]);
+
+                            if (particlesStopNumber[i] >= maxStopError)
+                            {
+                                Console.WriteLine("Particle " + i + " has the same error " + particlesStopNumber[i] + " times. Restoring best");
+                                particlesStopNumber[i] = 0;
+                                particlesPos[i] = particlesBestPos[i];
+                            }
                         }
                     }
 
@@ -720,21 +758,36 @@ namespace AC
             }
 
             //pso skonczone wybieramy najmniejsyz err
+
+
+            //mamy najlepsze automaty i szukamy solutiona
+
             Console.WriteLine("PSO FINISHED");
+
+            findRelationPairs(setOfWords);
+
+            for (int i = 0; i < BestAutomatForStates.Count; i++)
+            {
+                double newError = 100.0;
+                Automat Tempsolution = (Automat)BestAutomatForStates[i];
+                newError = ErrorCalculation(setOfWords, Tempsolution);
+                BestErrorsForAutomats2Set.Add(newError);
+            }
+
+
             double minimalFinalErr = 100.0;
             int bestFinalAutomatIndex = 0;
             for (int i = 0; i < BestAutomatForStates.Count; i++)
             {
-                if ((double)BestErrorsForAutomats[i] < minimalFinalErr)
+                if ((double)BestErrorsForAutomats2Set[i] < minimalFinalErr)
                 {
-                    minimalFinalErr = (double)BestErrorsForAutomats[i];
+                    minimalFinalErr = (double)BestErrorsForAutomats2Set[i];
                     bestFinalAutomatIndex = i;
                 }
             }
 
-            /*ArrayList digitAutomat = makeVectorDiscrete((ArrayList)particlesPos[bestFinalAutomatIndex], (ArrayList)particlesVel[bestFinalAutomatIndex], roundAt, currentStateNumber, (int)idealAutomat.getAlphabetLength());
-             Automat solution = Automat.fromVector(zListyNaStringa(digitAutomat), currentStateNumber, (int)idealAutomat.getAlphabetLength());
-             */
+          
+
             Automat solution = (Automat)BestAutomatForStates[bestFinalAutomatIndex];
 
             Console.WriteLine("SOLUTION error : " + minimalFinalErr);
@@ -915,9 +968,28 @@ namespace AC
             return speed;
         }
 
+        bool valideData()
+        {
+            if (idealAutomat.getAlphabetLength() <= 0 || setOfWords.Count <2)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
         private void PSO_Click(object sender, RoutedEventArgs e)
         {
-            PSO();
+            if (valideData() == true)
+            {
+                PSO();
+            }
+            else
+            {
+                MessageBox.Show("Not all data loaded !");
+                return;
+            }
         }
     }
 }
