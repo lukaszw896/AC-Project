@@ -1,6 +1,7 @@
 ﻿using GraphVizWrapper;
 using GraphVizWrapper.Commands;
 using GraphVizWrapper.Queries;
+using MahApps.Metro.Controls;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,7 +22,7 @@ namespace AC
     /// <summary>
     /// Interaction logic for DisplayGraph.xaml
     /// </summary>
-    public partial class DisplayGraph : Window
+    public partial class DisplayGraph : MetroWindow
     {
         public DisplayGraph(List<int>[][] orginalAutomaton, List<int>[][] foundAutomaton, double error)
         {
@@ -29,6 +30,8 @@ namespace AC
             // These three instances can be injected via the IGetStartProcessQuery, 
             //                                               IGetProcessStartInfoQuery and 
             //                                               IRegisterLayoutPluginCommand interfaces
+
+            ErrorResultLabel.Content = "Error for test set of found automaton: " + error;
 
             var getStartProcessQuery = new GetStartProcessQuery();
             var getProcessStartInfoQuery = new GetProcessStartInfoQuery();

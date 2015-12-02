@@ -1,7 +1,8 @@
-﻿<Window x:Class="AC.MainWindow"
+﻿<Controls:MetroWindow  x:Class="AC.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Height="490" Width="605">
+        Title="PSO for finding DFA" MinHeight="600" Height="600" MaxHeight="600" Width="850" MaxWidth="850" MinWidth="850" ResizeMode="CanMinimize">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
@@ -25,69 +26,87 @@
             <RowDefinition/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <Button Grid.Column="0" Grid.Row="0" Content="Load Ideal Automata" HorizontalAlignment="Center" VerticalAlignment="Center" Click="LoadAutomata_Click"/>
-        <Button Grid.Column="0" Grid.Row="1" Content="Create Word Set" HorizontalAlignment="Center" VerticalAlignment="Center" Click="CreateSet_Click"/>
-        <Button Grid.Column="0" Grid.Row="2" Content="Load Word Set" HorizontalAlignment="Center" VerticalAlignment="Center" Click="LoadSet_Click"/>
-        <Label Content="Particle Number :" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <TextBox Name="ParticleAmountTxt" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="50" VerticalAlignment="Center"/>
-        <Button Content="PSO" Grid.Column="0" HorizontalAlignment="Center" Grid.Row="11" VerticalAlignment="Center" Click="PSO_Click" />
+        <Controls:ProgressRing Name="progressRing" Panel.ZIndex="4"  Grid.Row="0" Grid.Column="0" Grid.RowSpan="13" Grid.ColumnSpan="3" Width="300" Background="#333"  IsActive="True" Visibility="Collapsed" />
+        <Label Name="progressRingBackground" Panel.ZIndex="3"  Grid.Row="0" Grid.Column="0" Grid.RowSpan="13" Grid.ColumnSpan="3" Background="#333" Margin="0" Opacity="0.9" Visibility="Collapsed"/>
+               
+        <Button Grid.Column="0" Grid.Row="6" Content="Load Ideal Automata" VerticalAlignment="Center" Click="LoadAutomata_Click"/>
+        <Button  Grid.Column="0" Grid.Row="1" Content="Create Word Set" VerticalAlignment="Center" Click="CreateSet_Click"/>
+        <Label Panel.ZIndex="-1" Grid.Row="3" Background="#333" Grid.RowSpan="9"/>
+        <Button Grid.Column="0" Grid.Row="4" Content="Load Word Set" VerticalAlignment="Center" Click="LoadSet_Click"/>
         
-        <Label Content="Round to 1 at :" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <TextBox Name="RountAtTxt" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0.7" VerticalAlignment="Center"/>
-        <Label Content="Iteration number :" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <TextBox Name="IterationTxt" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="200" VerticalAlignment="Center"/>
-        <Label Content="Particle's neighbours :" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <TextBox Name="neighboursTxt" Grid.Row="3" Grid.Column="2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="6" VerticalAlignment="Center"/>
+        <Label Background="#FF0F0000" Grid.Column="1" Grid.ColumnSpan="2" Grid.RowSpan="6" />
+        
+        <Label Content="Number of particles :" Grid.Column="1" Grid.Row="0" VerticalAlignment="Center"/>
+        <TextBox Name="ParticleAmountTxt" Grid.Row="0" Grid.Column="2" TextWrapping="Wrap" Text="50" VerticalAlignment="Center"/>
+        <Button Content="PSO" Grid.Column="0" Grid.Row="10" VerticalAlignment="Center" Click="PSO_Click" />
+        
+        <Label Content="Round to 1 at (discretization) :" Grid.Column="1" Grid.Row="1" VerticalAlignment="Center"/>
+        <TextBox Name="RountAtTxt" Grid.Row="1" Grid.Column="2" TextWrapping="Wrap" Text="0.7" VerticalAlignment="Center"/>
+
+        <Label Content="Max Particle Speed :" Grid.Column="1" Grid.Row="2" VerticalAlignment="Center"/>
+        <TextBox Name="maxSpeedTxt" Grid.Row="2" Grid.Column="2" TextWrapping="Wrap" Text="0.08" VerticalAlignment="Center"/>
+
+        <Label Content="Num of close neighbours :" Grid.Column="1" Grid.Row="3" VerticalAlignment="Center"/>
+        <TextBox Name="neighboursTxt" Grid.Row="3" Grid.Column="2" TextWrapping="Wrap" Text="6" VerticalAlignment="Center"/>
         <Grid Grid.Row="4" Grid.Column="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
+                <ColumnDefinition Width="5*"/>
+                <ColumnDefinition Width="4*"/>
             </Grid.ColumnDefinitions>
-            <Label Content="(local) C1 :" Grid.Column="0"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            <TextBox Name="c1Txt" Grid.Column="1" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0.2" VerticalAlignment="Center"/>
+            <Label Content="(local) C1 :" Grid.Column="0" VerticalAlignment="Center"/>
+            <TextBox Name="c1Txt" Grid.Column="1" TextWrapping="Wrap" Text="0.2" VerticalAlignment="Center"/>
         </Grid>
         <Grid Grid.Row="4" Grid.Column="2">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
+                <ColumnDefinition Width="5*"/>
+                <ColumnDefinition Width="4*"/>
             </Grid.ColumnDefinitions>
-            <Label Content="(global) C2 :" Grid.Column="0"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            <TextBox Name="c2Txt" Grid.Column="1" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0.5" VerticalAlignment="Center"/>
+            <Label Content="(global) C2 :" Grid.Column="0" VerticalAlignment="Center"/>
+            <TextBox Name="c2Txt" Grid.Column="1" TextWrapping="Wrap" Text="0.5" VerticalAlignment="Center"/>
         </Grid>
         <Grid Grid.Row="5" Grid.Column="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="5*"/>
+                <ColumnDefinition Width="4*"/>
             </Grid.ColumnDefinitions>
-            <Label Content="Speed Lowerbound :" Grid.Column="0"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            <TextBox Name="speedLowerBoundTxt" Grid.Column="1" HorizontalAlignment="Center" TextWrapping="Wrap" Text="-0.02" VerticalAlignment="Center"/>
+            <Label Content="Speed Lowerbound :" Grid.Column="0"  VerticalAlignment="Center"/>
+            <TextBox Name="speedLowerBoundTxt" Grid.Column="1"  TextWrapping="Wrap" Text="-0.02" VerticalAlignment="Center"/>
         </Grid>
         <Grid Grid.Row="5" Grid.Column="2">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="5*"/>
+                <ColumnDefinition Width="4*"/>
             </Grid.ColumnDefinitions>
-            <Label Content="Speed Upperbound :" Grid.Column="0"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            <TextBox Name="speedUpperBoundTxt" Grid.Column="1" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0.02" VerticalAlignment="Center"/>
+            <Label Content="Speed Upperbound :" Grid.Column="0" VerticalAlignment="Center"/>
+            <TextBox Name="speedUpperBoundTxt" Grid.Column="1" TextWrapping="Wrap" Text="0.02" VerticalAlignment="Center"/>
         </Grid>
 
 
-        <Label Content="Error tolerance (%) :" Grid.Column="1" Grid.Row="6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <TextBox Name="ToleranceTxt" Grid.Row="6" Grid.Column="2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0" VerticalAlignment="Center"/>
-        <Label Content="Max states number :" Grid.Column="1" Grid.Row="7" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <TextBox Name="MaxstatesTXT" Grid.Row="7" Grid.Column="2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="10" VerticalAlignment="Center"/>
-        <Label Content="Max Particle Speed :" Grid.Column="1" Grid.Row="8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <TextBox Name="maxSpeedTxt" Grid.Row="8" Grid.Column="2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0.08" VerticalAlignment="Center"/>
-        <Label Content="Max same error repetition :" Grid.Column="1" Grid.Row="9" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <TextBox Name="maxErrIterationTxt" Grid.Row="9" Grid.Column="2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="5" VerticalAlignment="Center"/>
-        <Label Content="Nr of randomized particles :" Grid.Column="1" Grid.Row="10" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <TextBox Name="particlerandomnumber" Grid.Row="10" Grid.Column="2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="18" VerticalAlignment="Center"/>
-        <Label Content="Number of same error to random :" Grid.Column="1" Grid.Row="11" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <TextBox Name="errorSameRepetition" Grid.Row="11" Grid.Column="2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="8" VerticalAlignment="Center"/>
-        <Label Content="Untouched iteration number :" Grid.Column="1" Grid.Row="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <TextBox Name="untouchedIteration" Grid.Row="12" Grid.Column="2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="50" VerticalAlignment="Center"/>
-        <CheckBox Name="freezGlobal" Content="Freeze global best" HorizontalAlignment="Center" Grid.Row="9" VerticalAlignment="Center" />
+        <Label Content="Error tolerance (%) :" Grid.Column="1" Grid.Row="6" VerticalAlignment="Center"/>
+        <TextBox Name="ToleranceTxt" Grid.Row="6" Grid.Column="2" TextWrapping="Wrap" Text="0" VerticalAlignment="Center"/>
+        
+
+        <Label Content="Number of iterations :" Grid.Column="1" Grid.Row="7" VerticalAlignment="Center"/>
+        <TextBox Name="IterationTxt" Grid.Row="7" Grid.Column="2" TextWrapping="Wrap" Text="20" VerticalAlignment="Center"/>
+
+        <Label Content="Max states number :" Grid.Column="1" Grid.Row="8" VerticalAlignment="Center"/>
+        <TextBox Name="MaxstatesTXT" Grid.Row="8" Grid.Column="2"  TextWrapping="Wrap" Text="5" VerticalAlignment="Center"/>
+                    
+        <Label Content="Num of err to restore particle best :" Grid.Column="1" Grid.Row="9" VerticalAlignment="Center"/>
+        <TextBox Name="maxErrIterationTxt" Grid.Row="9" Grid.Column="2" TextWrapping="Wrap" Text="5" VerticalAlignment="Center"/>
+        
+        
+        <Label Grid.Column="1" Grid.Row="10" Background="#111" Grid.RowSpan="3" Grid.ColumnSpan="2" Margin="0,0,205,0" />
+        <Label Content="Nr of randomized particles :" Grid.Column="1" Grid.Row="10" VerticalAlignment="Center"/>
+        <TextBox Name="particlerandomnumber" Grid.Row="10" Grid.Column="2" TextWrapping="Wrap" Text="18" VerticalAlignment="Center"/>
+        
+        
+        <Label Content="Number of same error to random :" Grid.Column="1" Grid.Row="11" VerticalAlignment="Center"/>
+        <TextBox Name="errorSameRepetition" Grid.Row="11" Grid.Column="2" TextWrapping="Wrap" Text="8" VerticalAlignment="Center"/>
+        <Label Content="Untouched iteration number :" Grid.Column="1" Grid.Row="12" VerticalAlignment="Center"/>
+        <TextBox Name="untouchedIteration" Grid.Row="12" Grid.Column="2" TextWrapping="Wrap" Text="50" VerticalAlignment="Center"/>
+        <CheckBox Name="freezGlobal" Content="Keep best automaton in swarm" Grid.Row="8" VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="True" FontSize="17" />
 
 
     </Grid>
-</Window>
+</Controls:MetroWindow>

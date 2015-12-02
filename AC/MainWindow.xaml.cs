@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MahApps.Metro.Controls;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -22,7 +23,8 @@ namespace AC
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : MetroWindow
+
     {
 
         Automat idealAutomat;
@@ -394,9 +396,8 @@ namespace AC
         /// PSO ^^
         /// </summary>
         /// 
-        void PSO()
+        async Task PSO()
         {
-
             Console.WriteLine("Learning set size : "+ LearningSetOfWords.Count + ", Training set size: " + TrainingSetOfWords.Count+ " out of total words : "+ setOfWords.Count);
             List<List<int>> slowa = new List<List<int>>();
             slowa = LearningSetOfWords;
@@ -451,7 +452,11 @@ namespace AC
             double errorRepeatCounter = 0;
 
             bool freez = freezGlobal.IsChecked.Value;
+            double minimalFinalErr = 100.0;
 
+            Automat solution = new Automat();
+            await Task.Run(() =>
+            {
             while (continuePSO == true)
             {
 
@@ -778,7 +783,7 @@ namespace AC
             }
 
 
-            double minimalFinalErr = 100.0;
+            minimalFinalErr = 100.0;
             int bestFinalAutomatIndex = 0;
             for (int i = 0; i < BestAutomatForStates.Count; i++)
             {
@@ -791,20 +796,20 @@ namespace AC
 
           
 
-            Automat solution = (Automat)BestAutomatForStates[bestFinalAutomatIndex];
+            solution = (Automat)BestAutomatForStates[bestFinalAutomatIndex];
 
             Console.WriteLine("SOLUTION error : " + minimalFinalErr);
             Console.WriteLine("" + (zListyNaStringa(solution.toVector())));
-
-
+            });
+            
             List<int>[][] wynikDlaLukasza = doWydruku(solution);
 
             List<int>[][] idealnyDlaLukasza = doWydruku(idealAutomat);
-
+            
             DisplayGraph displayGraph = new DisplayGraph(idealnyDlaLukasza, wynikDlaLukasza, minimalFinalErr);
             displayGraph.Show();
-
-
+                
+            
         }
 
         String zListyNaStringa(List<double> lista)
@@ -992,11 +997,15 @@ namespace AC
             }
         }
 
-        private void PSO_Click(object sender, RoutedEventArgs e)
+        private async void PSO_Click(object sender, RoutedEventArgs e)
         {
             if (valideData() == true)
             {
-                PSO();
+                progressRing.Visibility = Visibility.Visible;
+                progressRingBackground.Visibility = Visibility.Visible;
+              await  PSO();
+              progressRing.Visibility = Visibility.Collapsed;
+              progressRingBackground.Visibility = Visibility.Collapsed;
             }
             else
             {
