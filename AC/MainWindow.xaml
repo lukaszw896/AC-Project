@@ -31,6 +31,7 @@
                
         <Button Grid.Column="0" Grid.Row="6" Content="Load Ideal Automata" VerticalAlignment="Center" Click="LoadAutomata_Click"/>
         <Button  Grid.Column="0" Grid.Row="1" Content="Create Word Set" VerticalAlignment="Center" Click="CreateSet_Click"/>
+        <Button  Grid.Column="0" Grid.Row="2" Content="Create Automaton" VerticalAlignment="Center" Click="CreateAutomat_Click" />
         <Label Panel.ZIndex="-1" Grid.Row="3" Background="#333" Grid.RowSpan="9"/>
         <Button Grid.Column="0" Grid.Row="4" Content="Load Word Set" VerticalAlignment="Center" Click="LoadSet_Click"/>
         

@@ -1,0 +1,25 @@
+﻿<Window x:Class="AC.AutomatGenerator"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Automat Generator" Height="350" Width="525">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Label Grid.Column="0" Grid.Row="0" Content="States number : " HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <Label Grid.Column="0" Grid.Row="1" Content="Symbols number : " HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+        <TextBox Name="StateNumberTxt" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Center" TextWrapping="Wrap" Text="4" VerticalAlignment="Center" />
+        <TextBox Name="SymbolNumberTxt" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center" TextWrapping="Wrap" Text="2" VerticalAlignment="Center" />
+
+        <Button Content="Create Automat" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.Row="2" Click="Create_Click"/>
+        <Button Content="Save Automat" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" Grid.Row="2" Click="Save_Click"/>
+    </Grid>
+</Window>
+

@@ -106,6 +106,36 @@ namespace AC
 
         }
 
+        private void CreateAutomat_Click(object sender, RoutedEventArgs e)
+        {
+            AutomatGenerator generator2 = new AutomatGenerator();
+
+            Nullable<bool> result = generator2.ShowDialog();
+
+            if (result == true)
+            {
+                int nrstates = generator2.getStates();
+                int nralphabet = generator2.getAlp();
+                List<int[]> listtransition = generator2.gettrans();
+
+                String a = nrstates + "," + nralphabet;
+
+                for (int j = 0; j < nrstates; j++)
+                {
+                    int[] row = listtransition[j];
+                    for (int i = 0; i < nralphabet; i++)
+                    {
+                        a = a + "," + (row[i] + 1);
+                    }
+                }
+
+                idealAutomat = new Automat();
+                idealAutomat.fromString(a);
+                Console.WriteLine("Automat Generated");
+            }
+        }
+
+
         /// <summary>
         /// ladujemy plik z slowami
         /// </summary>
@@ -1051,5 +1081,6 @@ namespace AC
 
         }
 
+       
     }
 }
