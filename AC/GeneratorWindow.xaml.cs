@@ -249,7 +249,7 @@ namespace AC
                 ArrayList templist = new ArrayList();
                 int ileslow = maxCombination(letters, currLeng);
                 bool canGenerateMorewords = true;
-                if (2 * ileslow < wordsPerGroup)
+                if (2 * ileslow <= wordsPerGroup)
                 {
                     canGenerateMorewords = false;
                 }
@@ -286,9 +286,12 @@ namespace AC
                                 tempWord = tempWord + letters[index];
                             }
 
-                            if (validateWord(templist, tempWord) && validateWord(nieMozemypowtorzyc, tempWord))
+                            if (validateWord(templist, tempWord) )
                             {
-                                canAdd = true;
+                                if(validateWord(nieMozemypowtorzyc, tempWord))
+                                {
+                                      canAdd = true;
+                                }
                             }
                             else
                             {
@@ -296,6 +299,7 @@ namespace AC
                             }
                         }
                         templist.Add(tempWord);
+                        Console.WriteLine(j + " / " + ileslow);
                     }
 
 

@@ -30,6 +30,7 @@
         <Label Name="progressRingBackground" Panel.ZIndex="3"  Grid.Row="0" Grid.Column="0" Grid.RowSpan="13" Grid.ColumnSpan="3" Background="#333" Margin="0" Opacity="0.9" Visibility="Collapsed"/>
                
         <Button Grid.Column="0" Grid.Row="6" Content="Load Ideal Automata" VerticalAlignment="Center" Click="LoadAutomata_Click"/>
+        <Button  Grid.Column="0" Grid.Row="0" Content="DO TESTS" VerticalAlignment="Center" Click="TEST_Click" />
         <Button  Grid.Column="0" Grid.Row="1" Content="Create Word Set" VerticalAlignment="Center" Click="CreateSet_Click"/>
         <Button  Grid.Column="0" Grid.Row="2" Content="Create Automaton" VerticalAlignment="Center" Click="CreateAutomat_Click" />
         <Label Panel.ZIndex="-1" Grid.Row="3" Background="#333" Grid.RowSpan="9"/>
@@ -88,10 +89,10 @@
         
 
         <Label Content="Number of iterations :" Grid.Column="1" Grid.Row="7" VerticalAlignment="Center"/>
-        <TextBox Name="IterationTxt" Grid.Row="7" Grid.Column="2" TextWrapping="Wrap" Text="200" VerticalAlignment="Center"/>
+        <TextBox Name="IterationTxt" Grid.Row="7" Grid.Column="2" TextWrapping="Wrap" Text="20" VerticalAlignment="Center"/>
 
         <Label Content="Max states number :" Grid.Column="1" Grid.Row="8" VerticalAlignment="Center"/>
-        <TextBox Name="MaxstatesTXT" Grid.Row="8" Grid.Column="2"  TextWrapping="Wrap" Text="10" VerticalAlignment="Center"/>
+        <TextBox Name="MaxstatesTXT" Grid.Row="8" Grid.Column="2"  TextWrapping="Wrap" Text="7" VerticalAlignment="Center"/>
                     
         <Label Content="Num of err to restore particle best :" Grid.Column="1" Grid.Row="9" VerticalAlignment="Center"/>
         <TextBox Name="maxErrIterationTxt" Grid.Row="9" Grid.Column="2" TextWrapping="Wrap" Text="5" VerticalAlignment="Center"/>
@@ -99,13 +100,13 @@
         
         <Label Grid.Column="1" Grid.Row="10" Background="#111" Grid.RowSpan="3" Grid.ColumnSpan="2" Margin="0,0,205,0" />
         <Label Content="Nr of randomized particles :" Grid.Column="1" Grid.Row="10" VerticalAlignment="Center"/>
-        <TextBox Name="particlerandomnumber" Grid.Row="10" Grid.Column="2" TextWrapping="Wrap" Text="18" VerticalAlignment="Center"/>
+        <TextBox Name="particlerandomnumber" Grid.Row="10" Grid.Column="2" TextWrapping="Wrap" Text="28" VerticalAlignment="Center"/>
         
         
         <Label Content="Number of same error to random :" Grid.Column="1" Grid.Row="11" VerticalAlignment="Center"/>
         <TextBox Name="errorSameRepetition" Grid.Row="11" Grid.Column="2" TextWrapping="Wrap" Text="8" VerticalAlignment="Center"/>
         <Label Content="Untouched iteration number :" Grid.Column="1" Grid.Row="12" VerticalAlignment="Center"/>
-        <TextBox Name="untouchedIteration" Grid.Row="12" Grid.Column="2" TextWrapping="Wrap" Text="50" VerticalAlignment="Center"/>
+        <TextBox Name="untouchedIteration" Grid.Row="12" Grid.Column="2" TextWrapping="Wrap" Text="25" VerticalAlignment="Center"/>
         <CheckBox Name="freezGlobal" Content="Keep best automaton in swarm" Grid.Row="8" VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="True" FontSize="17" />
 
 

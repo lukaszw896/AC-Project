@@ -29,6 +29,10 @@ namespace AC
 
         Automat idealAutomat;
 
+
+        List<List<int>[][]> idealneSolucje;
+        List<double> idealneWyniki;
+
         List<List<int>> setOfWords;
         List<List<int>> learningSetOfWords;
         List<List<int>> testingSetOfWords;
@@ -45,6 +49,9 @@ namespace AC
             setOfWords = new List<List<int>>();
           
             idealAutomat = new Automat();
+
+            idealneSolucje = new List<List<int>[][]>();
+            idealneWyniki = new List<double>();
         }
 
         /// <summary>
@@ -281,12 +288,12 @@ namespace AC
             END FOR
              */
             int states = 0;
-            int wordAmount = setOfWords.Count;
+            int wordAmount = learningSetOfWords.Count;
             List<List<List<int>>> EQClasses = new List<List<List<int>>>();
 
             //dodaje jedna klasie bo zawsze jest jedna
             List<List<int>> temp = new List<List<int>>();
-            temp.Add(setOfWords[0]);
+            temp.Add(learningSetOfWords[0]);
             EQClasses.Add(temp);
 
             for (int i = 1; i < wordAmount; i++)
@@ -299,10 +306,10 @@ namespace AC
                     {
                         if (currentClass.Count > 0)
                         {
-                            if (areWordsRelated(idealAutomat, setOfWords[i], currentClass[w]))
+                            if (areWordsRelated(idealAutomat, learningSetOfWords[i], currentClass[w]))
                             {
                                 flag = true;
-                                EQClasses[j].Add(setOfWords[i]);
+                                EQClasses[j].Add(learningSetOfWords[i]);
                             }
                             break;
                         }
@@ -315,7 +322,7 @@ namespace AC
                 if (flag == false)
                 {
                     List<List<int>> tmp = new List<List<int>>();
-                    tmp.Add(setOfWords[i]);
+                    tmp.Add(learningSetOfWords[i]);
                     EQClasses.Add(tmp);
                 }
             }
@@ -373,6 +380,8 @@ namespace AC
                     }
                 }
             }
+            int a = 3;
+            a++;
         }
 
         /// <summary>
@@ -542,8 +551,6 @@ namespace AC
                         break;
                     }
 
-
-
                     dimensions = (int)Math.Pow(currentStateNumber, 2.0) * (int)idealAutomat.getAlphabetLength();
 
                     particlesPos.Clear();
@@ -598,22 +605,10 @@ namespace AC
                     Automat currentParticle = new Automat();
 
                     currentParticle = Automat.fromVector(zListyNaStringa(discretePosition), currentStateNumber, (int)idealAutomat.getAlphabetLength());
-                    //////
-                    //watch.Stop();
-                    //elapsedMs = watch.ElapsedMilliseconds;
-                    //Console.WriteLine("fromVector execution time: " + elapsedMs);
-                    //watch = Stopwatch.StartNew();
-                    //////
+                  
                     error = ErrorCalculation(slowa, currentParticle);
-                    //////
-                    //watch.Stop();
-                    //elapsedMs = watch.ElapsedMilliseconds;
-                    //Console.WriteLine("ErrorCalculation execution time: " + elapsedMs);
-                    
-                    //particleError[i] = error;
-                    particleError.Add(error);
-
-              
+                  
+                    particleError.Add(error);           
 
                     if (particleBest[i] != error)
                     {
@@ -883,8 +878,11 @@ namespace AC
 
                 List<int>[][] idealnyDlaLukasza = doWydruku(idealAutomat);
 
+                idealneSolucje.Add(wynikDlaLukasza);
+                idealneWyniki.Add(minimalFinalErr);
+
                 DisplayGraph displayGraph = new DisplayGraph(idealnyDlaLukasza, wynikDlaLukasza, minimalFinalErr);
-                displayGraph.Show();
+                //displayGraph.Show();
             }
             
         }
@@ -1153,6 +1151,101 @@ namespace AC
             return macierz;
         }
 
-       
+        private async void TEST_Click(object sender, RoutedEventArgs e)
+        {
+            //tu odpalamy testy
+
+            //JAK CHCESZ PRAWDZIWE TESTY TO ZMIENIC TRZBA OBA ROZMIARY PETLI TAK JAK W KOMENTACH
+            //I WORDSET
+
+            //slowa wgrane
+            LoadWordSet("H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\WordTestSetSmall.txt");
+            //LoadWordSet("H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\WordTestSet.txt");
+
+            //dla czterech typow automatu //4
+            for(int typy = 0 ; typy < 2 ; typy ++)
+            {
+                
+                idealAutomat = new Automat();
+
+                //10 typow automatu z kazdego typu //10
+                for( int aut = 0 ; aut < 4; aut ++)
+                {
+                    String sciezka = "H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\AUTOMATY\\";
+                    switch(typy)
+                    {
+                        case 0 :
+                            sciezka = sciezka + "4statesAutomat\\4_5_";
+                            break;
+                        case 1 :
+                            sciezka = sciezka + "6statesAutomat\\6_5_";
+                            break;
+                        case 2 :
+                            sciezka = sciezka + "10statesAutomat\\10_5_";
+                            break;
+                        case 3 :
+                            sciezka = sciezka + "15statesAutomat\\15_5_";
+                            break;
+                    }
+                    switch(aut)
+                    {
+                        case 0 :
+                            sciezka = sciezka + "1automat.txt";
+                            break;
+                        case 1 :
+                            sciezka = sciezka + "2automat.txt";
+                            break;
+                        case 2 :
+                            sciezka = sciezka + "3automat.txt";
+                            break;
+                        case 3 :
+                            sciezka = sciezka + "4automat.txt";
+                            break;
+                        case 4 :
+                            sciezka = sciezka + "5automat.txt";
+                            break;
+                        case 5 :
+                            sciezka = sciezka + "6automat.txt";
+                            break;
+                        case 6 :
+                            sciezka = sciezka + "7automat.txt";
+                            break;
+                        case 7 :
+                            sciezka = sciezka + "8automat.txt";
+                            break;
+                        case 8 :
+                            sciezka = sciezka + "9automat.txt";
+                            break;
+                        case 9 :
+                            sciezka = sciezka + "10automat.txt";
+                            break;
+                    }
+                    
+                    LoadAutomata(sciezka);
+
+                    Console.WriteLine("puszczam PSO dla kolejnego zestawu");
+                    //mamy tu juz slowa i mamy tu juz automat.
+
+                    if (valideData() == true)
+                    {
+                        progressRing.Visibility = Visibility.Visible;
+                        progressRingBackground.Visibility = Visibility.Visible;
+                        await PSO();
+                        progressRing.Visibility = Visibility.Collapsed;
+                        progressRingBackground.Visibility = Visibility.Collapsed;
+                    }
+                    else
+                    {
+                        MessageBox.Show("Not all data loaded !");
+                        return;
+                    }
+
+
+                }
+            }
+
+            Console.WriteLine("KONEC");
+
+        }
     }
 }
