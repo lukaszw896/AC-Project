@@ -349,12 +349,12 @@ namespace AC
             int[] finishingStates = new int[words.Count];
 
             Parallel.For(0, words.Count, i =>
-            //for (int i = 0; i < Words.Count; i++)
+            //for (int i = 0; i < words.Count; i++)
             {
                 int tmp = GetFinishingState(idealAutomat, words[i]);
                 finishingStates[i] = tmp;
             }
-            );
+           );
 
             for (int i = 0; i < words.Count; i++)
             {
@@ -403,9 +403,9 @@ namespace AC
 
             int[] finishingStates = new int[Words.Count];
 
-            
-            Parallel.For(0, Words.Count, i =>
+
             //for (int i = 0; i < Words.Count; i++)
+            Parallel.For(0, Words.Count, i =>
             {
                 int tmp = GetFinishingState(particle, Words[i]);
                 finishingStates[i] = tmp;
@@ -840,13 +840,13 @@ namespace AC
             {
                 Console.WriteLine("PSO FINISHED");
 
-                findRelationPairs(setOfWords);
+                findRelationPairs(testingSetOfWords);
 
                 for (int i = 0; i < BestAutomatForStates.Count; i++)
                 {
                     double newError = 100.0;
                     Automat Tempsolution = (Automat)BestAutomatForStates[i];
-                    newError = ErrorCalculation(setOfWords, Tempsolution);
+                    newError = ErrorCalculation(testingSetOfWords, Tempsolution);
                     BestErrorsForAutomats2Set.Add(newError);
                 }
 
@@ -881,7 +881,7 @@ namespace AC
                 idealneSolucje.Add(wynikDlaLukasza);
                 idealneWyniki.Add(minimalFinalErr);
 
-                DisplayGraph displayGraph = new DisplayGraph(idealnyDlaLukasza, wynikDlaLukasza, minimalFinalErr);
+                //DisplayGraph displayGraph = new DisplayGraph(idealnyDlaLukasza, wynikDlaLukasza, minimalFinalErr);
                 //displayGraph.Show();
             }
             
@@ -1159,19 +1159,19 @@ namespace AC
             //I WORDSET
 
             //slowa wgrane
-            LoadWordSet("H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\WordTestSetSmall.txt");
-            //LoadWordSet("H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\WordTestSet.txt");
+            LoadWordSet("C:\\Users\\PC\\Documents\\Visual Studio 2013\\Projects\\ACrepo\\WordTestSetSmall.txt");
+            //LoadWordSet("C:\\Users\\PC\\Documents\\Visual Studio 2013\\Projects\\ACrepo\\WordTestSet.txt");
 
             //dla czterech typow automatu //4
-            for(int typy = 0 ; typy < 2 ; typy ++)
+            for(int typy = 0 ; typy < 4 ; typy ++)
             {
                 
                 idealAutomat = new Automat();
 
                 //10 typow automatu z kazdego typu //10
-                for( int aut = 0 ; aut < 4; aut ++)
+                for( int aut = 0 ; aut < 10; aut ++)
                 {
-                    String sciezka = "H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\AUTOMATY\\";
+                    String sciezka = "C:\\Users\\PC\\Documents\\Visual Studio 2013\\Projects\\ACrepo\\\\AUTOMATY\\";
                     switch(typy)
                     {
                         case 0 :
