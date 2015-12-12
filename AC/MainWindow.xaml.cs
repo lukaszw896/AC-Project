@@ -189,9 +189,9 @@ namespace AC
 
             LearningSetOfWords.Add(setOfWords[0]);
             TrainingSetOfWords.Add(setOfWords[0]);
-            if (setOfWords.Count >= 1)
+            if (setOfWords.Count >= 2)
             {
-                for (int i = 1; i < setOfWords.Count; i+=2)
+                for (int i = 1; i < setOfWords.Count-1; i+=2)
                 {
                     LearningSetOfWords.Add(setOfWords[i]);
                     TrainingSetOfWords.Add(setOfWords[i+1]);
@@ -364,6 +364,16 @@ namespace AC
                 currentParticlePairs[j] = new int[Words.Count];
             }
 
+            int[] finishingStates = new int[Words.Count];
+
+            Parallel.For(0, Words.Count, i =>
+            //for (int i = 0; i < Words.Count; i++)
+            {
+                int tmp = GetFinishingState(particle, Words[i]);
+                finishingStates[i] = tmp;
+            }
+            );
+
             var watch = Stopwatch.StartNew();
             //////
             Parallel.For(0, Words.Count, i =>
@@ -371,7 +381,7 @@ namespace AC
             {
                 for (int j = i + 1; j < Words.Count; j++)
                 {
-                    if (areWordsRelated(particle, Words[i], Words[j]) == true)
+                    if (finishingStates[i] == finishingStates[j])
                     {
                         currentParticlePairs[i][j] = 1;
                         currentParticlePairs[j][i] = 1;
@@ -842,6 +852,33 @@ namespace AC
             
         }
 
+        int GetFinishingState(Automat automata, List<int> word)
+        {
+            int numberOfStates = automata.getStatesNumber();
+            List<int[][]> transitionTableList = new List<int[][]>();
+            transitionTableList = automata.getTransitionTableList();
+            int word1Length = word.Count;
+
+
+            int currentState1 = 0;
+
+            int[][] transitionTable;
+            for (int i = 0; i < word1Length; i++)
+            {
+                transitionTable = transitionTableList[word[i]];
+                for (int j = 0; j < numberOfStates; j++)
+                {
+                    if (transitionTable[currentState1][j] == 1)
+                    {
+                        currentState1 = j;
+                        break;
+                    }
+                }
+            }
+
+            return currentState1;
+        }
+
         String zListyNaStringa(List<double> lista)
         {
             String wynik = "";
@@ -1077,8 +1114,6 @@ namespace AC
             }
 
             return macierz;
-
-
         }
 
        
