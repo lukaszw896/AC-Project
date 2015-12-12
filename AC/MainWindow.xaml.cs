@@ -31,6 +31,7 @@ namespace AC
 
         List<List<int>> setOfWords;
         List<List<int>> learningSetOfWords;
+        List<List<int>> testingSetOfWords;
 
         int[][] pairsOfRelation;
         static Random random = new Random();
@@ -184,13 +185,34 @@ namespace AC
         void splitWordsToSets()
         {
             learningSetOfWords = new List<List<int>>();
+            testingSetOfWords = new List<List<int>>();
 
-            learningSetOfWords.Add(setOfWords[0]);
+            String separator = "99999999999999999999";
+
+            int flag = 0;
             if (setOfWords.Count >= 2)
             {
-                for (int i = 1; i < setOfWords.Count - 1; i+=2)
+                for (int i = 0; i < setOfWords.Count - 2; i++)
                 {
-                    learningSetOfWords.Add(setOfWords[i]);
+                    String tmp = "";
+                    for (int w = 0; w < setOfWords[i].Count; w++ )
+                    {
+                        tmp = tmp + (setOfWords[i])[w];
+                    }
+
+                    if (tmp.Equals(separator))
+                    {
+                        flag = 1;
+                    }
+
+                        if (flag == 0)
+                        {
+                            learningSetOfWords.Add(setOfWords[i]);
+                        }
+                        else if (flag == 1)
+                        {
+                            testingSetOfWords.Add(setOfWords[i + 1]);
+                        }
                 }
             }
         }
