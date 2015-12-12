@@ -30,7 +30,7 @@ namespace AC
         Automat idealAutomat;
 
 
-        List<List<int>[][]> idealneSolucje;
+        List<Automat> idealneSolucje;
         List<double> idealneWyniki;
 
         List<List<int>> setOfWords;
@@ -50,7 +50,7 @@ namespace AC
           
             idealAutomat = new Automat();
 
-            idealneSolucje = new List<List<int>[][]>();
+            idealneSolucje = new List<Automat>();
             idealneWyniki = new List<double>();
         }
 
@@ -878,7 +878,7 @@ namespace AC
 
                 List<int>[][] idealnyDlaLukasza = doWydruku(idealAutomat);
 
-                idealneSolucje.Add(wynikDlaLukasza);
+                idealneSolucje.Add(solution);
                 idealneWyniki.Add(minimalFinalErr);
 
                 //DisplayGraph displayGraph = new DisplayGraph(idealnyDlaLukasza, wynikDlaLukasza, minimalFinalErr);
@@ -1151,6 +1151,36 @@ namespace AC
             return macierz;
         }
 
+        public void zapiszWynik()
+        {
+            String path = "C:\\Users\\PC\\Documents\\Visual Studio 2013\\Projects\\ACrepo\\wynik.txt";
+            using (StreamWriter sw = new StreamWriter(path))
+                {
+                    //idealneSolucje
+                    for (int i = 0; i < idealneSolucje.Count; i++)
+                    {
+                        Automat solucja = idealneSolucje[i];
+                        String tmpString = "" ;
+                        tmpString = tmpString + solucja.getStatesNumber() + "," + solucja.getAlphabetLength();
+
+                        for (int x = 0; x < solucja.getStatesNumber() - 1; x++ )
+                        {
+                            int[] row = (solucja.getTransitionTableList())[x];
+                            for (int y = 0; y < solucja.getAlphabetLength() - 1; y++)
+                            {
+                                tmpString = tmpString + "," + (row[y] + 1 );
+                            }
+                        }
+
+                        String wynik = "error = " + idealneWyniki[i];
+                        sw.WriteLine("----------------------------------------------------");
+                        sw.WriteLine(tmpString);
+                        sw.WriteLine(wynik);
+                   }
+                }
+         
+        }
+
         private async void TEST_Click(object sender, RoutedEventArgs e)
         {
             //tu odpalamy testy
@@ -1159,8 +1189,8 @@ namespace AC
             //I WORDSET
 
             //slowa wgrane
-            LoadWordSet("C:\\Users\\PC\\Documents\\Visual Studio 2013\\Projects\\ACrepo\\WordTestSetSmall.txt");
-            //LoadWordSet("C:\\Users\\PC\\Documents\\Visual Studio 2013\\Projects\\ACrepo\\WordTestSet.txt");
+            //LoadWordSet("C:\\Users\\PC\\Documents\\Visual Studio 2013\\Projects\\ACrepo\\WordTestSetSmall.txt");
+            LoadWordSet("C:\\Users\\PC\\Documents\\Visual Studio 2013\\Projects\\ACrepo\\WordTestSet.txt");
 
             //dla czterech typow automatu //4
             for(int typy = 0 ; typy < 4 ; typy ++)
@@ -1240,9 +1270,14 @@ namespace AC
                         return;
                     }
 
-
+                   // zapiszWynik();
                 }
             }
+
+
+
+            //zapisz wyniki do pliku
+            zapiszWynik();
 
             Console.WriteLine("KONEC");
 
