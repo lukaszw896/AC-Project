@@ -30,8 +30,7 @@ namespace AC
         Automat idealAutomat;
 
         List<List<int>> setOfWords;
-        List<List<int>> LearningSetOfWords;
-        List<List<int>> TrainingSetOfWords;
+        List<List<int>> learningSetOfWords;
 
         int[][] pairsOfRelation;
         static Random random = new Random();
@@ -184,17 +183,14 @@ namespace AC
 
         void splitWordsToSets()
         {
-            LearningSetOfWords = new List<List<int>>();
-            TrainingSetOfWords = new List<List<int>>();
+            learningSetOfWords = new List<List<int>>();
 
-            LearningSetOfWords.Add(setOfWords[0]);
-            TrainingSetOfWords.Add(setOfWords[0]);
+            learningSetOfWords.Add(setOfWords[0]);
             if (setOfWords.Count >= 2)
             {
-                for (int i = 1; i < setOfWords.Count-1; i+=2)
+                for (int i = 1; i < setOfWords.Count - 1; i+=2)
                 {
-                    LearningSetOfWords.Add(setOfWords[i]);
-                    TrainingSetOfWords.Add(setOfWords[i+1]);
+                    learningSetOfWords.Add(setOfWords[i]);
                 }
             }
         }
@@ -438,9 +434,9 @@ namespace AC
         /// 
         async Task PSO()
         {
-            Console.WriteLine("Learning set size : "+ LearningSetOfWords.Count + ", Training set size: " + TrainingSetOfWords.Count+ " out of total words : "+ setOfWords.Count);
+            Console.WriteLine("Learning set size : " + learningSetOfWords.Count + " out of total words : " + setOfWords.Count);
             List<List<int>> slowa = new List<List<int>>();
-            slowa = LearningSetOfWords;
+            slowa = learningSetOfWords;
 
             speedLowerBound = double.Parse(speedLowerBoundTxt.Text, CultureInfo.InvariantCulture);
             speedUpperBound = double.Parse(speedUpperBoundTxt.Text, CultureInfo.InvariantCulture);
@@ -494,10 +490,19 @@ namespace AC
             bool freez = freezGlobal.IsChecked.Value;
             double minimalFinalErr = 100.0;
 
+            bool shouldStart = true;
+            if (minValueOfStates() >= maxStateNumber)
+            {
+                MessageBox.Show("Maximal Number of States is too small !");
+                continuePSO = false;
+                shouldStart = false;
+            }
+
+
             Automat solution = new Automat();
             await Task.Run(() =>
             {
-            while (continuePSO == true)
+                while (continuePSO == true && shouldStart == true)
             {
 
                 if (addStates == true)
@@ -810,45 +815,51 @@ namespace AC
 
             //mamy najlepsze automaty i szukamy solutiona
 
-            Console.WriteLine("PSO FINISHED");
-
-            findRelationPairs(setOfWords);
-
-            for (int i = 0; i < BestAutomatForStates.Count; i++)
+            if (shouldStart == true)
             {
-                double newError = 100.0;
-                Automat Tempsolution = (Automat)BestAutomatForStates[i];
-                newError = ErrorCalculation(setOfWords, Tempsolution);
-                BestErrorsForAutomats2Set.Add(newError);
-            }
+                Console.WriteLine("PSO FINISHED");
 
+                findRelationPairs(setOfWords);
 
-            minimalFinalErr = 100.0;
-            int bestFinalAutomatIndex = 0;
-            for (int i = 0; i < BestAutomatForStates.Count; i++)
-            {
-                if ((double)BestErrorsForAutomats2Set[i] < minimalFinalErr)
+                for (int i = 0; i < BestAutomatForStates.Count; i++)
                 {
-                    minimalFinalErr = (double)BestErrorsForAutomats2Set[i];
-                    bestFinalAutomatIndex = i;
+                    double newError = 100.0;
+                    Automat Tempsolution = (Automat)BestAutomatForStates[i];
+                    newError = ErrorCalculation(setOfWords, Tempsolution);
+                    BestErrorsForAutomats2Set.Add(newError);
                 }
+
+
+                minimalFinalErr = 100.0;
+                int bestFinalAutomatIndex = 0;
+                for (int i = 0; i < BestAutomatForStates.Count; i++)
+                {
+                    if ((double)BestErrorsForAutomats2Set[i] < minimalFinalErr)
+                    {
+                        minimalFinalErr = (double)BestErrorsForAutomats2Set[i];
+                        bestFinalAutomatIndex = i;
+                    }
+                }
+
+
+
+                solution = (Automat)BestAutomatForStates[bestFinalAutomatIndex];
+
+                Console.WriteLine("SOLUTION error : " + minimalFinalErr);
+                Console.WriteLine("" + (zListyNaStringa(solution.toVector())));
+
             }
-
-          
-
-            solution = (Automat)BestAutomatForStates[bestFinalAutomatIndex];
-
-            Console.WriteLine("SOLUTION error : " + minimalFinalErr);
-            Console.WriteLine("" + (zListyNaStringa(solution.toVector())));
             });
-            
-            List<int>[][] wynikDlaLukasza = doWydruku(solution);
 
-            List<int>[][] idealnyDlaLukasza = doWydruku(idealAutomat);
-            
-            DisplayGraph displayGraph = new DisplayGraph(idealnyDlaLukasza, wynikDlaLukasza, minimalFinalErr);
-            displayGraph.Show();
-                
+            if (shouldStart == true)
+            {
+                List<int>[][] wynikDlaLukasza = doWydruku(solution);
+
+                List<int>[][] idealnyDlaLukasza = doWydruku(idealAutomat);
+
+                DisplayGraph displayGraph = new DisplayGraph(idealnyDlaLukasza, wynikDlaLukasza, minimalFinalErr);
+                displayGraph.Show();
+            }
             
         }
 
