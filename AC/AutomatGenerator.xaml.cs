@@ -24,7 +24,7 @@ namespace AC
         public int StateNumber;
         public int SymbolNumber;
         public List<int[]> transitionTableFinal;
-
+        public bool isGenerated = false;
         public AutomatGenerator()
         {
             InitializeComponent();
@@ -49,7 +49,7 @@ namespace AC
         private void Create_Click(object sender, RoutedEventArgs e)
         {
 
-
+            isGenerated = false;
             StateNumber = int.Parse(StateNumberTxt.Text);
             SymbolNumber = int.Parse(SymbolNumberTxt.Text);
 
@@ -91,6 +91,7 @@ namespace AC
             Console.WriteLine("-----GOOD ONE AUTOMAT CREATED-------");
 
             transitionTableFinal = transitionTable;
+            isGenerated = true;
         }
 
         public List<int[]> RepairAutomat(List<int[]> transitionTable, int StateNumber, int SymbolNumber, int coNaprawic)
@@ -281,6 +282,15 @@ namespace AC
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
+
+
+            if(isGenerated == false)
+            {
+                MessageBox.Show("No automaton created");
+                return;
+            }
+
+
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog()
             {
                 Filter = "Text Files(*.txt)|*.txt"
