@@ -45,10 +45,10 @@ namespace AC
             //walidacja inputu
 
             Random random = new Random();
-            int minLen = int.Parse(MinWordTxt.Text);
+            int C = int.Parse(MinWordTxt.Text);
             int maxLen = int.Parse(MaxWordTxt.Text);
             int setNumber = int.Parse(SetNmbrTxt.Text);
-            int wordsNumber = int.Parse(WordAmountTxt.Text);
+            int maxSetSize = int.Parse(MaxBigSetTxt.Text);
 
 
             if(validateInput() == false)
@@ -58,30 +58,29 @@ namespace AC
             }
 
 
-            ArrayList wordlengths = new ArrayList();
+            ArrayList Bigwordlengths = new ArrayList();
 
-            int step = (int)Math.Round((double)(((double)(maxLen - minLen)) / (double)setNumber), 0);
+            int step = (int)Math.Round((double)(((double)(maxLen - (C))) / (double)setNumber), 0);
 
-            for(int i = 0 ; i < setNumber ; i ++)
+            for(int i = 0 ; i < setNumber; i ++)
             {
-                if(i==0)
+                /*if(i==0)
                 {
-                    wordlengths.Add(minLen);
-                    if(minLen == 0)
-                    {
-                        wordlengths.Add(1);
-                        i++;
-                    }
-                }
-                else if (i == setNumber -1)
+                    Bigwordlengths.Add(C + 1);
+                }*/
+                if (i == setNumber - 1)
                 {
-                    wordlengths.Add(maxLen);
+                    Bigwordlengths.Add(maxLen);
                 }
                 else
                 {
                     int lng = 0;
-                    lng = minLen + (i * step);
-                    wordlengths.Add(lng);
+                    lng = (C) + (i * step);
+                    if(lng == C)
+                    {
+                        lng++;
+                    }
+                    Bigwordlengths.Add(lng);
                 }
             }
 
@@ -95,32 +94,32 @@ namespace AC
                 letters.Add(i);
             }
             
+            List<List<int>> setOfSmallWords = new List<List<int>>();
+            List<List<int>>  setOfBigWords = new List<List<int>>();
 
-            for(int i = 0 ; i < setNumber ; i++)
+
+
+            for(int i = 0 ; i <= C ; i++)
             {
-                int currentLength = (int)wordlengths[i];
 
                 ArrayList templist = new ArrayList();
-
-                int ileslow = maxCombination(letters, currentLength, wordsNumber);
-                if (ileslow > wordsNumber)
-                    ileslow = wordsNumber;
+                int ileslow = maxCombination(letters, i);
 
 
-                for (int j = 0; j < ileslow ; j++)
-                { 
+                for (int j = 0; j < ileslow; j++)
+                {
                     String tempWord = "";
                     bool canAdd = false;
 
                     while (canAdd == false)
                     {
-                        for (int l = 0; l < currentLength; l++)
+                        for (int l = 0; l < i; l++)
                         {
                             int index = random.Next(0, letters.Count);
                             tempWord = tempWord + letters[index];
                         }
 
-                        if (validateWord(templist,tempWord))
+                        if (validateWord(templist, tempWord))
                         {
                             canAdd = true;
                         }
@@ -133,6 +132,80 @@ namespace AC
                 }
 
 
+                for (int p = 0; p < templist.Count; p++)
+                {
+                    List<int> word = new List<int>();
+                    foreach (char c in (string)templist[p])
+                    {
+                        word.Add(int.Parse(c.ToString()));
+                    }
+                    setOfSmallWords.Add(word);
+                    setOfWords.Add(word);
+                }
+            }
+
+
+
+
+            if(maxSetSize < setOfSmallWords.Count)
+            {
+                maxSetSize = setOfSmallWords.Count + 1;
+            }
+
+            ArrayList nieMozemypowtorzyc = new ArrayList();
+            int wordsPerGroup = (int)(maxSetSize / setNumber);
+
+
+            for (int i = 0; i < Bigwordlengths.Count; i++)
+            {
+                int currLeng = (int)Bigwordlengths[i];
+                ArrayList templist = new ArrayList();
+                int ileslow = maxCombination(letters, currLeng);
+
+
+                if (ileslow > wordsPerGroup)
+                {
+                    ileslow = wordsPerGroup;
+                }
+
+
+                if (i == Bigwordlengths.Count - 1)
+                {
+                    if (setOfBigWords.Count + ileslow <= setOfSmallWords.Count)
+                    {
+                        ileslow = setOfSmallWords.Count - setOfBigWords.Count + 1;
+                    }
+                    if (setOfBigWords.Count + ileslow <= maxSetSize)
+                    {
+                        ileslow = maxSetSize - setOfBigWords.Count + 1;
+                    }
+                }
+
+                for (int j = 0; j < ileslow; j++)
+                {
+                    String tempWord = "";
+                    bool canAdd = false;
+
+                    while (canAdd == false)
+                    {
+                        for (int l = 0; l < currLeng; l++)
+                        {
+                            int index = random.Next(0, letters.Count);
+                            tempWord = tempWord + letters[index];
+                        }
+
+                        if (validateWord(templist, tempWord))
+                        {
+                            canAdd = true;
+                        }
+                        else
+                        {
+                            tempWord = "";
+                        }
+                    }
+                    templist.Add(tempWord);
+                }
+
 
                 for (int p = 0; p < templist.Count; p++)
                 {
@@ -142,16 +215,107 @@ namespace AC
                         word.Add(int.Parse(c.ToString()));
                     }
                     setOfWords.Add(word);
+                    setOfBigWords.Add(word);
+                    nieMozemypowtorzyc.Add(templist[p]);
                 }
             }
 
-
+            String separator = "99999999999999999999";
+            List<int> separator2 = new List<int>();
+            foreach (char c in (string)separator)
+                   {
+                        separator2.Add(int.Parse(c.ToString()));
+                   }
+            setOfWords.Add(separator2);
 
             //console print
             /*for(int i = 0 ; i < setOfWords.Count ; i++)
             {
                 Console.WriteLine(i+". - "+setOfWords[i]);
             }*/
+
+
+            //setOfWords = setOfSmallWords + setOfBigWords;
+
+
+
+
+            List<List<int>> TestingSetWords = new List<List<int>>();
+
+
+            for (int i = 0; i < Bigwordlengths.Count; i++)
+            {
+                int currLeng = (int)Bigwordlengths[i];
+                ArrayList templist = new ArrayList();
+                int ileslow = maxCombination(letters, currLeng);
+                bool canGenerateMorewords = true;
+                if (2 * ileslow < wordsPerGroup)
+                {
+                    canGenerateMorewords = false;
+                }
+
+                if (canGenerateMorewords == true)
+                {
+                    if (ileslow > wordsPerGroup)
+                    {
+                        ileslow = wordsPerGroup;
+                    }
+
+                    if (i == Bigwordlengths.Count - 1)
+                    {
+                        if (TestingSetWords.Count + ileslow <= setOfBigWords.Count + setOfSmallWords.Count)
+                        {
+                            ileslow = setOfBigWords.Count + setOfSmallWords.Count - TestingSetWords.Count + 1;
+                        }
+                        if (TestingSetWords.Count + ileslow <= maxSetSize)
+                        {
+                            ileslow = maxSetSize - TestingSetWords.Count + 1;
+                        }
+                    }
+
+                    for (int j = 0; j < ileslow; j++)
+                    {
+                        String tempWord = "";
+                        bool canAdd = false;
+
+                        while (canAdd == false)
+                        {
+                            for (int l = 0; l < currLeng; l++)
+                            {
+                                int index = random.Next(0, letters.Count);
+                                tempWord = tempWord + letters[index];
+                            }
+
+                            if (validateWord(templist, tempWord) && validateWord(nieMozemypowtorzyc, tempWord))
+                            {
+                                canAdd = true;
+                            }
+                            else
+                            {
+                                tempWord = "";
+                            }
+                        }
+                        templist.Add(tempWord);
+                    }
+
+
+                    for (int p = 0; p < templist.Count; p++)
+                    {
+                        List<int> word = new List<int>();
+                        foreach (char c in (string)templist[p])
+                        {
+                            word.Add(int.Parse(c.ToString()));
+                        }
+                        TestingSetWords.Add(word);
+                        setOfWords.Add(word);
+                    }
+                }
+            }
+
+
+
+
+
             Console.WriteLine("Generated " + setOfWords.Count+ " words.");
 
             saveToFile();
@@ -178,13 +342,13 @@ namespace AC
             }
             return returned;
         }
-        int maxCombination(ArrayList letters, int length, int words)
+        int maxCombination(ArrayList letters, int length)//, int words)
         {
             int returned = 0;
             returned = (int)Math.Pow(letters.Count,length);
             int tmp = int.Parse(""+returned);
             if (tmp < 0)
-                returned = words;
+               returned = 100000;
             return returned;
         }
         bool validateInput()
@@ -201,10 +365,10 @@ namespace AC
                 returned = false;
             }
 
-            if (int.Parse(SetNmbrTxt.Text) < 1 || int.Parse(WordAmountTxt.Text) < 1)
+            /*if (int.Parse(SetNmbrTxt.Text) < 1 || int.Parse(WordAmountTxt.Text) < 1)
             {
                 returned = false;
-            }
+            }*/
             if (AlphabetTxt.Text.Length <1)
             {
                 returned = false;

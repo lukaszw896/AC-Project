@@ -16,16 +16,17 @@
             <ColumnDefinition/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <Label Grid.Row="0" Grid.Column="0" Content="Min word length :" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <Label Grid.Row="0" Grid.Column="0" Content="C (min length limitation) :" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <Label Grid.Row="1" Grid.Column="0" Content="Max word length :" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <Label Grid.Row="2" Grid.Column="0" Content="Number of differet lengths :" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <Label Grid.Row="3" Grid.Column="0" Content="Amount of words with one length :" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <Label Grid.Row="4" Grid.Column="0" Content="Alphabet length :" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <TextBox Name="MinWordTxt" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" TextWrapping="Wrap" Text="1" VerticalAlignment="Center"/>
+        <Label Grid.Row="3" Grid.Column="0" Content="Alphabet length :" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <Label Grid.Row="4" Grid.Column="0" Content="Max Testing set Size :" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <TextBox Name="MinWordTxt" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" TextWrapping="Wrap" Text="5" VerticalAlignment="Center"/>
         <TextBox Name="MaxWordTxt" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" TextWrapping="Wrap" Text="20" VerticalAlignment="Center"/>
         <TextBox Name="SetNmbrTxt" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center" TextWrapping="Wrap" Text="6" VerticalAlignment="Center"/>
-        <TextBox Name="WordAmountTxt" Grid.Row="3" Grid.Column="1" HorizontalAlignment="Center" TextWrapping="Wrap" Text="50" VerticalAlignment="Center"/>
-        <TextBox Name="AlphabetTxt" Grid.Row="4" Grid.Column="1" HorizontalAlignment="Center" TextWrapping="Wrap" Text="2" VerticalAlignment="Center"/>
+        <TextBox Name="AlphabetTxt" Grid.Row="3" Grid.Column="1" HorizontalAlignment="Center" TextWrapping="Wrap" Text="5" VerticalAlignment="Center"/>
+
+        <TextBox Name="MaxBigSetTxt" Grid.Row="4" Grid.Column="1" HorizontalAlignment="Center" TextWrapping="Wrap" Text="3000" VerticalAlignment="Center"/>
         <Button Content="Generate Word Set" Grid.Row="5" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Click="Generate_Click"/>
 
     </Grid>
