@@ -424,7 +424,7 @@ namespace AC
         /// 
         async Task PSO()
         {
-            Console.WriteLine("Learning set size : " + learningSetOfWords.Count + ", Training set size: " + TrainingSetOfWords.Count + " out of total words : " + setOfWords.Count);
+            Console.WriteLine("Learning set size : " + learningSetOfWords.Count + " out of total words : " + setOfWords.Count);
             List<List<int>> slowa = new List<List<int>>();
             slowa = learningSetOfWords;
 
