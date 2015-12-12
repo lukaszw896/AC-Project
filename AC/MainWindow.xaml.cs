@@ -372,6 +372,7 @@ namespace AC
 
             int[] finishingStates = new int[Words.Count];
 
+            
             Parallel.For(0, Words.Count, i =>
             //for (int i = 0; i < Words.Count; i++)
             {
@@ -380,58 +381,50 @@ namespace AC
             }
             );
 
-            var watch = Stopwatch.StartNew();
-            //////
+          /*  int[][] finishingStatesMatrix = new int[Words.Count][];
+
             Parallel.For(0, Words.Count, i =>
             //for (int i = 0; i < Words.Count; i++)
             {
+                finishingStatesMatrix[i] = new int[Words.Count];
+                for (int j = 0; j < Words.Count; j++)
+                {
+                    finishingStatesMatrix[i][j] = finishingStates[j];
+                }
+            }
+            );*/
+
+            var watch = Stopwatch.StartNew();
+            //////
+            double errorCounter = 0.0;
+            //Parallel.For(0, Words.Count, i =>
+            for (int i = 0; i < Words.Count; i++)
+            {
                 for (int j = i + 1; j < Words.Count; j++)
                 {
+                    //if (finishingStatesMatrix[i][i] == finishingStatesMatrix[i][j])
                     if (finishingStates[i] == finishingStates[j])
                     {
-                        currentParticlePairs[i][j] = 1;
-                        currentParticlePairs[j][i] = 1;
+                        if (pairsOfRelation[i][j] == 0)
+                        {
+                            errorCounter = errorCounter + 1.0;
+                        }
                     }
                     else
                     {
-                        currentParticlePairs[i][j] = 0;
-                        currentParticlePairs[j][i] = 0;
+                        if (pairsOfRelation[i][j] == 1)
+                        {
+                            errorCounter = errorCounter + 1.0;
+                        }
                     }
 
                 }
             }
-            );
+          //  );
             //////
             watch.Stop();
             var elapsedMs = watch.ElapsedMilliseconds;
-         //   Console.WriteLine("Related Words checking execution time: " + elapsedMs);
-
-            //relacjie idealnego automatu mam w globalnej zmiennej a teraz
-            //policzono relacje dla particla . Teraz mamy dwie tabele i je porownujemy
-            //i liczymy roznice
-            
-
-            watch = Stopwatch.StartNew();
-            //////
-            double errorCounter = 0.0;
-            for (int i = 0; i < Words.Count; i++)
-            {
-                for (int j = 0; j < Words.Count; j++)
-                {
-                    if (i != j && pairsOfRelation[i][j] != currentParticlePairs[i][j])
-                    {
-                        errorCounter = errorCounter + 1.0;
-                    }
-                }
-            }
-            //////
-            watch.Stop();
-            elapsedMs = watch.ElapsedMilliseconds;
-            //Console.WriteLine("ErrorChecking execution time: " + elapsedMs);
-
-
-
-            errorCounter = errorCounter / 2.0 ;
+            //Console.WriteLine("Related Words checking execution time: " + elapsedMs);       
 
             error = (errorCounter / ((Words.Count * Words.Count) - Words.Count)) * 100.0;
 
@@ -581,6 +574,7 @@ namespace AC
                    // watch = Stopwatch.StartNew();
                     //////
                     Automat currentParticle = new Automat();
+
                     currentParticle = Automat.fromVector(zListyNaStringa(discretePosition), currentStateNumber, (int)idealAutomat.getAlphabetLength());
                     //////
                     //watch.Stop();
