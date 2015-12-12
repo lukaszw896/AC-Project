@@ -43,12 +43,20 @@ namespace AC
                                               getProcessStartInfoQuery,
                                               registerLayoutPluginCommand);
 
+
+
             byte[] orginal = wrapper.GenerateGraph(GenerateDotString(orginalAutomaton), Enums.GraphReturnType.Png);
             byte[] found = wrapper.GenerateGraph(GenerateDotString(foundAutomaton), Enums.GraphReturnType.Png);
+
+
+
             orginalAutomatonImage.Source = LoadImage(orginal);
             foundAutomatonImage.Source = LoadImage(found);
-           // graphImage.Source = LoadImage(orginal);
+            //graphImage.Source = LoadImage(orginal);
         }
+
+
+
         public string GenerateDotString(List<int>[][] automaton)
         {
             string dotString = "digraph{";

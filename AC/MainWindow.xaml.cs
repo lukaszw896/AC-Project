@@ -281,8 +281,8 @@ namespace AC
                             {
                                 flag = true;
                                 EQClasses[j].Add(setOfWords[i]);
-                                break;
                             }
+                            break;
                         }
                     }
                     if (flag == true)
@@ -317,13 +317,23 @@ namespace AC
                 pairsOfRelation[j] = new int[words.Count];
             }
 
+            int[] finishingStates = new int[words.Count];
+
+            Parallel.For(0, words.Count, i =>
+            //for (int i = 0; i < Words.Count; i++)
+            {
+                int tmp = GetFinishingState(idealAutomat, words[i]);
+                finishingStates[i] = tmp;
+            }
+            );
+
             for (int i = 0; i < words.Count; i++)
             {
                 for (int j = 0; j < words.Count; j++)
                 {
                     if(i != j)
                     {
-                        if (areWordsRelated(idealAutomat, words[i], words[j]) == true)
+                        if (finishingStates[i] == finishingStates[j])
                         {
                             pairsOfRelation[i][j] = 1;
                             pairsOfRelation[j][i] = 1;
