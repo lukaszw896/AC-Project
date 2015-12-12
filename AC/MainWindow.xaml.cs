@@ -201,20 +201,20 @@ namespace AC
         bool areWordsRelated(Automat automata, List<int> word1, List<int> word2)
         {
             int numberOfStates = automata.getStatesNumber();
-            List<int[][]> transitionTableList = new List<int[][]>();
+            List<int[]> transitionTableList = new List<int[]>();
             transitionTableList = automata.getTransitionTableList();
             int word1Length = word1.Count;
             int word2Length = word2.Count;
 
             int currentState1 = 0, currentState2 = 0;
 
-            int[][] transitionTable;
+            int[] transitionTable;
             for (int i = 0; i < word1Length; i++)
             {
                 transitionTable = transitionTableList[word1[i]];
                 for (int j = 0; j < numberOfStates; j++)
                 {
-                    if (transitionTable[currentState1][j] == 1)
+                    if (transitionTable[currentState1] == j)
                     {
                         currentState1 = j;
                         break;
@@ -226,7 +226,7 @@ namespace AC
                 transitionTable = transitionTableList[word2[i]];
                 for (int j = 0; j < numberOfStates; j++)
                 {
-                    if (transitionTable[currentState2][j] == 1)
+                    if (transitionTable[currentState2] == j)
                     {
                         currentState2 = j;
                         break;
@@ -876,20 +876,20 @@ namespace AC
         int GetFinishingState(Automat automata, List<int> word)
         {
             int numberOfStates = automata.getStatesNumber();
-            List<int[][]> transitionTableList = new List<int[][]>();
+            List<int[]> transitionTableList = new List<int[]>();
             transitionTableList = automata.getTransitionTableList();
             int word1Length = word.Count;
 
 
             int currentState1 = 0;
 
-            int[][] transitionTable;
+            int[] transitionTable;
             for (int i = 0; i < word1Length; i++)
             {
                 transitionTable = transitionTableList[word[i]];
                 for (int j = 0; j < numberOfStates; j++)
                 {
-                    if (transitionTable[currentState1][j] == 1)
+                    if (transitionTable[currentState1] == j)
                     {
                         currentState1 = j;
                         break;
@@ -1121,12 +1121,12 @@ namespace AC
 
             for (int i = 0; i < wynik.getAlphabetLength(); i++)
             {
-                int[][] transition = wynik.getTransitionTableList()[i];
+                int[] transition = wynik.getTransitionTableList()[i];
                 for (int y = 0; y < wynik.getStatesNumber(); y++)
                 {
                     for (int x = 0; x < wynik.getStatesNumber(); x++)
                     {
-                        if (transition[x][y] == 1)
+                        if (transition[x] == y)
                         {
                             macierz[x][y].Add(i);
                         }

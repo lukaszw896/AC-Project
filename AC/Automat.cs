@@ -14,7 +14,7 @@ namespace AC
     {
         private int statesNumber;
         private int alphabetLength;
-        private List<int[][]> transitionTableList;
+        private List<int[]> transitionTableList;
 
 
         /// <summary>
@@ -24,7 +24,7 @@ namespace AC
         {
             statesNumber = 0;
             alphabetLength = 0;
-            transitionTableList = new List<int[][]>();
+            transitionTableList = new List<int[]>();
         }
 
 
@@ -34,11 +34,11 @@ namespace AC
         /// <param name="_states"></param>
         /// <param name="_alphabet"></param>
         /// /// <param name="_transition"></param>
-        public Automat(int _states, int _alphabet, List<int[][]> _transition)
+        public Automat(int _states, int _alphabet, List<int[]> _transition)
         {
             statesNumber = _states;
             alphabetLength = _alphabet;
-            transitionTableList = new List<int[][]>();
+            transitionTableList = new List<int[]>();
             transitionTableList = _transition;
         }
 
@@ -95,13 +95,13 @@ namespace AC
 
             for (int i = 0; i < alphabetLength; i++)
             {
-                int[][] transitionTable = transitionTableList[i];
+                int[] transitionTable = transitionTableList[i];
 
                 for (int j = 0; j < statesNumber; j++)
                 {
                     for (int k = 0; k < statesNumber; k++)
                     {
-                        if(transitionTable[j][k] == 1)
+                        if(transitionTable[j] == k)
                         {
                             vector.Add(1);
                         }
@@ -112,7 +112,6 @@ namespace AC
                     }
                 }
             }
-
             return vector;
         }
 
@@ -128,16 +127,15 @@ namespace AC
             statesNumber = int.Parse(inputs[0]);
             alphabetLength = int.Parse(inputs[1]);
 
-            transitionTableList = new List<int[][]>();
+            transitionTableList = new List<int[]>();
             for (int i = 0; i < alphabetLength; i++)
             {
                 //init transition table
                 List<int> symbolsForletter = new List<int>();
-                int[][] transitionTable = new int[statesNumber][];
+                int[] transitionTable = new int[statesNumber];
 
                 for (int j = 0; j < statesNumber; j++)
                 {
-                    transitionTable[j] = new int[statesNumber];
                     symbolsForletter.Add(int.Parse(inputs[(j * alphabetLength) + 2 + i]));
                 }
 
@@ -150,13 +148,8 @@ namespace AC
                         int tmp = symbolsForletter[j] - 1;
                         if (tmp == k)
                         {
-                            transitionTable[j][k] = 1;
+                            transitionTable[j] = k;
                         }
-                        else
-                        {
-                            transitionTable[j][k] = 0;
-                        }
-
                     }
                 }
                 transitionTableList.Add(transitionTable);
@@ -190,16 +183,11 @@ namespace AC
             //alphabetLength = _alphabetLength;
 
 
-            List<int[][]> _transitionTableList = new List<int[][]>();
+            List<int[]> _transitionTableList = new List<int[]>();
             for (int i = 0; i < _alphabetLength; i++)
             {
                 //init transition table
-                int[][] transitionTable = new int[_statesNumber][];
-
-                for (int j = 0; j < _statesNumber; j++)
-                {
-                    transitionTable[j] = new int[_statesNumber];
-                }
+                int[] transitionTable = new int[_statesNumber];
 
                 for (int j = 0; j < _statesNumber; j++)
                 {
@@ -209,13 +197,8 @@ namespace AC
                         //int tmp = int.Parse(inputs[index]);
                         if ((int)data[index] == 1)
                         {
-                            transitionTable[j][k] = 1;
+                            transitionTable[j] = k; ;
                         }
-                        else
-                        {
-                            transitionTable[j][k] = 0;
-                        }
-
                     }
                 }
                 _transitionTableList.Add(transitionTable);
@@ -234,7 +217,7 @@ namespace AC
         {
             return alphabetLength;
         }
-        public List<int[][]> getTransitionTableList()
+        public List<int[]> getTransitionTableList()
         {
             return transitionTableList;
         }
@@ -248,10 +231,10 @@ namespace AC
         {
             alphabetLength = _alphabet;
         }
-        public void setTransitionTableList(List<int[][]> _transition)
+        public void setTransitionTableList(List<int[]> _transition)
         {
             transitionTableList.Clear();
-            transitionTableList = new List<int[][]>();
+            transitionTableList = new List<int[]>();
             transitionTableList = _transition;
         }
     }
