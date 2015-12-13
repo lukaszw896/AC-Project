@@ -34,6 +34,9 @@ namespace AC
 
         List<List<Automat>> wszystkieSolucje;
 
+
+        List<List<double>> wszystkiedoC;
+        List<List<double>> wszystkieodC;
         List<List<double>> wszystkieLearningoweWyniki;
         List<List<double>> wszystkieWyniki;
 
@@ -46,6 +49,7 @@ namespace AC
         static Random random = new Random();
         double speedLowerBound = -0.2;
         double speedUpperBound = 0.2;
+
         public MainWindow()
         {
             InitializeComponent();

@@ -171,13 +171,14 @@ namespace AC
 
                 if (i == Bigwordlengths.Count - 1)
                 {
-                    if (setOfBigWords.Count + ileslow <= setOfSmallWords.Count)
-                    {
-                        ileslow = setOfSmallWords.Count - setOfBigWords.Count + 1;
-                    }
+                    
                     if (setOfBigWords.Count + ileslow <= maxSetSize)
                     {
                         ileslow = maxSetSize - setOfBigWords.Count + 1;
+                    }
+                    if (setOfBigWords.Count + ileslow <= setOfSmallWords.Count)
+                    {
+                        ileslow = setOfSmallWords.Count - setOfBigWords.Count + 1;
                     }
                 }
 
@@ -299,7 +300,7 @@ namespace AC
                             }
                         }
                         templist.Add(tempWord);
-                        Console.WriteLine(j + " / " + ileslow);
+                        //Console.WriteLine(j + " / " + ileslow);
                     }
 
 
