@@ -4,6 +4,7 @@ using GraphVizWrapper.Queries;
 using MahApps.Metro.Controls;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -24,8 +25,11 @@ namespace AC
     /// </summary>
     public partial class DisplayGraph : MetroWindow
     {
-        public  DisplayGraph(List<int>[][] orginalAutomaton, List<int>[][] foundAutomaton, double error)
+
+        
+        public  DisplayGraph(List<int>[][] orginalAutomaton, List<int>[][] foundAutomaton, double error, String path)
         {
+            
             InitializeComponent();
             // These three instances can be injected via the IGetStartProcessQuery, 
             //                                               IGetProcessStartInfoQuery and 
@@ -44,7 +48,7 @@ namespace AC
                                               registerLayoutPluginCommand);*/
 
             List<byte[]> graphs = new List<byte[]>();
-            Wut(graphs, orginalAutomaton, foundAutomaton);
+            Wut(graphs, orginalAutomaton, foundAutomaton, path);
 
             //byte[] orginal = wrapper.GenerateGraph(GenerateDotString(orginalAutomaton), Enums.GraphReturnType.Png);
             //byte[] found = wrapper.GenerateGraph(GenerateDotString(foundAutomaton), Enums.GraphReturnType.Png);
@@ -53,12 +57,17 @@ namespace AC
             //graphImage.Source = LoadImage(orginal);
         }
 
-        async void Wut(List<byte[]> graphs,List<int>[][] orginalAutomaton, List<int>[][] foundAutomaton)
+        async void Wut(List<byte[]> graphs,List<int>[][] orginalAutomaton, List<int>[][] foundAutomaton, String path)
         {
              graphs = await DrawGraph(orginalAutomaton, foundAutomaton);
 
-             orginalAutomatonImage.Source = LoadImage(graphs[0]);
-             foundAutomatonImage.Source = LoadImage(graphs[1]);
+             //orginalAutomatonImage.Source = 
+            LoadImage(graphs[0], path+".jpg");
+             //foundAutomatonImage.Source = 
+            LoadImage(graphs[1], path+"2.jpg");
+
+             
+
              int a = 1;
              a++;
         }
@@ -119,9 +128,9 @@ namespace AC
             dotString += "}";
                 return dotString;
         }
-        private static BitmapImage LoadImage(byte[] imageData)
+        private static void LoadImage(byte[] imageData,String path)
         {
-            if (imageData == null || imageData.Length == 0) return null;
+            /*if (imageData == null || imageData.Length == 0) return null;
             var image = new BitmapImage();
             using (var mem = new MemoryStream(imageData))
             {
@@ -134,7 +143,18 @@ namespace AC
                 image.EndInit();
             }
             image.Freeze();
-            return image;
+            return image;*/
+
+            Bitmap bmp;
+            using (var ms = new MemoryStream(imageData))
+            {
+                bmp = new Bitmap(ms);
+                bmp.Save(path);
+            }
+
+
+
         }
+      
     }
 }

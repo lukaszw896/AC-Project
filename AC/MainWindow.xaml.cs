@@ -68,6 +68,8 @@ namespace AC
             wszystkieSolucje = new List<List<Automat>>();
             wszystkieWyniki = new List<List<double>>();
             wszystkieLearningoweWyniki = new List<List<double>>();
+            wszystkiedoC = new List<List<double>>();
+            wszystkieodC = new List<List<double>>();
               
         }
 
@@ -250,14 +252,6 @@ namespace AC
 
                         if (flag == 0)
                         {
-                            if (numOfWordsLengthC > 0)
-                            {
-                                wszystkiedoC.Add(setOfWords[i]);
-                            }
-                            else
-                            {
-                                wszystkieodC.Add(setOfWords[i]);
-                            }
                             learningSetOfWords.Add(setOfWords[i]);
                         }
                         else if (flag == 1)
@@ -714,8 +708,8 @@ namespace AC
                 for (int i = 0; i < BestAutomatForStates.Count; i++)
                 {
                     double newError = 100.0;
-                    double newErrorDoC = 100.0;
-                    double newErrorOdC = 100.0;
+                   // double newErrorDoC = 100.0;
+                   // double newErrorOdC = 100.0;
                     Automat Tempsolution = (Automat)BestAutomatForStates[i];
 
                     newError = PsoHelper.CalculateParticleError(testingSetOfWords, Tempsolution, pairsOfRelation);
@@ -725,17 +719,40 @@ namespace AC
                     learningwynikiKazde.Add(BestErrorsForAutomats[i]);
                     BestErrorsForAutomats2Set.Add(newError);
                     
-                 //   listDoC.Add(newErrorDoC);
-                 //   listOdC.Add(newErrorOdC);
-                    
+                }
+                List<List<int>> setDoC = new List<List<int>>();
+                for (int p = 0; p < numberOfWordsSmallerEqualC; p++)
+                {
+                    setDoC.Add(testingSetOfWords[p]);
+                }
+                FindRelationPairs(setDoC);
+                for (int i = 0; i < BestAutomatForStates.Count; i++)
+                {
+                    Automat Tempsolution = (Automat)BestAutomatForStates[i];
+                    double newErrorDoC = 100.0;
+                    newErrorDoC = PsoHelper.CalculateParticleError(setDoC, Tempsolution, pairsOfRelation);
+                    listDoC.Add(newErrorDoC);
+                }
+                setDoC.Clear();
+                for (int p = numberOfWordsSmallerEqualC; p < testingSetOfWords.Count - 1; p++)
+                {
+                    setDoC.Add(testingSetOfWords[p]);
+                }
+                FindRelationPairs(setDoC);
+                for (int i = 0; i < BestAutomatForStates.Count; i++)
+                {
+                    Automat Tempsolution = (Automat)BestAutomatForStates[i];
+                    double newErrorDoC = 100.0;
+                    newErrorDoC = PsoHelper.CalculateParticleError(setDoC, Tempsolution, pairsOfRelation);
+                    listOdC.Add(newErrorDoC);
                 }
 
                 wszystkieSolucje.Add(solucjekazde);
                 wszystkieWyniki.Add(wynikiKazde);
                 wszystkieLearningoweWyniki.Add(learningwynikiKazde);
 
-               // wszystkiedoC.Add(listDoC);
-            //    wszystkieodC.Add(listOdC);
+                wszystkiedoC.Add(listDoC);
+                wszystkieodC.Add(listOdC);
 
                 minimalFinalErr = 100.0;
                 int bestFinalAutomatIndex = 0;
@@ -970,22 +987,22 @@ namespace AC
             return tmpString;
         }
 
-        public void zapiszWynik(String path, int mode)
+        public void zapiszWynik(String path, int mode, String pathZdjecie)
         {
             List<Automat> jedneRozwiaznia = new List<Automat>();
             List<double> jedneWyniki = new List<double>();
             List<double> jedneLearningoweWyniki = new List<double>();
 
-           // List<double> jedneDoC = new List<double>();
-           // List<double> jedneOdC = new List<double>();
+            List<double> jedneDoC = new List<double>();
+            List<double> jedneOdC = new List<double>();
 
             if (mode == 0)
             {
                 jedneRozwiaznia = wszystkieSolucje[wszystkieSolucje.Count - 1];
                 jedneWyniki = wszystkieWyniki[wszystkieWyniki.Count - 1];
                 jedneLearningoweWyniki = wszystkieLearningoweWyniki[wszystkieLearningoweWyniki.Count - 1];
-               // jedneDoC = wszystkiedoC[wszystkiedoC.Count - 1];
-              //  jedneOdC = wszystkieodC[wszystkieodC.Count - 1];
+                jedneDoC = wszystkiedoC[wszystkiedoC.Count - 1];
+                jedneOdC = wszystkieodC[wszystkieodC.Count - 1];
             }
             else if (mode == 1)
             {
@@ -1008,8 +1025,8 @@ namespace AC
                     String tmpString = prepareStringToWynik(solucja);
                    
                     String wynik = "";
-                    //wynik = "To C Error = " + jedneDoC[p] + " From C = " + jedneOdC[p] + " Learning Error = " + jedneLearningoweWyniki[p] + " || Final Error = " + jedneWyniki[p];
-                    wynik = "Learning Error = " + jedneLearningoweWyniki[p] + " || Final Error = " + jedneWyniki[p];
+                    wynik = "To C Error = " + jedneDoC[p] + " From C = " + jedneOdC[p] + " Learning Error = " + jedneLearningoweWyniki[p] + " || Final Error = " + jedneWyniki[p];
+                    //wynik = "Learning Error = " + jedneLearningoweWyniki[p] + " || Final Error = " + jedneWyniki[p];
                     sw.WriteLine("----------------------------------------------------");
                     sw.WriteLine(tmpString);
                     sw.WriteLine(wynik);
@@ -1030,6 +1047,11 @@ namespace AC
                     String wynik2 = "error = " + idealneWyniki[idealneWyniki.Count - 1];
                     sw.WriteLine(tmpString2);
                     sw.WriteLine(wynik2);
+
+                    DisplayGraph displayGraph = new DisplayGraph(doWydruku(idealAutomat), doWydruku(bestSolucja), (double)idealneWyniki[idealneWyniki.Count - 1], pathZdjecie);
+                    //TUTAJ TRZA ZPAISAC
+                    //BitmapImage test = displayGraph;
+
                 }
                 else if (mode == 1)
                 {
@@ -1060,19 +1082,19 @@ namespace AC
                     String wynik2 = "error = " + minimalFinalErr;
                     sw.WriteLine(tmpString2);
                     sw.WriteLine(wynik2);
+
+                    //DisplayGraph displayGraph = new DisplayGraph(doWydruku(idealAutomat), doWydruku(Finalsolution), minimalFinalErr);
+                    DisplayGraph displayGraph = new DisplayGraph(doWydruku(idealAutomat), doWydruku(Finalsolution), minimalFinalErr, pathZdjecie);
+                    //TUTAJ TRZA ZPAISAC
                 }
             }
         }
 
         private async void TEST_Click(object sender, RoutedEventArgs e)
         {
-
-            //DisplayGraph displayGraph = new DisplayGraph(idealnyDlaLukasza, wynikDlaLukasza, minimalFinalErr);
-            //displayGraph.s
-            //displayGraph.Show();
             //slowa wgrane
-            LoadWordSet("H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\WordTestSetSmall.txt");
-            //LoadWordSet("H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\WordTestSet.txt");
+            LoadWordSet("H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\malySet.txt");
+            //LoadWordSet("H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\duzySet.txt");
 
             //dla czterech typow automatu //4
             for(int typy = 0 ; typy < 4 ; typy ++)
@@ -1084,6 +1106,8 @@ namespace AC
                 {
                     String sciezka = "H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\AUTOMATY\\";
                     String sciezkaWynik = "H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\AUTOMATY\\";
+                    String sciezkaZdjecie = "H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\AUTOMATY\\";
+
                     switch(typy)
                     {
                         case 0 :
@@ -1103,47 +1127,58 @@ namespace AC
                             sciezkaWynik = sciezkaWynik + "15statesAutomat\\wyniki\\15_5_";
                             break;
                     }
+                    sciezkaZdjecie = sciezkaWynik;
                     switch(aut)
                     {
                         case 0 :
                             sciezka = sciezka + "1automat.txt";
                             sciezkaWynik = sciezkaWynik + "1automatWYNIK.txt";
+                            sciezkaZdjecie = sciezkaZdjecie + "1automatpicture";
                             break;
                         case 1 :
                             sciezka = sciezka + "2automat.txt";
                             sciezkaWynik = sciezkaWynik + "2automatWYNIK.txt";
+                            sciezkaZdjecie = sciezkaZdjecie + "2automatpicture";
                             break;
                         case 2 :
                             sciezka = sciezka + "3automat.txt";
                             sciezkaWynik = sciezkaWynik + "3automatWYNIK.txt";
+                            sciezkaZdjecie = sciezkaZdjecie + "3automatpicture";
                             break;
                         case 3 :
                             sciezka = sciezka + "4automat.txt";
                             sciezkaWynik = sciezkaWynik + "4automatWYNIK.txt";
+                            sciezkaZdjecie = sciezkaZdjecie + "4automatpicture";
                             break;
                         case 4 :
                             sciezka = sciezka + "5automat.txt";
                             sciezkaWynik = sciezkaWynik + "5automatWYNIK.txt";
+                            sciezkaZdjecie = sciezkaZdjecie + "5automatpicture";
                             break;
                         case 5 :
                             sciezka = sciezka + "6automat.txt";
                             sciezkaWynik = sciezkaWynik + "6automatWYNIK.txt";
+                            sciezkaZdjecie = sciezkaZdjecie + "6automatpicture";
                             break;
                         case 6 :
                             sciezka = sciezka + "7automat.txt";
                             sciezkaWynik = sciezkaWynik + "7automatWYNIK.txt";
+                            sciezkaZdjecie = sciezkaZdjecie + "7automatpicture";
                             break;
                         case 7 :
                             sciezka = sciezka + "8automat.txt";
                             sciezkaWynik = sciezkaWynik + "8automatWYNIK.txt";
+                            sciezkaZdjecie = sciezkaZdjecie + "8automatpicture";
                             break;
                         case 8 :
                             sciezka = sciezka + "9automat.txt";
                             sciezkaWynik = sciezkaWynik + "9automatWYNIK.txt";
+                            sciezkaZdjecie = sciezkaZdjecie + "9automatpicture";
                             break;
                         case 9 :
                             sciezka = sciezka + "10automat.txt";
                             sciezkaWynik = sciezkaWynik + "10automatWYNIK.txt";
+                            sciezkaZdjecie = sciezkaZdjecie + "10automatpicture";
                             break;
                     }
                     
@@ -1165,8 +1200,10 @@ namespace AC
                         MessageBox.Show("Not all data loaded !");
                         return;
                     }
+
+                    zapiszWynik(sciezkaWynik, 0, sciezkaZdjecie);
+
                     
-                    zapiszWynik(sciezkaWynik,0);
                 }
             }
 
@@ -1183,8 +1220,8 @@ namespace AC
             wszystkieWyniki.Clear();
 
             finMin.IsChecked = false;
-            LoadWordSet("H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\WordTestSetSmall.txt");
-            //LoadWordSet("H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\WordTestSet.txt");
+            LoadWordSet("H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\malySet.txt");
+            //LoadWordSet("H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\duzySet.txt");
 
             //dla czterech typow automatu //4
             for (int typy = 0; typy < 4; typy++)
@@ -1202,6 +1239,8 @@ namespace AC
 
                     String sciezka = "H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\APPROXIMATION\\";
                     String sciezkaWynik = "H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\APPROXIMATION\\";
+                    String sciezkaZdjecie = "H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\APPROXIMATION\\";
+
                     switch (typy)
                     {
                         case 0:
@@ -1221,47 +1260,60 @@ namespace AC
                             sciezkaWynik = sciezkaWynik + "80states\\wyniki\\80_5_";
                             break;
                     }
+
+                    sciezkaZdjecie = sciezkaWynik;
+
                     switch (aut)
                     {
                         case 0:
                             sciezka = sciezka + "1automat.txt";
                             sciezkaWynik = sciezkaWynik + "1automatWYNIK.txt";
+                            sciezkaZdjecie = sciezkaZdjecie + "1automatpicture";
                             break;
                         case 1:
                             sciezka = sciezka + "2automat.txt";
                             sciezkaWynik = sciezkaWynik + "2automatWYNIK.txt";
+                            sciezkaZdjecie = sciezkaZdjecie + "2automatpicture";
                             break;
                         case 2:
                             sciezka = sciezka + "3automat.txt";
                             sciezkaWynik = sciezkaWynik + "3automatWYNIK.txt";
+                            sciezkaZdjecie = sciezkaZdjecie + "3automatpicture";
                             break;
                         case 3:
                             sciezka = sciezka + "4automat.txt";
                             sciezkaWynik = sciezkaWynik + "4automatWYNIK.txt";
+                            sciezkaZdjecie = sciezkaZdjecie + "4automatpicture";
                             break;
                         case 4:
                             sciezka = sciezka + "5automat.txt";
                             sciezkaWynik = sciezkaWynik + "5automatWYNIK.txt";
+                            sciezkaZdjecie = sciezkaZdjecie + "5automatpicture";
                             break;
                         case 5:
                             sciezka = sciezka + "6automat.txt";
                             sciezkaWynik = sciezkaWynik + "6automatWYNIK.txt";
+                            sciezkaZdjecie = sciezkaZdjecie + "6automatpicture";
                             break;
                         case 6:
                             sciezka = sciezka + "7automat.txt";
                             sciezkaWynik = sciezkaWynik + "7automatWYNIK.txt";
+                            sciezkaZdjecie = sciezkaZdjecie + "7automatpicture";
                             break;
                         case 7:
                             sciezka = sciezka + "8automat.txt";
                             sciezkaWynik = sciezkaWynik + "8automatWYNIK.txt";
+                            sciezkaZdjecie = sciezkaZdjecie + "8automatpicture";
                             break;
                         case 8:
                             sciezka = sciezka + "9automat.txt";
                             sciezkaWynik = sciezkaWynik + "9automatWYNIK.txt";
+                            sciezkaZdjecie = sciezkaZdjecie + "9automatpicture";
                             break;
                         case 9:
                             sciezka = sciezka + "10automat.txt";
                             sciezkaWynik = sciezkaWynik + "10automatWYNIK.txt";
+                            sciezkaZdjecie = sciezkaZdjecie + "10automatpicture";
                             break;
                     }
 
@@ -1289,9 +1341,9 @@ namespace AC
                             MessageBox.Show("Not all data loaded !");
                             return;
                         }
-                    }                       
+                    }
 
-                    zapiszWynik(sciezkaWynik,1);
+                    zapiszWynik(sciezkaWynik, 1, sciezkaZdjecie);
                 }
             }
 
