@@ -300,7 +300,7 @@ namespace AC
                             }
                         }
                         templist.Add(tempWord);
-                        //Console.WriteLine(j + " / " + ileslow);
+                       // Console.WriteLine(j + " / " + ileslow);
                     }
 
 
@@ -375,6 +375,11 @@ namespace AC
                 returned = false;
             }*/
             if (AlphabetTxt.Text.Length <1)
+            {
+                returned = false;
+            }
+
+            if (int.Parse(MinWordTxt.Text) > 5)
             {
                 returned = false;
             }

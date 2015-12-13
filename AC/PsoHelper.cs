@@ -160,14 +160,6 @@ namespace AC
        {
            double error = 0.0;
 
-           int[][] currentParticlePairs;
-           currentParticlePairs = new int[Words.Count][];
-
-           for (int j = 0; j < Words.Count; j++)
-           {
-               currentParticlePairs[j] = new int[Words.Count];
-           }
-
            int[] finishingStates = new int[Words.Count];
 
 
@@ -323,6 +315,26 @@ namespace AC
        public static double GetRandomNumber()
        {
            return random.NextDouble() * (1.0 - 0.0) + 0.0;
+       }
+
+
+
+        /// <summary>
+        /// Function calculating distance between two particles
+        /// </summary>
+        /// <param name="vector1"></param>
+        /// <param name="vector2"></param>
+        /// <returns></returns>
+       public static double FindDistance(List<double> vector1, List<double> vector2)
+       {
+           double distance = 0.0;
+
+           for (int i = 0; i < vector1.Count; i++)
+           {
+               distance = distance + Math.Abs(vector1[i] - vector2[i]);
+           }
+
+           return distance;
        }
     }
 }

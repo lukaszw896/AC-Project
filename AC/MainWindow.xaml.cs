@@ -65,6 +65,7 @@ namespace AC
             wszystkieSolucje = new List<List<Automat>>();
             wszystkieWyniki = new List<List<double>>();
             wszystkieLearningoweWyniki = new List<List<double>>();
+              
         }
 
         /// <summary>
@@ -288,6 +289,7 @@ namespace AC
             a++;
         }       
 
+
         /// <summary>
         /// PSO ^^
         /// </summary>
@@ -426,42 +428,48 @@ namespace AC
                 //////
                 //ustalanie errorow
                 particleError.Clear();
-                for (int i = 0; i < particlesNumber; i++)
+
+                Task<List<double>>[] taskArray = new Task<List<double>>[8];
+
+                int numOfParticlesPerTask = (int)Math.Ceiling((double)particlesNumber / 8.0);
+
+                int bottom = 0;
+                int top = numOfParticlesPerTask;
+                
+                for (int i = 0; i < 8; i++)
                 {
-
-                    List<double> discretePosition = new List<double>();
-                   
-                    discretePosition = PsoHelper.AutomatonDiscretisation(particlesPos[i], particlesVel[i], roundAt, currentStateNumber, (int)idealAutomat.getAlphabetLength());
-                    double error = 0.0;
-
-                   // watch = Stopwatch.StartNew();
-                    //////
-                    Automat currentParticle = new Automat();
-
-                    currentParticle = Automat.fromVector(zListyNaStringa(discretePosition), currentStateNumber, (int)idealAutomat.getAlphabetLength());
-                  
-                    error = PsoHelper.CalculateParticleError(slowa, currentParticle, pairsOfRelation);
-                    particleError.Add(error);           
-
-                    if (particleBest[i] != error)
+                    int bottomCopy = bottom;
+                    int topCopy = top;
+                    taskArray[i] = Task<List<double>>.Factory.StartNew(() => CalculateError(bottomCopy, topCopy, roundAt, currentStateNumber, slowa, (int)idealAutomat.getAlphabetLength(), particlesPos, particlesVel, particleBest, particlesStopNumber, particlesBestPos));
+                    bottom = top;
+                    top += numOfParticlesPerTask;
+                    if (top > particlesNumber)
                     {
-                        particlesStopNumber[i] = 0;
+                        top = particlesNumber;
                     }
+                }
 
-                     if (particleBest[i] > error)
+                /*Task<List<double>>[] taskArray = {Task<List<double>>.Factory.StartNew(()=>CalculateError(0,6,roundAt,currentStateNumber,slowa,(int)idealAutomat.getAlphabetLength(),particlesPos,particlesVel,particleBest, particlesStopNumber, particlesBestPos)),
+                                    Task<List<double>>.Factory.StartNew(()=>CalculateError(6,12,roundAt,currentStateNumber,slowa,(int)idealAutomat.getAlphabetLength(),particlesPos,particlesVel,particleBest, particlesStopNumber, particlesBestPos)),
+                                    Task<List<double>>.Factory.StartNew(()=>CalculateError(12,18,roundAt,currentStateNumber,slowa,(int)idealAutomat.getAlphabetLength(),particlesPos,particlesVel,particleBest, particlesStopNumber, particlesBestPos)),
+                                    Task<List<double>>.Factory.StartNew(()=>CalculateError(18,24,roundAt,currentStateNumber,slowa,(int)idealAutomat.getAlphabetLength(),particlesPos,particlesVel,particleBest, particlesStopNumber, particlesBestPos)),
+                                    Task<List<double>>.Factory.StartNew(()=>CalculateError(24,30,roundAt,currentStateNumber,slowa,(int)idealAutomat.getAlphabetLength(),particlesPos,particlesVel,particleBest, particlesStopNumber, particlesBestPos)),
+                                    Task<List<double>>.Factory.StartNew(()=>CalculateError(30,36,roundAt,currentStateNumber,slowa,(int)idealAutomat.getAlphabetLength(),particlesPos,particlesVel,particleBest, particlesStopNumber, particlesBestPos)),
+                                    Task<List<double>>.Factory.StartNew(()=>CalculateError(36,43,roundAt,currentStateNumber,slowa,(int)idealAutomat.getAlphabetLength(),particlesPos,particlesVel,particleBest, particlesStopNumber, particlesBestPos)),
+                                     Task<List<double>>.Factory.StartNew(()=>CalculateError(43,50,roundAt,currentStateNumber,slowa,(int)idealAutomat.getAlphabetLength(),particlesPos,particlesVel,particleBest, particlesStopNumber, particlesBestPos))
+                                   };*/
+
+                Task.WaitAll(taskArray);
+                for (int i = 0; i < taskArray.Length; i++)
+                {
+                    for (int j = 0; j < taskArray[i].Result.Count; j++)
                     {
-                        particleBest[i] = error;
-                        particlesBestPos[i]= particlesPos[i];
-                        
+                        particleError.Add(taskArray[i].Result[j]);
                     }
+                }
 
-                     if (particleBest[i] == error)
-                    {
-                        particlesStopNumber[i]= particlesStopNumber[i] + 1;
-                    }
-                    
-
-
+                for (int i = 0; i < particlesNumber;i++ )
+                {
                     if ((double)particleError[i] <= errTolerance)
                     {
                         continuePSO = false;
@@ -469,15 +477,16 @@ namespace AC
 
                         //List<double> digitAutomattmp = makeVectorDiscrete(particlesPos[bestFinalAutomatIndextmp], particlesVel[bestFinalAutomatIndextmp], roundAt, currentStateNumber, (int)idealAutomat.getAlphabetLength());
                         Automat solutiontmp = new Automat();
+                        List<double> discretePosition = new List<double>();
+                        discretePosition = PsoHelper.AutomatonDiscretisation(particlesPos[i], particlesVel[i], roundAt, currentStateNumber, (int)idealAutomat.getAlphabetLength());
                         solutiontmp = Automat.fromVector(zListyNaStringa(discretePosition), currentStateNumber, (int)idealAutomat.getAlphabetLength());
                         BestAutomatForStates.Add(solutiontmp);
                         BestErrorsForAutomats.Add((double)particleError[i]);
 
                         break;
                     }
-
                 }
-                //////
+
                 watch.Stop();
                 var elapsedMs = watch.ElapsedMilliseconds;
                 Console.WriteLine("Fitness function execution time: " + elapsedMs);
@@ -505,7 +514,7 @@ namespace AC
                             // ale dla neighbournumber czy jakos tak
                             if (true)
                             {
-                                double dist = findDistance(particlesPos[i], particlesPos[j]);
+                                double dist = PsoHelper.FindDistance(particlesPos[i], particlesPos[j]);
                                 if (distances.Count < numberOfNeighbors)
                                 {
                                     distances.Add(dist);
@@ -666,10 +675,17 @@ namespace AC
                 List<double> wynikiKazde = new List<double>();
                 List<double> learningwynikiKazde = new List<double>();
 
+                List<double> listDoC = new List<double>();
+                List<double> listOdC = new List<double>();
+
+
+              
 
                 for (int i = 0; i < BestAutomatForStates.Count; i++)
                 {
                     double newError = 100.0;
+                    double newErrorDoC = 100.0;
+                    double newErrorOdC = 100.0;
                     Automat Tempsolution = (Automat)BestAutomatForStates[i];
 
                     newError = PsoHelper.CalculateParticleError(testingSetOfWords, Tempsolution, pairsOfRelation);
@@ -678,12 +694,18 @@ namespace AC
                     wynikiKazde.Add(newError);
                     learningwynikiKazde.Add(BestErrorsForAutomats[i]);
                     BestErrorsForAutomats2Set.Add(newError);
+                    
+                 //   listDoC.Add(newErrorDoC);
+                 //   listOdC.Add(newErrorOdC);
+                    
                 }
 
                 wszystkieSolucje.Add(solucjekazde);
                 wszystkieWyniki.Add(wynikiKazde);
                 wszystkieLearningoweWyniki.Add(learningwynikiKazde);
 
+               // wszystkiedoC.Add(listDoC);
+            //    wszystkieodC.Add(listOdC);
 
                 minimalFinalErr = 100.0;
                 int bestFinalAutomatIndex = 0;
@@ -719,6 +741,49 @@ namespace AC
               //  displayGraph.Show();
             }
             
+        }
+
+
+       List<double> CalculateError(int bottom, int up, double roundAt, int currentStateNumber, List<List<int>> slowa, int alphabetLength, List<List<double>> particlesPos, List<List<double>> particlesVel, 
+            List<double> particleBest, List<int> particlesStopNumber, List<List<double>> particlesBestPos)
+        {
+            List<double> particleError = new List<double>();
+            for (int i = bottom; i < up; i++)
+            {
+
+                List<double> discretePosition = new List<double>();
+
+                discretePosition = PsoHelper.AutomatonDiscretisation(particlesPos[i], particlesVel[i], roundAt, currentStateNumber, alphabetLength);
+                double error = 0.0;
+
+                // watch = Stopwatch.StartNew();
+                //////
+                Automat currentParticle = new Automat();
+
+                currentParticle = Automat.fromVector(zListyNaStringa(discretePosition), currentStateNumber, alphabetLength);
+
+                error = PsoHelper.CalculateParticleError(slowa, currentParticle, pairsOfRelation);
+                particleError.Add(error);
+
+                if (particleBest[i] != error)
+                {
+                    particlesStopNumber[i] = 0;
+                }
+
+                if (particleBest[i] > error)
+                {
+                    particleBest[i] = error;
+                    particlesBestPos[i] = particlesPos[i];
+
+                }
+
+                if (particleBest[i] == error)
+                {
+                    particlesStopNumber[i] = particlesStopNumber[i] + 1;
+                }                
+            }
+
+            return particleError;
         }
 
         private void RandomizePositionAndVelocity(int i, List<List<double>> particlesPos, List<List<double>> particlesVel, int numOfDim, double[][] errors)
@@ -777,22 +842,6 @@ namespace AC
             }
 
             return newPosition;
-        }
-
-        double findDistance(List<double> vector1, List<double> vector2)
-        {
-            double distance = 0.0;
-
-            for (int i = 0; i < vector1.Count; i++ )
-            {
-               /* double val1 = double.Parse(vector1[i].ToString());
-                double val2 = double.Parse(vector2[i].ToString());
-                */
-
-                distance = distance + Math.Abs(vector1[i] - vector2[i]);
-            }
-
-            return distance;
         }
 
         /// <summary>
@@ -895,11 +944,17 @@ namespace AC
             List<Automat> jedneRozwiaznia = new List<Automat>();
             List<double> jedneWyniki = new List<double>();
             List<double> jedneLearningoweWyniki = new List<double>();
+
+           // List<double> jedneDoC = new List<double>();
+           // List<double> jedneOdC = new List<double>();
+
             if (mode == 0)
             {
                 jedneRozwiaznia = wszystkieSolucje[wszystkieSolucje.Count - 1];
                 jedneWyniki = wszystkieWyniki[wszystkieWyniki.Count - 1];
                 jedneLearningoweWyniki = wszystkieLearningoweWyniki[wszystkieLearningoweWyniki.Count - 1];
+               // jedneDoC = wszystkiedoC[wszystkiedoC.Count - 1];
+              //  jedneOdC = wszystkieodC[wszystkieodC.Count - 1];
             }
             else if (mode == 1)
             {
@@ -922,6 +977,7 @@ namespace AC
                     String tmpString = prepareStringToWynik(solucja);
                    
                     String wynik = "";
+                    //wynik = "To C Error = " + jedneDoC[p] + " From C = " + jedneOdC[p] + " Learning Error = " + jedneLearningoweWyniki[p] + " || Final Error = " + jedneWyniki[p];
                     wynik = "Learning Error = " + jedneLearningoweWyniki[p] + " || Final Error = " + jedneWyniki[p];
                     sw.WriteLine("----------------------------------------------------");
                     sw.WriteLine(tmpString);
