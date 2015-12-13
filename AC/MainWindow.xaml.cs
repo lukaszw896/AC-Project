@@ -29,9 +29,14 @@ namespace AC
 
         Automat idealAutomat;
 
-
         List<Automat> idealneSolucje;
         List<double> idealneWyniki;
+
+        List<List<Automat>> wszystkieSolucje;
+
+        List<List<double>> wszystkieLearningoweWyniki;
+        List<List<double>> wszystkieWyniki;
+
 
         List<List<int>> setOfWords;
         List<List<int>> learningSetOfWords;
@@ -52,6 +57,10 @@ namespace AC
 
             idealneSolucje = new List<Automat>();
             idealneWyniki = new List<double>();
+
+            wszystkieSolucje = new List<List<Automat>>();
+            wszystkieWyniki = new List<List<double>>();
+            wszystkieLearningoweWyniki = new List<List<double>>();
         }
 
         /// <summary>
@@ -321,13 +330,19 @@ namespace AC
             int particlesGlobBest = 0;
             List<double> particleError = new List<double>();
             int dimensions = 0;
-            int minimumNumberOfStates = PsoHelper.MinimumNumberOfStates(idealAutomat, learningSetOfWords);
+
+            int minimumNumberOfStates = int.Parse(MinstatesTXT.Text);
+            if (finMin.IsChecked == true)
+            {
+                minimumNumberOfStates = PsoHelper.MinimumNumberOfStates(idealAutomat, learningSetOfWords);
+            }
 
             int currentStateNumber = minimumNumberOfStates - 1;
 
             double errTolerance = double.Parse(ToleranceTxt.Text, CultureInfo.InvariantCulture);
 
             int maxStateNumber = int.Parse(MaxstatesTXT.Text);
+            maxStateNumber++;
 
             bool continuePSO = true;
             bool addStates = true;
@@ -649,6 +664,12 @@ namespace AC
 
                 FindRelationPairs(testingSetOfWords);
 
+
+                List<Automat> solucjekazde = new List<Automat>();
+                List<double> wynikiKazde = new List<double>();
+                List<double> learningwynikiKazde = new List<double>();
+
+
                 for (int i = 0; i < BestAutomatForStates.Count; i++)
                 {
                     double newError = 100.0;
@@ -656,8 +677,15 @@ namespace AC
 
                     newError = PsoHelper.CalculateParticleError(testingSetOfWords, Tempsolution, pairsOfRelation);
 
+                    solucjekazde.Add(Tempsolution);
+                    wynikiKazde.Add(newError);
+                    learningwynikiKazde.Add(BestErrorsForAutomats[i]);
                     BestErrorsForAutomats2Set.Add(newError);
                 }
+
+                wszystkieSolucje.Add(solucjekazde);
+                wszystkieWyniki.Add(wynikiKazde);
+                wszystkieLearningoweWyniki.Add(learningwynikiKazde);
 
 
                 minimalFinalErr = 100.0;
@@ -690,8 +718,8 @@ namespace AC
                 idealneSolucje.Add(solution);
                 idealneWyniki.Add(minimalFinalErr);
 
-                DisplayGraph displayGraph = new DisplayGraph(idealnyDlaLukasza, wynikDlaLukasza, minimalFinalErr);
-                displayGraph.Show();
+              //  DisplayGraph displayGraph = new DisplayGraph(idealnyDlaLukasza, wynikDlaLukasza, minimalFinalErr);
+              //  displayGraph.Show();
             }
             
         }
@@ -874,103 +902,187 @@ namespace AC
             return macierz;
         }
 
-        public void zapiszWynik()
+        public String prepareStringToWynik(Automat solucja)
         {
-            String path = "C:\\Users\\PC\\Documents\\Visual Studio 2013\\Projects\\ACrepo\\wynik.txt";
-            using (StreamWriter sw = new StreamWriter(path))
-                {
-                    //idealneSolucje
-                    for (int i = 0; i < idealneSolucje.Count; i++)
-                    {
-                        Automat solucja = idealneSolucje[i];
-                        String tmpString = "" ;
-                        tmpString = tmpString + solucja.getStatesNumber() + "," + solucja.getAlphabetLength();
-
-                        for (int x = 0; x < solucja.getStatesNumber() - 1; x++ )
-                        {
-                            int[] row = (solucja.getTransitionTableList())[x];
-                            for (int y = 0; y < solucja.getAlphabetLength() - 1; y++)
-                            {
-                                tmpString = tmpString + "," + (row[y] + 1 );
-                            }
-                        }
-
-                        String wynik = "error = " + idealneWyniki[i];
-                        sw.WriteLine("----------------------------------------------------");
-                        sw.WriteLine(tmpString);
-                        sw.WriteLine(wynik);
-                   }
-                }
          
+            String tmpString = "";
+            tmpString = tmpString + solucja.getStatesNumber() + "," + solucja.getAlphabetLength();
+            List<int[]> transitionList = solucja.getTransitionTableList();
+
+
+            for (int x = 0; x < solucja.getStatesNumber(); x++)
+            {
+                for (int y = 0; y < solucja.getAlphabetLength(); y++)
+                {
+                    tmpString = tmpString + "," + (transitionList[y][x] + 1);
+                }
+            }
+            return tmpString;
+        }
+
+        public void zapiszWynik(String path, int mode)
+        {
+            List<Automat> jedneRozwiaznia = new List<Automat>();
+            List<double> jedneWyniki = new List<double>();
+            List<double> jedneLearningoweWyniki = new List<double>();
+            if (mode == 0)
+            {
+                jedneRozwiaznia = wszystkieSolucje[wszystkieSolucje.Count - 1];
+                jedneWyniki = wszystkieWyniki[wszystkieWyniki.Count - 1];
+                jedneLearningoweWyniki = wszystkieLearningoweWyniki[wszystkieLearningoweWyniki.Count - 1];
+            }
+            else if (mode == 1)
+            {
+                for(int l = 0 ; l < 5 ; l ++)
+                {
+                    Automat tmp = wszystkieSolucje[l][0];
+                    jedneRozwiaznia.Add(tmp);
+                    jedneWyniki.Add(wszystkieWyniki[l][0]);
+                    jedneLearningoweWyniki.Add(wszystkieLearningoweWyniki[l][0]);
+                }
+            }
+
+
+            using (StreamWriter sw = new StreamWriter(path))
+            {
+                List<double> wynikiKazde = new List<double>();
+                for (int p = 0; p < jedneRozwiaznia.Count; p++)
+                {
+                    Automat solucja = jedneRozwiaznia[p];
+                    String tmpString = prepareStringToWynik(solucja);
+                   
+                    String wynik = "";
+                    wynik = "Learning Error = " + jedneLearningoweWyniki[p] + " || Final Error = " + jedneWyniki[p];
+                    sw.WriteLine("----------------------------------------------------");
+                    sw.WriteLine(tmpString);
+                    sw.WriteLine(wynik);
+                    wynikiKazde.Add(jedneWyniki[p]);
+                }
+
+                if (mode == 0)
+                {
+                    //na dole najlepszy wynik
+                    sw.WriteLine("----------------------------------------------------");
+                    sw.WriteLine("");
+                    sw.WriteLine("");
+                    sw.WriteLine("--------------------BEST SOLUTION-------------------");
+
+                    Automat bestSolucja = idealneSolucje[idealneSolucje.Count - 1];
+                    String tmpString2 = prepareStringToWynik(bestSolucja);
+                   
+                    String wynik2 = "error = " + idealneWyniki[idealneWyniki.Count - 1];
+                    sw.WriteLine(tmpString2);
+                    sw.WriteLine(wynik2);
+                }
+                else if (mode == 1)
+                {
+                    List<Automat> solucjekazde = new List<Automat>();
+                    List<double> learningwynikiKazde = new List<double>();
+                    
+                    double minimalFinalErr = 100.0;
+                    int bestFinalAutomatIndex = 0;
+                    for (int i = 0; i < jedneRozwiaznia.Count; i++)
+                    {
+                        if ((double)wynikiKazde[i] < minimalFinalErr)
+                        {
+                            minimalFinalErr = (double)wynikiKazde[i];
+                            bestFinalAutomatIndex = i;
+                        }
+                    }
+
+                    Automat Finalsolution = (Automat)jedneRozwiaznia[bestFinalAutomatIndex];
+
+                    sw.WriteLine("----------------------------------------------------");
+                    sw.WriteLine("");
+                    sw.WriteLine("");
+                    sw.WriteLine("--------------------BEST SOLUTION-------------------");
+
+
+                    String tmpString2 = prepareStringToWynik(Finalsolution);
+
+                    String wynik2 = "error = " + minimalFinalErr;
+                    sw.WriteLine(tmpString2);
+                    sw.WriteLine(wynik2);
+                }
+            }
         }
 
         private async void TEST_Click(object sender, RoutedEventArgs e)
         {
-            //tu odpalamy testy
-
-            //JAK CHCESZ PRAWDZIWE TESTY TO ZMIENIC TRZBA OBA ROZMIARY PETLI TAK JAK W KOMENTACH
-            //I WORDSET
-
             //slowa wgrane
-            //LoadWordSet("C:\\Users\\PC\\Documents\\Visual Studio 2013\\Projects\\ACrepo\\WordTestSetSmall.txt");
-            LoadWordSet("C:\\Users\\PC\\Documents\\Visual Studio 2013\\Projects\\ACrepo\\WordTestSet.txt");
+            LoadWordSet("H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\WordTestSetSmall.txt");
+            //LoadWordSet("H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\WordTestSet.txt");
 
             //dla czterech typow automatu //4
             for(int typy = 0 ; typy < 4 ; typy ++)
-            {
-                
+            {               
                 idealAutomat = new Automat();
 
                 //10 typow automatu z kazdego typu //10
-                for( int aut = 0 ; aut < 10; aut ++)
+                for( int aut = 0 ; aut < 10 ; aut ++)
                 {
-                    String sciezka = "C:\\Users\\PC\\Documents\\Visual Studio 2013\\Projects\\ACrepo\\\\AUTOMATY\\";
+                    String sciezka = "H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\AUTOMATY\\";
+                    String sciezkaWynik = "H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\AUTOMATY\\";
                     switch(typy)
                     {
                         case 0 :
                             sciezka = sciezka + "4statesAutomat\\4_5_";
+                            sciezkaWynik = sciezkaWynik + "4statesAutomat\\wyniki\\4_5_";
                             break;
                         case 1 :
                             sciezka = sciezka + "6statesAutomat\\6_5_";
+                            sciezkaWynik = sciezkaWynik + "6statesAutomat\\wyniki\\6_5_";
                             break;
                         case 2 :
                             sciezka = sciezka + "10statesAutomat\\10_5_";
+                            sciezkaWynik = sciezkaWynik + "10statesAutomat\\wyniki\\10_5_";
                             break;
                         case 3 :
                             sciezka = sciezka + "15statesAutomat\\15_5_";
+                            sciezkaWynik = sciezkaWynik + "15statesAutomat\\wyniki\\15_5_";
                             break;
                     }
                     switch(aut)
                     {
                         case 0 :
                             sciezka = sciezka + "1automat.txt";
+                            sciezkaWynik = sciezkaWynik + "1automatWYNIK.txt";
                             break;
                         case 1 :
                             sciezka = sciezka + "2automat.txt";
+                            sciezkaWynik = sciezkaWynik + "2automatWYNIK.txt";
                             break;
                         case 2 :
                             sciezka = sciezka + "3automat.txt";
+                            sciezkaWynik = sciezkaWynik + "3automatWYNIK.txt";
                             break;
                         case 3 :
                             sciezka = sciezka + "4automat.txt";
+                            sciezkaWynik = sciezkaWynik + "4automatWYNIK.txt";
                             break;
                         case 4 :
                             sciezka = sciezka + "5automat.txt";
+                            sciezkaWynik = sciezkaWynik + "5automatWYNIK.txt";
                             break;
                         case 5 :
                             sciezka = sciezka + "6automat.txt";
+                            sciezkaWynik = sciezkaWynik + "6automatWYNIK.txt";
                             break;
                         case 6 :
                             sciezka = sciezka + "7automat.txt";
+                            sciezkaWynik = sciezkaWynik + "7automatWYNIK.txt";
                             break;
                         case 7 :
                             sciezka = sciezka + "8automat.txt";
+                            sciezkaWynik = sciezkaWynik + "8automatWYNIK.txt";
                             break;
                         case 8 :
                             sciezka = sciezka + "9automat.txt";
+                            sciezkaWynik = sciezkaWynik + "9automatWYNIK.txt";
                             break;
                         case 9 :
                             sciezka = sciezka + "10automat.txt";
+                            sciezkaWynik = sciezkaWynik + "10automatWYNIK.txt";
                             break;
                     }
                     
@@ -992,18 +1104,137 @@ namespace AC
                         MessageBox.Show("Not all data loaded !");
                         return;
                     }
-
-                   // zapiszWynik();
+                    
+                    zapiszWynik(sciezkaWynik,0);
                 }
             }
 
+            Console.WriteLine("RECONSTRUCTION FINISHED");
 
+        }
 
-            //zapisz wyniki do pliku
-            zapiszWynik();
+        private async void TEST2_Click(object sender, RoutedEventArgs e)
+        {
+            idealneSolucje.Clear();
+            idealneWyniki.Clear();
+            wszystkieSolucje.Clear();
+            wszystkieLearningoweWyniki.Clear();
+            wszystkieWyniki.Clear();
 
-            Console.WriteLine("KONEC");
+            finMin.IsChecked = false;
+            LoadWordSet("H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\WordTestSetSmall.txt");
+            //LoadWordSet("H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\WordTestSet.txt");
 
+            //dla czterech typow automatu //4
+            for (int typy = 0; typy < 4; typy++)
+            {
+                idealAutomat = new Automat();
+
+                //10 typow automatu z kazdego typu //10
+                for (int aut = 0; aut < 10; aut++)
+                {
+                    idealneSolucje.Clear();
+                    idealneWyniki.Clear();
+                    wszystkieSolucje.Clear();
+                    wszystkieLearningoweWyniki.Clear();
+                    wszystkieWyniki.Clear();
+
+                    String sciezka = "H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\APPROXIMATION\\";
+                    String sciezkaWynik = "H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\APPROXIMATION\\";
+                    switch (typy)
+                    {
+                        case 0:
+                            sciezka = sciezka + "20states\\20_5_";
+                            sciezkaWynik = sciezkaWynik + "20states\\wyniki\\20_5_";
+                            break;
+                        case 1:
+                            sciezka = sciezka + "30states\\30_5_";
+                            sciezkaWynik = sciezkaWynik + "30states\\wyniki\\30_5_";
+                            break;
+                        case 2:
+                            sciezka = sciezka + "50states\\50_5_";
+                            sciezkaWynik = sciezkaWynik + "50states\\wyniki\\50_5_";
+                            break;
+                        case 3:
+                            sciezka = sciezka + "80states\\80_5_";
+                            sciezkaWynik = sciezkaWynik + "80states\\wyniki\\80_5_";
+                            break;
+                    }
+                    switch (aut)
+                    {
+                        case 0:
+                            sciezka = sciezka + "1automat.txt";
+                            sciezkaWynik = sciezkaWynik + "1automatWYNIK.txt";
+                            break;
+                        case 1:
+                            sciezka = sciezka + "2automat.txt";
+                            sciezkaWynik = sciezkaWynik + "2automatWYNIK.txt";
+                            break;
+                        case 2:
+                            sciezka = sciezka + "3automat.txt";
+                            sciezkaWynik = sciezkaWynik + "3automatWYNIK.txt";
+                            break;
+                        case 3:
+                            sciezka = sciezka + "4automat.txt";
+                            sciezkaWynik = sciezkaWynik + "4automatWYNIK.txt";
+                            break;
+                        case 4:
+                            sciezka = sciezka + "5automat.txt";
+                            sciezkaWynik = sciezkaWynik + "5automatWYNIK.txt";
+                            break;
+                        case 5:
+                            sciezka = sciezka + "6automat.txt";
+                            sciezkaWynik = sciezkaWynik + "6automatWYNIK.txt";
+                            break;
+                        case 6:
+                            sciezka = sciezka + "7automat.txt";
+                            sciezkaWynik = sciezkaWynik + "7automatWYNIK.txt";
+                            break;
+                        case 7:
+                            sciezka = sciezka + "8automat.txt";
+                            sciezkaWynik = sciezkaWynik + "8automatWYNIK.txt";
+                            break;
+                        case 8:
+                            sciezka = sciezka + "9automat.txt";
+                            sciezkaWynik = sciezkaWynik + "9automatWYNIK.txt";
+                            break;
+                        case 9:
+                            sciezka = sciezka + "10automat.txt";
+                            sciezkaWynik = sciezkaWynik + "10automatWYNIK.txt";
+                            break;
+                    }
+
+                    LoadAutomata(sciezka);
+
+                    Console.WriteLine("puszczam PSO dla kolejnego zestawu");
+
+                    int [] stany = {4,6,8,10,12};
+
+                    for (int s = 0; s < 5; s++ )
+                    {
+                        MinstatesTXT.Text = ""+stany[s];
+                        MaxstatesTXT.Text = ""+stany[s];
+
+                        if (valideData() == true)
+                        {
+                            progressRing.Visibility = Visibility.Visible;
+                            progressRingBackground.Visibility = Visibility.Visible;
+                            await PSO();
+                            progressRing.Visibility = Visibility.Collapsed;
+                            progressRingBackground.Visibility = Visibility.Collapsed;
+                        }
+                        else
+                        {
+                            MessageBox.Show("Not all data loaded !");
+                            return;
+                        }
+                    }                       
+
+                    zapiszWynik(sciezkaWynik,1);
+                }
+            }
+
+            Console.WriteLine("APPROXIMATION FINISHED");
         }
     }
 }

@@ -15,8 +15,8 @@
         <Label Grid.Column="0" Grid.Row="0" Content="States number : " HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <Label Grid.Column="0" Grid.Row="1" Content="Symbols number : " HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
-        <TextBox Name="StateNumberTxt" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Center" TextWrapping="Wrap" Text="4" VerticalAlignment="Center" />
-        <TextBox Name="SymbolNumberTxt" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center" TextWrapping="Wrap" Text="2" VerticalAlignment="Center" />
+        <TextBox Name="StateNumberTxt" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Center" TextWrapping="Wrap" Text="8" VerticalAlignment="Center" />
+        <TextBox Name="SymbolNumberTxt" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center" TextWrapping="Wrap" Text="5" VerticalAlignment="Center" />
 
         <Button Content="Create Automat" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.Row="2" Click="Create_Click"/>
         <Button Content="Save Automat" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" Grid.Row="2" Click="Save_Click"/>

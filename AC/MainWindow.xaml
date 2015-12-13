@@ -25,22 +25,24 @@
             <RowDefinition/>
             <RowDefinition/>
             <RowDefinition/>
+            <RowDefinition/>
         </Grid.RowDefinitions>
         <Controls:ProgressRing Name="progressRing" Panel.ZIndex="4"  Grid.Row="0" Grid.Column="0" Grid.RowSpan="13" Grid.ColumnSpan="3" Width="300" Background="#333"  IsActive="True" Visibility="Collapsed" />
         <Label Name="progressRingBackground" Panel.ZIndex="3"  Grid.Row="0" Grid.Column="0" Grid.RowSpan="13" Grid.ColumnSpan="3" Background="#333" Margin="0" Opacity="0.9" Visibility="Collapsed"/>
                
-        <Button Grid.Column="0" Grid.Row="6" Content="Load Ideal Automata" VerticalAlignment="Center" Click="LoadAutomata_Click"/>
-        <Button  Grid.Column="0" Grid.Row="0" Content="DO TESTS" VerticalAlignment="Center" Click="TEST_Click" />
-        <Button  Grid.Column="0" Grid.Row="1" Content="Create Word Set" VerticalAlignment="Center" Click="CreateSet_Click"/>
-        <Button  Grid.Column="0" Grid.Row="2" Content="Create Automaton" VerticalAlignment="Center" Click="CreateAutomat_Click" />
+        <Button Grid.Column="0" Grid.Row="7" Content="Load Ideal Automata" VerticalAlignment="Center" Click="LoadAutomata_Click"/>
+        <Button  Grid.Column="0" Grid.Row="0" Content="DO RECONSTRUCTION TESTS" VerticalAlignment="Center" Click="TEST_Click" />
+        <Button  Grid.Column="0" Grid.Row="1" Content="DO APPROX. TESTS" VerticalAlignment="Center" Click="TEST2_Click" />
+        <Button  Grid.Column="0" Grid.Row="2" Content="Create Word Set" VerticalAlignment="Center" Click="CreateSet_Click"/>
+        <Button  Grid.Column="0" Grid.Row="3" Content="Create Automaton" VerticalAlignment="Center" Click="CreateAutomat_Click" />
         <Label Panel.ZIndex="-1" Grid.Row="3" Background="#333" Grid.RowSpan="9"/>
-        <Button Grid.Column="0" Grid.Row="4" Content="Load Word Set" VerticalAlignment="Center" Click="LoadSet_Click"/>
+        <Button Grid.Column="0" Grid.Row="5" Content="Load Word Set" VerticalAlignment="Center" Click="LoadSet_Click"/>
         
         <Label Background="#FF0F0000" Grid.Column="1" Grid.ColumnSpan="2" Grid.RowSpan="6" />
         
         <Label Content="Number of particles :" Grid.Column="1" Grid.Row="0" VerticalAlignment="Center"/>
         <TextBox Name="ParticleAmountTxt" Grid.Row="0" Grid.Column="2" TextWrapping="Wrap" Text="50" VerticalAlignment="Center"/>
-        <Button Content="PSO" Grid.Column="0" Grid.Row="10" VerticalAlignment="Center" Click="PSO_Click" />
+        <Button Content="PSO" Grid.Column="0" Grid.Row="11" VerticalAlignment="Center" Click="PSO_Click" />
         
         <Label Content="Round to 1 at (discretization) :" Grid.Column="1" Grid.Row="1" VerticalAlignment="Center"/>
         <TextBox Name="RountAtTxt" Grid.Row="1" Grid.Column="2" TextWrapping="Wrap" Text="0.7" VerticalAlignment="Center"/>
@@ -93,21 +95,25 @@
 
         <Label Content="Max states number :" Grid.Column="1" Grid.Row="8" VerticalAlignment="Center"/>
         <TextBox Name="MaxstatesTXT" Grid.Row="8" Grid.Column="2"  TextWrapping="Wrap" Text="15" VerticalAlignment="Center" />
-                    
-        <Label Content="Num of err to restore particle best :" Grid.Column="1" Grid.Row="9" VerticalAlignment="Center"/>
-        <TextBox Name="maxErrIterationTxt" Grid.Row="9" Grid.Column="2" TextWrapping="Wrap" Text="5" VerticalAlignment="Center"/>
+
+        <Label Content="Min states number :" Grid.Column="1" Grid.Row="9" VerticalAlignment="Center"/>
+        <TextBox Name="MinstatesTXT" Grid.Row="9" Grid.Column="2"  TextWrapping="Wrap" Text="3" VerticalAlignment="Center" />
+
+        <Label Content="Num of err to restore particle best :" Grid.Column="1" Grid.Row="10" VerticalAlignment="Center"/>
+        <TextBox Name="maxErrIterationTxt" Grid.Row="10" Grid.Column="2" TextWrapping="Wrap" Text="5" VerticalAlignment="Center"/>
         
         
-        <Label Grid.Column="1" Grid.Row="10" Background="#111" Grid.RowSpan="3" Grid.ColumnSpan="2" Margin="0,0,205,0" />
-        <Label Content="Nr of randomized particles :" Grid.Column="1" Grid.Row="10" VerticalAlignment="Center"/>
-        <TextBox Name="particlerandomnumber" Grid.Row="10" Grid.Column="2" TextWrapping="Wrap" Text="28" VerticalAlignment="Center"/>
+        <Label Grid.Column="1" Grid.Row="11" Background="#111" Grid.RowSpan="3" Grid.ColumnSpan="2" Margin="0,0,205,0" />
+        <Label Content="Nr of randomized particles :" Grid.Column="1" Grid.Row="11" VerticalAlignment="Center"/>
+        <TextBox Name="particlerandomnumber" Grid.Row="11" Grid.Column="2" TextWrapping="Wrap" Text="28" VerticalAlignment="Center"/>
         
         
-        <Label Content="Number of same error to random :" Grid.Column="1" Grid.Row="11" VerticalAlignment="Center"/>
-        <TextBox Name="errorSameRepetition" Grid.Row="11" Grid.Column="2" TextWrapping="Wrap" Text="8" VerticalAlignment="Center"/>
-        <Label Content="Untouched iteration number :" Grid.Column="1" Grid.Row="12" VerticalAlignment="Center"/>
-        <TextBox Name="untouchedIteration" Grid.Row="12" Grid.Column="2" TextWrapping="Wrap" Text="25" VerticalAlignment="Center"/>
-        <CheckBox Name="freezGlobal" Content="Keep best automaton in swarm" Grid.Row="8" VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="True" FontSize="17" />
+        <Label Content="Number of same error to random :" Grid.Column="1" Grid.Row="12" VerticalAlignment="Center"/>
+        <TextBox Name="errorSameRepetition" Grid.Row="12" Grid.Column="2" TextWrapping="Wrap" Text="8" VerticalAlignment="Center"/>
+        <Label Content="Untouched iteration number :" Grid.Column="1" Grid.Row="13" VerticalAlignment="Center"/>
+        <TextBox Name="untouchedIteration" Grid.Row="13" Grid.Column="2" TextWrapping="Wrap" Text="25" VerticalAlignment="Center"/>
+        <CheckBox Name="freezGlobal" Content="Keep best automaton in swarm" Grid.Row="9" VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="True" FontSize="17" />
+        <CheckBox Name="finMin" Content="Find minimal state number" Grid.Row="10" VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="False" FontSize="17" />
 
 
     </Grid>
