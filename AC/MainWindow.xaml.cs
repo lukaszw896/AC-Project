@@ -34,6 +34,7 @@ namespace AC
 
         List<List<Automat>> wszystkieSolucje;
 
+        int valueC;
 
         List<List<double>> wszystkiedoC;
         List<List<double>> wszystkieodC;
@@ -44,6 +45,8 @@ namespace AC
         List<List<int>> setOfWords;
         List<List<int>> learningSetOfWords;
         List<List<int>> testingSetOfWords;
+
+        int numberOfWordsSmallerEqualC;
 
         int[][] pairsOfRelation;
         static Random random = new Random();
@@ -199,14 +202,32 @@ namespace AC
                 setOfWords.Add(word);
             }
 
+
             Console.WriteLine("zaladowano slowa ( " + setOfWords.Count + " )");
             splitWordsToSets();
         }
 
         void splitWordsToSets()
         {
+            valueC = setOfWords[setOfWords.Count - 1][0];
+            setOfWords.RemoveAt(setOfWords.Count - 1);
+
+            int numOfWordsLengthC = 0;
+
+            for (int i = 0; i < valueC+1; i++)
+            {
+                int tmp = 1;
+                for (int j = 0; j < i; j++) {
+                    tmp *= 5;
+                }
+                numOfWordsLengthC += tmp;
+            }
+
+            numberOfWordsSmallerEqualC = numOfWordsLengthC;
+
             learningSetOfWords = new List<List<int>>();
             testingSetOfWords = new List<List<int>>();
+            
 
             String separator = "99999999999999999999";
 
@@ -220,6 +241,7 @@ namespace AC
                     {
                         tmp = tmp + (setOfWords[i])[w];
                     }
+                    numOfWordsLengthC--;
 
                     if (tmp.Equals(separator))
                     {
@@ -228,6 +250,14 @@ namespace AC
 
                         if (flag == 0)
                         {
+                            if (numOfWordsLengthC > 0)
+                            {
+                                wszystkiedoC.Add(setOfWords[i]);
+                            }
+                            else
+                            {
+                                wszystkieodC.Add(setOfWords[i]);
+                            }
                             learningSetOfWords.Add(setOfWords[i]);
                         }
                         else if (flag == 1)
