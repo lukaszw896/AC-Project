@@ -314,6 +314,9 @@ namespace AC
                         TestingSetWords.Add(word);
                         setOfWords.Add(word);
                     }
+                    List<int> tmp = new List<int>();
+                    tmp.Add(C);
+                    setOfWords.Add(tmp);
                 }
             }
 
