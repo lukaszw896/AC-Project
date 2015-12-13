@@ -737,8 +737,9 @@ namespace AC
                 idealneSolucje.Add(solution);
                 idealneWyniki.Add(minimalFinalErr);
 
-              //  DisplayGraph displayGraph = new DisplayGraph(idealnyDlaLukasza, wynikDlaLukasza, minimalFinalErr);
-              //  displayGraph.Show();
+                //DisplayGraph displayGraph = new DisplayGraph(idealnyDlaLukasza, wynikDlaLukasza, minimalFinalErr);
+                //displayGraph.s
+                //displayGraph.Show();
             }
             
         }
@@ -1035,6 +1036,10 @@ namespace AC
 
         private async void TEST_Click(object sender, RoutedEventArgs e)
         {
+
+            //DisplayGraph displayGraph = new DisplayGraph(idealnyDlaLukasza, wynikDlaLukasza, minimalFinalErr);
+            //displayGraph.s
+            //displayGraph.Show();
             //slowa wgrane
             LoadWordSet("H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\WordTestSetSmall.txt");
             //LoadWordSet("H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\WordTestSet.txt");
