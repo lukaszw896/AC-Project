@@ -33,6 +33,12 @@ namespace AC
         List<Automat> idealneSolucje;
         List<double> idealneWyniki;
 
+        List<List<Automat>> wszystkieSolucje;
+        List<List<double>> wszystkieWyniki;
+
+
+
+
         List<List<int>> setOfWords;
         List<List<int>> learningSetOfWords;
         List<List<int>> testingSetOfWords;
@@ -52,6 +58,9 @@ namespace AC
 
             idealneSolucje = new List<Automat>();
             idealneWyniki = new List<double>();
+
+            wszystkieSolucje = new List<List<Automat>>();
+            wszystkieWyniki = new List<List<double>>();
         }
 
         /// <summary>
@@ -642,6 +651,10 @@ namespace AC
 
                 FindRelationPairs(testingSetOfWords);
 
+
+                List<Automat> solucjekazde = new List<Automat>();
+                List<double> wynikiKazde = new List<double>();
+
                 for (int i = 0; i < BestAutomatForStates.Count; i++)
                 {
                     double newError = 100.0;
@@ -649,8 +662,14 @@ namespace AC
 
                     newError = PsoHelper.CalculateParticleError(testingSetOfWords, Tempsolution, pairsOfRelation);
 
+                    solucjekazde.Add(Tempsolution);
+                    wynikiKazde.Add(newError);
+
                     BestErrorsForAutomats2Set.Add(newError);
                 }
+
+                wszystkieSolucje.Add(solucjekazde);
+                wszystkieWyniki.Add(wynikiKazde);
 
 
                 minimalFinalErr = 100.0;
@@ -683,8 +702,8 @@ namespace AC
                 idealneSolucje.Add(solution);
                 idealneWyniki.Add(minimalFinalErr);
 
-                DisplayGraph displayGraph = new DisplayGraph(idealnyDlaLukasza, wynikDlaLukasza, minimalFinalErr);
-                displayGraph.Show();
+              //  DisplayGraph displayGraph = new DisplayGraph(idealnyDlaLukasza, wynikDlaLukasza, minimalFinalErr);
+              //  displayGraph.Show();
             }
             
         }
@@ -840,34 +859,63 @@ namespace AC
             return macierz;
         }
 
-        public void zapiszWynik()
+        public void zapiszWynik(String path)
         {
-            String path = "C:\\Users\\PC\\Documents\\Visual Studio 2013\\Projects\\ACrepo\\wynik.txt";
+            List<Automat> jedneRozwiaznia = new List<Automat>();
+            List<double> jedneWyniki = new List<double>();
+
+            jedneRozwiaznia = wszystkieSolucje[wszystkieSolucje.Count - 1];
+            jedneWyniki = wszystkieWyniki[wszystkieWyniki.Count - 1];
+
+
             using (StreamWriter sw = new StreamWriter(path))
+            {
+
+                for (int p = 0; p < jedneRozwiaznia.Count; p++)
                 {
-                    //idealneSolucje
-                    for (int i = 0; i < idealneSolucje.Count; i++)
+                    Automat solucja = jedneRozwiaznia[p];
+                    String tmpString = "";
+                    tmpString = tmpString + solucja.getStatesNumber() + "," + solucja.getAlphabetLength();
+                    List<int[]> transitionList = solucja.getTransitionTableList();
+
+
+                    for (int x = 0; x < solucja.getStatesNumber(); x++)
                     {
-                        Automat solucja = idealneSolucje[i];
-                        String tmpString = "" ;
-                        tmpString = tmpString + solucja.getStatesNumber() + "," + solucja.getAlphabetLength();
-
-                        for (int x = 0; x < solucja.getStatesNumber() - 1; x++ )
+                        for (int y = 0; y < solucja.getAlphabetLength(); y++)
                         {
-                            int[] row = (solucja.getTransitionTableList())[x];
-                            for (int y = 0; y < solucja.getAlphabetLength() - 1; y++)
-                            {
-                                tmpString = tmpString + "," + (row[y] + 1 );
-                            }
+                            tmpString = tmpString + "," + (transitionList[y][x] + 1);
                         }
+                    }
 
-                        String wynik = "error = " + idealneWyniki[i];
-                        sw.WriteLine("----------------------------------------------------");
-                        sw.WriteLine(tmpString);
-                        sw.WriteLine(wynik);
-                   }
+                    String wynik = "error = " + jedneWyniki[p];
+                    sw.WriteLine("----------------------------------------------------");
+                    sw.WriteLine(tmpString);
+                    sw.WriteLine(wynik);
                 }
-         
+
+                //na dole najlepszy wynik
+                sw.WriteLine("----------------------------------------------------");
+                sw.WriteLine("--------------------BEST SOLUTION-------------------");
+
+                Automat bestSolucja = idealneSolucje[idealneSolucje.Count -1];
+                String tmpString2 = "";
+                tmpString2 = tmpString2 + bestSolucja.getStatesNumber() + "," + bestSolucja.getAlphabetLength();
+                List<int[]> besttransitionList = bestSolucja.getTransitionTableList();
+
+
+                for (int x = 0; x < bestSolucja.getStatesNumber(); x++)
+                {
+                    for (int y = 0; y < bestSolucja.getAlphabetLength(); y++)
+                    {
+                        tmpString2 = tmpString2 + "," + (besttransitionList[y][x] + 1);
+                    }
+                }
+
+                String wynik2 = "error = " + idealneWyniki[idealneWyniki.Count-1];
+                sw.WriteLine(tmpString2);
+                sw.WriteLine(wynik2);
+
+            }
         }
 
         private async void TEST_Click(object sender, RoutedEventArgs e)
@@ -878,8 +926,8 @@ namespace AC
             //I WORDSET
 
             //slowa wgrane
-            //LoadWordSet("C:\\Users\\PC\\Documents\\Visual Studio 2013\\Projects\\ACrepo\\WordTestSetSmall.txt");
-            LoadWordSet("C:\\Users\\PC\\Documents\\Visual Studio 2013\\Projects\\ACrepo\\WordTestSet.txt");
+            LoadWordSet("H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\WordTestSetSmall.txt");
+            //LoadWordSet("H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\WordTestSet.txt");
 
             //dla czterech typow automatu //4
             for(int typy = 0 ; typy < 4 ; typy ++)
@@ -890,53 +938,68 @@ namespace AC
                 //10 typow automatu z kazdego typu //10
                 for( int aut = 0 ; aut < 10; aut ++)
                 {
-                    String sciezka = "C:\\Users\\PC\\Documents\\Visual Studio 2013\\Projects\\ACrepo\\\\AUTOMATY\\";
+                    String sciezka = "H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\AUTOMATY\\";
+                    String sciezkaWynik = "H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\AUTOMATY\\";
                     switch(typy)
                     {
                         case 0 :
                             sciezka = sciezka + "4statesAutomat\\4_5_";
+                            sciezkaWynik = sciezkaWynik + "4statesAutomat\\wyniki\\4_5_";
                             break;
                         case 1 :
                             sciezka = sciezka + "6statesAutomat\\6_5_";
+                            sciezkaWynik = sciezkaWynik + "6statesAutomat\\wyniki\\6_5_";
                             break;
                         case 2 :
                             sciezka = sciezka + "10statesAutomat\\10_5_";
+                            sciezkaWynik = sciezkaWynik + "10statesAutomat\\wyniki\\10_5_";
                             break;
                         case 3 :
                             sciezka = sciezka + "15statesAutomat\\15_5_";
+                            sciezkaWynik = sciezkaWynik + "15statesAutomat\\wyniki\\15_5_";
                             break;
                     }
                     switch(aut)
                     {
                         case 0 :
                             sciezka = sciezka + "1automat.txt";
+                            sciezkaWynik = sciezkaWynik + "1automatWYNIK.txt";
                             break;
                         case 1 :
                             sciezka = sciezka + "2automat.txt";
+                            sciezkaWynik = sciezkaWynik + "2automatWYNIK.txt";
                             break;
                         case 2 :
                             sciezka = sciezka + "3automat.txt";
+                            sciezkaWynik = sciezkaWynik + "3automatWYNIK.txt";
                             break;
                         case 3 :
                             sciezka = sciezka + "4automat.txt";
+                            sciezkaWynik = sciezkaWynik + "4automatWYNIK.txt";
                             break;
                         case 4 :
                             sciezka = sciezka + "5automat.txt";
+                            sciezkaWynik = sciezkaWynik + "5automatWYNIK.txt";
                             break;
                         case 5 :
                             sciezka = sciezka + "6automat.txt";
+                            sciezkaWynik = sciezkaWynik + "6automatWYNIK.txt";
                             break;
                         case 6 :
                             sciezka = sciezka + "7automat.txt";
+                            sciezkaWynik = sciezkaWynik + "7automatWYNIK.txt";
                             break;
                         case 7 :
                             sciezka = sciezka + "8automat.txt";
+                            sciezkaWynik = sciezkaWynik + "8automatWYNIK.txt";
                             break;
                         case 8 :
                             sciezka = sciezka + "9automat.txt";
+                            sciezkaWynik = sciezkaWynik + "9automatWYNIK.txt";
                             break;
                         case 9 :
                             sciezka = sciezka + "10automat.txt";
+                            sciezkaWynik = sciezkaWynik + "10automatWYNIK.txt";
                             break;
                     }
                     
@@ -958,15 +1021,15 @@ namespace AC
                         MessageBox.Show("Not all data loaded !");
                         return;
                     }
-
-                   // zapiszWynik();
+                    
+                    zapiszWynik(sciezkaWynik);
                 }
             }
 
 
 
             //zapisz wyniki do pliku
-            zapiszWynik();
+            //zapiszWynik();
 
             Console.WriteLine("KONEC");
 
