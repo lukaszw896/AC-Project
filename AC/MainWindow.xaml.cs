@@ -1159,7 +1159,7 @@ namespace AC
             //I WORDSET
 
             //slowa wgrane
-            LoadWordSet("H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\WordTestSetSmall.txt");
+            LoadWordSet("h:\\Windows7\\Desktop\\AC TESTING\\WordTestSetSmall.txt");
             //LoadWordSet("H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\WordTestSet.txt");
 
             //dla czterech typow automatu //4
