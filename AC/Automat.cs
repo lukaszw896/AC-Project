@@ -10,7 +10,7 @@ namespace AC
     /// <summary>
     /// Klasa Automat z wszystkimi polami i metodami
     /// </summary>
-    class Automat
+    public class Automat
     {
         private int statesNumber;
         private int alphabetLength;
