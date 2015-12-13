@@ -299,7 +299,7 @@ namespace AC
                             }
                         }
                         templist.Add(tempWord);
-                        Console.WriteLine(j + " / " + ileslow);
+                       // Console.WriteLine(j + " / " + ileslow);
                     }
 
 
