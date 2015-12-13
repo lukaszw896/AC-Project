@@ -89,10 +89,10 @@
         
 
         <Label Content="Number of iterations :" Grid.Column="1" Grid.Row="7" VerticalAlignment="Center"/>
-        <TextBox Name="IterationTxt" Grid.Row="7" Grid.Column="2" TextWrapping="Wrap" Text="20" VerticalAlignment="Center"/>
+        <TextBox Name="IterationTxt" Grid.Row="7" Grid.Column="2" TextWrapping="Wrap" Text="250" VerticalAlignment="Center"/>
 
         <Label Content="Max states number :" Grid.Column="1" Grid.Row="8" VerticalAlignment="Center"/>
-        <TextBox Name="MaxstatesTXT" Grid.Row="8" Grid.Column="2"  TextWrapping="Wrap" Text="7" VerticalAlignment="Center"/>
+        <TextBox Name="MaxstatesTXT" Grid.Row="8" Grid.Column="2"  TextWrapping="Wrap" Text="15" VerticalAlignment="Center" />
                     
         <Label Content="Num of err to restore particle best :" Grid.Column="1" Grid.Row="9" VerticalAlignment="Center"/>
         <TextBox Name="maxErrIterationTxt" Grid.Row="9" Grid.Column="2" TextWrapping="Wrap" Text="5" VerticalAlignment="Center"/>
