@@ -174,16 +174,18 @@ namespace AC
            var watch = Stopwatch.StartNew();
            //////
            double errorCounter = 0.0;
-
+           int numberOfComparisions = 0;
            for (int i = 0; i < Words.Count; i++)
            {
                for (int j = i + 1; j < Words.Count; j++)
                {
+                   numberOfComparisions++;
                    if (finishingStates[i] == finishingStates[j])
                    {
                        if (pairsOfRelation[i][j] == 0)
                        {
                            errorCounter = errorCounter + 1.0;
+                           
                        }
                    }
                    else
@@ -201,7 +203,7 @@ namespace AC
            var elapsedMs = watch.ElapsedMilliseconds;
            //Console.WriteLine("Related Words checking execution time: " + elapsedMs);       
 
-           error = (errorCounter / ((Words.Count * Words.Count) - Words.Count)) * 100.0;
+           error = (errorCounter / numberOfComparisions) * 100.0;
 
            return error;
        }

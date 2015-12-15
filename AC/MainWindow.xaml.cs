@@ -400,7 +400,7 @@ namespace AC
             {
 
                 if (addStates == true)
-                {
+                {   
                     counter = 0;
                     currentStateNumber++;
 
