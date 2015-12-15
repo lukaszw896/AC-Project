@@ -53,6 +53,64 @@ namespace AC
         double speedLowerBound = -0.2;
         double speedUpperBound = 0.2;
 
+
+        /****************************************************************
+         *                  Variables used only in PSO                  *
+         ****************************************************************/ 
+             List<List<int>> slowa;
+
+
+            double maxSpeed;
+
+            int iterationToRandomise;
+
+            List<Automat> BestAutomatForStates;
+            List<double> BestErrorsForAutomats;
+
+            List<double> BestErrorsForAutomats2Set;
+            double roundAt;
+
+            int particlesNumber;
+            int maxIteration;
+            double c2;
+            double c1;
+            int numberOfNeighbors;
+
+            int maxStopError;
+            int particleRandomNumber;
+
+
+            List<List<double>> particlesPos;
+            List<List<double>> particlesVel;
+            List<List<double>> particlesBestPos;
+            List<double> particleBest;
+            List<int> particlesStopNumber;
+
+            
+            List<int> particlesLocBest;
+            int particlesGlobBest;
+            List<double> particleError;
+            int dimensions;
+
+            int minimumNumberOfStates;
+            int currentStateNumber;
+
+            double errTolerance;
+
+            int maxStateNumber;
+
+            bool continuePSO;
+            bool addStates;
+            int counter;
+
+            double lastErrorValue;
+            double errorRepeatCounter;
+
+            bool freez;
+            double minimalFinalErr;
+
+            bool shouldStart;     
+
         public MainWindow()
         {
             InitializeComponent();
@@ -263,128 +321,15 @@ namespace AC
         }       
 
         /// <summary>
-        /// uzypelniamy tutaj tabele parami slow ktore sa w relacji
-        /// </summary>
-        /// 
-        void FindRelationPairs(List<List<int>> words)
-        {
-            //pairsOfRelation
-            pairsOfRelation = new int[words.Count][];
-
-            for (int j = 0; j < words.Count; j++)
-            {
-                pairsOfRelation[j] = new int[words.Count];
-            }
-
-            int[] finishingStates = new int[words.Count];
-
-            Parallel.For(0, words.Count, i =>
-            {
-                int tmp = PsoHelper.WordComputationFinishingState(idealAutomat, words[i]);
-                finishingStates[i] = tmp;
-            }
-           );
-
-            for (int i = 0; i < words.Count; i++)
-            {
-                for (int j = 0; j < words.Count; j++)
-                {
-                    if(i != j)
-                    {
-                        if (finishingStates[i] == finishingStates[j])
-                        {
-                            pairsOfRelation[i][j] = 1;
-                            pairsOfRelation[j][i] = 1;
-                        }
-                        else
-                        {
-                            pairsOfRelation[i][j] = 0;
-                            pairsOfRelation[j][i] = 0;
-                        }
-                    }
-                    else
-                    {
-                        pairsOfRelation[i][j] = 1;
-                        pairsOfRelation[j][i] = 1;
-                    }
-                }
-            }
-            int a = 3;
-            a++;
-        }       
-
-
-        /// <summary>
         /// PSO ^^
         /// </summary>
         /// 
         async Task PSO()
         {
             Console.WriteLine("Learning set size : " + learningSetOfWords.Count + " out of total words : " + setOfWords.Count);
-            List<List<int>> slowa = new List<List<int>>();
-            slowa = learningSetOfWords;
 
-            speedLowerBound = double.Parse(speedLowerBoundTxt.Text, CultureInfo.InvariantCulture);
-            speedUpperBound = double.Parse(speedUpperBoundTxt.Text, CultureInfo.InvariantCulture);
+            InitPsoVariables();
 
-            double maxSpeed = double.Parse(maxSpeedTxt.Text, CultureInfo.InvariantCulture);
-
-            int iterationToRandomise = int.Parse(errorSameRepetition.Text);
-
-            List<Automat> BestAutomatForStates = new List<Automat>();
-            List<double> BestErrorsForAutomats = new List<double>();
-
-            List<double> BestErrorsForAutomats2Set = new List<double>();
-
-            FindRelationPairs(slowa);
-            double roundAt = double.Parse(RountAtTxt.Text, CultureInfo.InvariantCulture);
-
-            int particlesNumber = int.Parse(ParticleAmountTxt.Text);
-            int maxIteration = int.Parse(IterationTxt.Text);
-            double c2 = double.Parse(c1Txt.Text, CultureInfo.InvariantCulture);
-            double c1 = double.Parse(c2Txt.Text, CultureInfo.InvariantCulture);
-            int numberOfNeighbors =int.Parse(neighboursTxt.Text);
-
-            int maxStopError = int.Parse(maxErrIterationTxt.Text);
-            int particleRandomNumber = int.Parse(particlerandomnumber.Text);
-
-
-            List<List<double>> particlesPos = new List<List<double>>();
-            List<List<double>> particlesVel = new List<List<double>>();
-            List<List<double>> particlesBestPos = new List<List<double>>();
-            List<double> particleBest = new List<double>();
-            List<int> particlesStopNumber = new List<int>();
-
-            
-            List<int> particlesLocBest = new List<int>();
-            int particlesGlobBest = 0;
-            List<double> particleError = new List<double>();
-            int dimensions = 0;
-
-            int minimumNumberOfStates = int.Parse(MinstatesTXT.Text);
-            if (finMin.IsChecked == true)
-            {
-                minimumNumberOfStates = PsoHelper.MinimumNumberOfStates(idealAutomat, learningSetOfWords);
-            }
-
-            int currentStateNumber = minimumNumberOfStates - 1;
-
-            double errTolerance = double.Parse(ToleranceTxt.Text, CultureInfo.InvariantCulture);
-
-            int maxStateNumber = int.Parse(MaxstatesTXT.Text);
-            maxStateNumber++;
-
-            bool continuePSO = true;
-            bool addStates = true;
-            int counter = 0;
-
-            double lastErrorValue = 0;
-            double errorRepeatCounter = 0;
-
-            bool freez = freezGlobal.IsChecked.Value;
-            double minimalFinalErr = 100.0;
-
-            bool shouldStart = true;
             if (minimumNumberOfStates >= maxStateNumber)
             {
                 MessageBox.Show("Maximal Number of States is too small !");
@@ -412,38 +357,9 @@ namespace AC
                     }
 
                     dimensions = (int)Math.Pow(currentStateNumber, 2.0) * (int)idealAutomat.getAlphabetLength();
-
-                    particlesPos.Clear();
-                    particlesVel.Clear();
-                    particlesLocBest.Clear();
                     particlesGlobBest = 0;
-                    particleError.Clear();
-                    particleBest.Clear();
-                    particlesStopNumber.Clear();
-                    particlesBestPos.Clear();
 
-
-                    //losujemy pozycje i predkosc particles
-                    for (int i = 0; i < particlesNumber; i++)
-                    {
-                        List<double> singleVector = new List<double>();
-                        List<double> singleSpeedVector = new List<double>();
-
-                        for (int j = 0; j < dimensions; j++)
-                        {
-                            double randomVal = PsoHelper.GetRandomNumber();
-                            double randomVal2 = GetRandomParticleSpeed(speedLowerBound,speedUpperBound);
-                            singleVector.Add(randomVal);
-                            singleSpeedVector.Add(randomVal2);
-                        }
-                        particlesPos.Add(singleVector);
-                        particlesVel.Add(singleSpeedVector);
-                        particlesLocBest.Add(0);
-                        particleError.Add(0.0);
-                        particleBest.Add(100.0);
-                        particlesStopNumber.Add(0);
-                        particlesBestPos.Add(singleVector);
-                    }
+                    ResetPsoData(particlesPos, particlesVel, particlesLocBest, particleError, particleBest, particlesStopNumber, particlesBestPos, particlesNumber, dimensions);
 
                     addStates = false;
                 }
@@ -473,16 +389,6 @@ namespace AC
                     }
                 }
 
-                /*Task<List<double>>[] taskArray = {Task<List<double>>.Factory.StartNew(()=>CalculateError(0,6,roundAt,currentStateNumber,slowa,(int)idealAutomat.getAlphabetLength(),particlesPos,particlesVel,particleBest, particlesStopNumber, particlesBestPos)),
-                                    Task<List<double>>.Factory.StartNew(()=>CalculateError(6,12,roundAt,currentStateNumber,slowa,(int)idealAutomat.getAlphabetLength(),particlesPos,particlesVel,particleBest, particlesStopNumber, particlesBestPos)),
-                                    Task<List<double>>.Factory.StartNew(()=>CalculateError(12,18,roundAt,currentStateNumber,slowa,(int)idealAutomat.getAlphabetLength(),particlesPos,particlesVel,particleBest, particlesStopNumber, particlesBestPos)),
-                                    Task<List<double>>.Factory.StartNew(()=>CalculateError(18,24,roundAt,currentStateNumber,slowa,(int)idealAutomat.getAlphabetLength(),particlesPos,particlesVel,particleBest, particlesStopNumber, particlesBestPos)),
-                                    Task<List<double>>.Factory.StartNew(()=>CalculateError(24,30,roundAt,currentStateNumber,slowa,(int)idealAutomat.getAlphabetLength(),particlesPos,particlesVel,particleBest, particlesStopNumber, particlesBestPos)),
-                                    Task<List<double>>.Factory.StartNew(()=>CalculateError(30,36,roundAt,currentStateNumber,slowa,(int)idealAutomat.getAlphabetLength(),particlesPos,particlesVel,particleBest, particlesStopNumber, particlesBestPos)),
-                                    Task<List<double>>.Factory.StartNew(()=>CalculateError(36,43,roundAt,currentStateNumber,slowa,(int)idealAutomat.getAlphabetLength(),particlesPos,particlesVel,particleBest, particlesStopNumber, particlesBestPos)),
-                                     Task<List<double>>.Factory.StartNew(()=>CalculateError(43,50,roundAt,currentStateNumber,slowa,(int)idealAutomat.getAlphabetLength(),particlesPos,particlesVel,particleBest, particlesStopNumber, particlesBestPos))
-                                   };*/
-
                 Task.WaitAll(taskArray);
                 for (int i = 0; i < taskArray.Length; i++)
                 {
@@ -499,7 +405,6 @@ namespace AC
                         continuePSO = false;
                         Console.WriteLine("One of particle is very similar ! ");
 
-                        //List<double> digitAutomattmp = makeVectorDiscrete(particlesPos[bestFinalAutomatIndextmp], particlesVel[bestFinalAutomatIndextmp], roundAt, currentStateNumber, (int)idealAutomat.getAlphabetLength());
                         Automat solutiontmp = new Automat();
                         List<double> discretePosition = new List<double>();
                         discretePosition = PsoHelper.AutomatonDiscretisation(particlesPos[i], particlesVel[i], roundAt, currentStateNumber, (int)idealAutomat.getAlphabetLength());
@@ -616,37 +521,8 @@ namespace AC
                     if (lastErrorValue == (double)particleError[particlesGlobBest])
                     {
                         errorRepeatCounter++;
-                        if (errorRepeatCounter > iterationToRandomise)
-                        {
-                            Console.WriteLine("Randomizing position and velocity of " + particleRandomNumber + " particles");
-
-                            double[][] errors =  new double[particlesNumber][];
-                            for(int i=0;i<particlesNumber;i++){
-                                double[] error = new double[2];
-                                error[0]=particleError[i];
-                                error[1]=i;
-                                errors[i]=error;
-                            }
-                            
-                            for(int i=0; i<particlesNumber;i++){
-                                for(int j=0;j<particlesNumber-1;j++){
-                                    if(errors[j][0]<errors[j+1][0]){
-                                        double[] tmp = errors[j];
-                                        errors[j] = errors[j+1];
-                                        errors[j+1] = tmp;
-                                    }
-                                }
-                            }
-
-
-
-
-
-                           //Random random = new Random();
-                            for (int i = 0; i < particleRandomNumber; i++)
-                            {
-                                RandomizePositionAndVelocity(i, particlesPos, particlesVel,dimensions,errors);
-                            }
+                        if (errorRepeatCounter > iterationToRandomise){
+                            RandomizeNotMovingParticles(particleRandomNumber,particlesNumber,particlesPos,particlesVel,dimensions,particleError);
                             errorRepeatCounter = 0;
                         }
                     }
@@ -692,7 +568,7 @@ namespace AC
             {
                 Console.WriteLine("PSO FINISHED");
 
-                FindRelationPairs(testingSetOfWords);
+                pairsOfRelation = PsoHelper.FindRelationPairs(testingSetOfWords,idealAutomat);
 
 
                 List<Automat> solucjekazde = new List<Automat>();
@@ -725,7 +601,7 @@ namespace AC
                 {
                     setDoC.Add(testingSetOfWords[p]);
                 }
-                FindRelationPairs(setDoC);
+                pairsOfRelation = PsoHelper.FindRelationPairs(setDoC, idealAutomat);
                 for (int i = 0; i < BestAutomatForStates.Count; i++)
                 {
                     Automat Tempsolution = (Automat)BestAutomatForStates[i];
@@ -738,7 +614,7 @@ namespace AC
                 {
                     setDoC.Add(testingSetOfWords[p]);
                 }
-                FindRelationPairs(setDoC);
+                pairsOfRelation = PsoHelper.FindRelationPairs(setDoC, idealAutomat);
                 for (int i = 0; i < BestAutomatForStates.Count; i++)
                 {
                     Automat Tempsolution = (Automat)BestAutomatForStates[i];
@@ -784,11 +660,176 @@ namespace AC
                 idealneSolucje.Add(solution);
                 idealneWyniki.Add(minimalFinalErr);
 
-                //DisplayGraph displayGraph = new DisplayGraph(idealnyDlaLukasza, wynikDlaLukasza, minimalFinalErr);
-                //displayGraph.s
-                //displayGraph.Show();
+                DisplayGraph displayGraph = new DisplayGraph(idealnyDlaLukasza, wynikDlaLukasza, minimalFinalErr);
+
+                displayGraph.Show();
             }
             
+        }
+
+
+        /// <summary>
+        /// function initializing variables
+        /// </summary>
+        private void InitPsoVariables()
+        {
+            slowa = learningSetOfWords;
+
+            speedLowerBound = double.Parse(speedLowerBoundTxt.Text, CultureInfo.InvariantCulture);
+            speedUpperBound = double.Parse(speedUpperBoundTxt.Text, CultureInfo.InvariantCulture);
+
+            maxSpeed = double.Parse(maxSpeedTxt.Text, CultureInfo.InvariantCulture);
+
+            iterationToRandomise = int.Parse(errorSameRepetition.Text);
+
+            BestAutomatForStates = new List<Automat>();
+            BestErrorsForAutomats = new List<double>();
+
+            BestErrorsForAutomats2Set = new List<double>();
+
+            pairsOfRelation = PsoHelper.FindRelationPairs(slowa, idealAutomat);
+            roundAt = double.Parse(RountAtTxt.Text, CultureInfo.InvariantCulture);
+
+            particlesNumber = int.Parse(ParticleAmountTxt.Text);
+            maxIteration = int.Parse(IterationTxt.Text);
+            c2 = double.Parse(c1Txt.Text, CultureInfo.InvariantCulture);
+            c1 = double.Parse(c2Txt.Text, CultureInfo.InvariantCulture);
+            numberOfNeighbors = int.Parse(neighboursTxt.Text);
+
+            maxStopError = int.Parse(maxErrIterationTxt.Text);
+            particleRandomNumber = int.Parse(particlerandomnumber.Text);
+
+
+            particlesPos = new List<List<double>>();
+            particlesVel = new List<List<double>>();
+            particlesBestPos = new List<List<double>>();
+            particleBest = new List<double>();
+            particlesStopNumber = new List<int>();
+
+
+            particlesLocBest = new List<int>();
+            particlesGlobBest = 0;
+            particleError = new List<double>();
+            dimensions = 0;
+
+            minimumNumberOfStates = int.Parse(MinstatesTXT.Text);
+            if (finMin.IsChecked == true)
+            {
+                minimumNumberOfStates = PsoHelper.MinimumNumberOfStates(idealAutomat, learningSetOfWords);
+            }
+
+            currentStateNumber = minimumNumberOfStates - 1;
+
+            errTolerance = double.Parse(ToleranceTxt.Text, CultureInfo.InvariantCulture);
+
+            maxStateNumber = int.Parse(MaxstatesTXT.Text);
+            maxStateNumber++;
+
+            continuePSO = true;
+            addStates = true;
+            counter = 0;
+
+            lastErrorValue = 0;
+            errorRepeatCounter = 0;
+
+            freez = freezGlobal.IsChecked.Value;
+            minimalFinalErr = 100.0;
+
+            shouldStart = true;
+        }
+
+
+        /// <summary>
+        /// Function reseting data of PSO after increasing number of states of generated particles
+        /// </summary>
+        /// <param name="particlesPos"></param>
+        /// <param name="particlesVel"></param>
+        /// <param name="particlesLocBest"></param>
+        /// <param name="particleError"></param>
+        /// <param name="particleBest"></param>
+        /// <param name="particlesStopNumber"></param>
+        /// <param name="particlesBestPos"></param>
+        /// <param name="particlesNumber"></param>
+        /// <param name="dimensions"></param>
+        private void ResetPsoData(List<List<double>> particlesPos, List<List<double>> particlesVel, List<int> particlesLocBest, List<double> particleError,
+                                  List<double> particleBest, List<int> particlesStopNumber, List<List<double>> particlesBestPos, int particlesNumber, int dimensions)
+        {
+            particlesPos.Clear();
+            particlesVel.Clear();
+            particlesLocBest.Clear();
+            particleError.Clear();
+            particleBest.Clear();
+            particlesStopNumber.Clear();
+            particlesBestPos.Clear();
+
+
+            //losujemy pozycje i predkosc particles
+            for (int i = 0; i < particlesNumber; i++)
+            {
+                List<double> singleVector = new List<double>();
+                List<double> singleSpeedVector = new List<double>();
+
+                for (int j = 0; j < dimensions; j++)
+                {
+                    double randomVal = PsoHelper.GetRandomNumber();
+                    double randomVal2 = GetRandomParticleSpeed(speedLowerBound, speedUpperBound);
+                    singleVector.Add(randomVal);
+                    singleSpeedVector.Add(randomVal2);
+                }
+                particlesPos.Add(singleVector);
+                particlesVel.Add(singleSpeedVector);
+                particlesLocBest.Add(0);
+                particleError.Add(0.0);
+                particleBest.Add(100.0);
+                particlesStopNumber.Add(0);
+                particlesBestPos.Add(singleVector);
+            }
+        }
+
+
+
+        /// <summary>
+        /// Function randomizing position of particles with the biggest error if global best error is not changing for specified number of times
+        /// </summary>
+        /// <param name="particleRandomNumber"></param>
+        /// <param name="particlesNumber"></param>
+        /// <param name="particlesPos"></param>
+        /// <param name="particlesVel"></param>
+        /// <param name="numOfDim"></param>
+        /// <param name="particleError"></param>
+        private void RandomizeNotMovingParticles( int particleRandomNumber, int particlesNumber,
+                                                 List<List<double>> particlesPos, List<List<double>> particlesVel, int numOfDim,List<double> particleError)
+        {
+                Console.WriteLine("Randomizing position and velocity of " + particleRandomNumber + " particles");
+
+                double[][] errors = new double[particlesNumber][];
+                for (int i = 0; i < particlesNumber; i++)
+                {
+                    double[] error = new double[2];
+                    error[0] = particleError[i];
+                    error[1] = i;
+                    errors[i] = error;
+                }
+
+                for (int i = 0; i < particlesNumber; i++)
+                {
+                    for (int j = 0; j < particlesNumber - 1; j++)
+                    {
+                        if (errors[j][0] < errors[j + 1][0])
+                        {
+                            double[] tmp = errors[j];
+                            errors[j] = errors[j + 1];
+                            errors[j + 1] = tmp;
+                        }
+                    }
+                }
+
+                //Random random = new Random();
+                for (int i = 0; i < particleRandomNumber; i++)
+                {
+                    RandomizePositionAndVelocity(i, particlesPos, particlesVel, numOfDim, errors);
+                }
+                
         }
 
 
@@ -967,387 +1008,6 @@ namespace AC
             }
 
             return macierz;
-        }
-
-        public String prepareStringToWynik(Automat solucja)
-        {
-         
-            String tmpString = "";
-            tmpString = tmpString + solucja.getStatesNumber() + "," + solucja.getAlphabetLength();
-            List<int[]> transitionList = solucja.getTransitionTableList();
-
-
-            for (int x = 0; x < solucja.getStatesNumber(); x++)
-            {
-                for (int y = 0; y < solucja.getAlphabetLength(); y++)
-                {
-                    tmpString = tmpString + "," + (transitionList[y][x] + 1);
-                }
-            }
-            return tmpString;
-        }
-
-        public void zapiszWynik(String path, int mode, String pathZdjecie)
-        {
-            List<Automat> jedneRozwiaznia = new List<Automat>();
-            List<double> jedneWyniki = new List<double>();
-            List<double> jedneLearningoweWyniki = new List<double>();
-
-            List<double> jedneDoC = new List<double>();
-            List<double> jedneOdC = new List<double>();
-
-            if (mode == 0)
-            {
-                jedneRozwiaznia = wszystkieSolucje[wszystkieSolucje.Count - 1];
-                jedneWyniki = wszystkieWyniki[wszystkieWyniki.Count - 1];
-                jedneLearningoweWyniki = wszystkieLearningoweWyniki[wszystkieLearningoweWyniki.Count - 1];
-                jedneDoC = wszystkiedoC[wszystkiedoC.Count - 1];
-                jedneOdC = wszystkieodC[wszystkieodC.Count - 1];
-            }
-            else if (mode == 1)
-            {
-                for(int l = 0 ; l < 5 ; l ++)
-                {
-                    Automat tmp = wszystkieSolucje[l][0];
-                    jedneRozwiaznia.Add(tmp);
-                    jedneWyniki.Add(wszystkieWyniki[l][0]);
-                    jedneLearningoweWyniki.Add(wszystkieLearningoweWyniki[l][0]);
-                }
-            }
-
-
-            using (StreamWriter sw = new StreamWriter(path))
-            {
-                List<double> wynikiKazde = new List<double>();
-                for (int p = 0; p < jedneRozwiaznia.Count; p++)
-                {
-                    Automat solucja = jedneRozwiaznia[p];
-                    String tmpString = prepareStringToWynik(solucja);
-                   
-                    String wynik = "";
-                    wynik = "To C Error = " + jedneDoC[p] + " From C = " + jedneOdC[p] + " Learning Error = " + jedneLearningoweWyniki[p] + " || Final Error = " + jedneWyniki[p];
-                    //wynik = "Learning Error = " + jedneLearningoweWyniki[p] + " || Final Error = " + jedneWyniki[p];
-                    sw.WriteLine("----------------------------------------------------");
-                    sw.WriteLine(tmpString);
-                    sw.WriteLine(wynik);
-                    wynikiKazde.Add(jedneWyniki[p]);
-                }
-
-                if (mode == 0)
-                {
-                    //na dole najlepszy wynik
-                    sw.WriteLine("----------------------------------------------------");
-                    sw.WriteLine("");
-                    sw.WriteLine("");
-                    sw.WriteLine("--------------------BEST SOLUTION-------------------");
-
-                    Automat bestSolucja = idealneSolucje[idealneSolucje.Count - 1];
-                    String tmpString2 = prepareStringToWynik(bestSolucja);
-                   
-                    String wynik2 = "error = " + idealneWyniki[idealneWyniki.Count - 1];
-                    sw.WriteLine(tmpString2);
-                    sw.WriteLine(wynik2);
-
-                    DisplayGraph displayGraph = new DisplayGraph(doWydruku(idealAutomat), doWydruku(bestSolucja), (double)idealneWyniki[idealneWyniki.Count - 1], pathZdjecie);
-                    //TUTAJ TRZA ZPAISAC
-                    //BitmapImage test = displayGraph;
-
-                }
-                else if (mode == 1)
-                {
-                    List<Automat> solucjekazde = new List<Automat>();
-                    List<double> learningwynikiKazde = new List<double>();
-                    
-                    double minimalFinalErr = 100.0;
-                    int bestFinalAutomatIndex = 0;
-                    for (int i = 0; i < jedneRozwiaznia.Count; i++)
-                    {
-                        if ((double)wynikiKazde[i] < minimalFinalErr)
-                        {
-                            minimalFinalErr = (double)wynikiKazde[i];
-                            bestFinalAutomatIndex = i;
-                        }
-                    }
-
-                    Automat Finalsolution = (Automat)jedneRozwiaznia[bestFinalAutomatIndex];
-
-                    sw.WriteLine("----------------------------------------------------");
-                    sw.WriteLine("");
-                    sw.WriteLine("");
-                    sw.WriteLine("--------------------BEST SOLUTION-------------------");
-
-
-                    String tmpString2 = prepareStringToWynik(Finalsolution);
-
-                    String wynik2 = "error = " + minimalFinalErr;
-                    sw.WriteLine(tmpString2);
-                    sw.WriteLine(wynik2);
-
-                    //DisplayGraph displayGraph = new DisplayGraph(doWydruku(idealAutomat), doWydruku(Finalsolution), minimalFinalErr);
-                    DisplayGraph displayGraph = new DisplayGraph(doWydruku(idealAutomat), doWydruku(Finalsolution), minimalFinalErr, pathZdjecie);
-                    //TUTAJ TRZA ZPAISAC
-                }
-            }
-        }
-
-        private async void TEST_Click(object sender, RoutedEventArgs e)
-        {
-            //slowa wgrane
-            LoadWordSet("H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\malySet.txt");
-            //LoadWordSet("H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\duzySet.txt");
-
-            //dla czterech typow automatu //4
-            for(int typy = 0 ; typy < 4 ; typy ++)
-            {               
-                idealAutomat = new Automat();
-
-                //10 typow automatu z kazdego typu //10
-                for( int aut = 0 ; aut < 10 ; aut ++)
-                {
-                    String sciezka = "H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\AUTOMATY\\";
-                    String sciezkaWynik = "H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\AUTOMATY\\";
-                    String sciezkaZdjecie = "H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\AUTOMATY\\";
-
-                    switch(typy)
-                    {
-                        case 0 :
-                            sciezka = sciezka + "4statesAutomat\\4_5_";
-                            sciezkaWynik = sciezkaWynik + "4statesAutomat\\wyniki\\4_5_";
-                            break;
-                        case 1 :
-                            sciezka = sciezka + "6statesAutomat\\6_5_";
-                            sciezkaWynik = sciezkaWynik + "6statesAutomat\\wyniki\\6_5_";
-                            break;
-                        case 2 :
-                            sciezka = sciezka + "10statesAutomat\\10_5_";
-                            sciezkaWynik = sciezkaWynik + "10statesAutomat\\wyniki\\10_5_";
-                            break;
-                        case 3 :
-                            sciezka = sciezka + "15statesAutomat\\15_5_";
-                            sciezkaWynik = sciezkaWynik + "15statesAutomat\\wyniki\\15_5_";
-                            break;
-                    }
-                    sciezkaZdjecie = sciezkaWynik;
-                    switch(aut)
-                    {
-                        case 0 :
-                            sciezka = sciezka + "1automat.txt";
-                            sciezkaWynik = sciezkaWynik + "1automatWYNIK.txt";
-                            sciezkaZdjecie = sciezkaZdjecie + "1automatpicture";
-                            break;
-                        case 1 :
-                            sciezka = sciezka + "2automat.txt";
-                            sciezkaWynik = sciezkaWynik + "2automatWYNIK.txt";
-                            sciezkaZdjecie = sciezkaZdjecie + "2automatpicture";
-                            break;
-                        case 2 :
-                            sciezka = sciezka + "3automat.txt";
-                            sciezkaWynik = sciezkaWynik + "3automatWYNIK.txt";
-                            sciezkaZdjecie = sciezkaZdjecie + "3automatpicture";
-                            break;
-                        case 3 :
-                            sciezka = sciezka + "4automat.txt";
-                            sciezkaWynik = sciezkaWynik + "4automatWYNIK.txt";
-                            sciezkaZdjecie = sciezkaZdjecie + "4automatpicture";
-                            break;
-                        case 4 :
-                            sciezka = sciezka + "5automat.txt";
-                            sciezkaWynik = sciezkaWynik + "5automatWYNIK.txt";
-                            sciezkaZdjecie = sciezkaZdjecie + "5automatpicture";
-                            break;
-                        case 5 :
-                            sciezka = sciezka + "6automat.txt";
-                            sciezkaWynik = sciezkaWynik + "6automatWYNIK.txt";
-                            sciezkaZdjecie = sciezkaZdjecie + "6automatpicture";
-                            break;
-                        case 6 :
-                            sciezka = sciezka + "7automat.txt";
-                            sciezkaWynik = sciezkaWynik + "7automatWYNIK.txt";
-                            sciezkaZdjecie = sciezkaZdjecie + "7automatpicture";
-                            break;
-                        case 7 :
-                            sciezka = sciezka + "8automat.txt";
-                            sciezkaWynik = sciezkaWynik + "8automatWYNIK.txt";
-                            sciezkaZdjecie = sciezkaZdjecie + "8automatpicture";
-                            break;
-                        case 8 :
-                            sciezka = sciezka + "9automat.txt";
-                            sciezkaWynik = sciezkaWynik + "9automatWYNIK.txt";
-                            sciezkaZdjecie = sciezkaZdjecie + "9automatpicture";
-                            break;
-                        case 9 :
-                            sciezka = sciezka + "10automat.txt";
-                            sciezkaWynik = sciezkaWynik + "10automatWYNIK.txt";
-                            sciezkaZdjecie = sciezkaZdjecie + "10automatpicture";
-                            break;
-                    }
-                    
-                    LoadAutomata(sciezka);
-
-                    Console.WriteLine("puszczam PSO dla kolejnego zestawu");
-                    //mamy tu juz slowa i mamy tu juz automat.
-
-                    if (valideData() == true)
-                    {
-                        progressRing.Visibility = Visibility.Visible;
-                        progressRingBackground.Visibility = Visibility.Visible;
-                        await PSO();
-                        progressRing.Visibility = Visibility.Collapsed;
-                        progressRingBackground.Visibility = Visibility.Collapsed;
-                    }
-                    else
-                    {
-                        MessageBox.Show("Not all data loaded !");
-                        return;
-                    }
-
-                    zapiszWynik(sciezkaWynik, 0, sciezkaZdjecie);
-
-                    
-                }
-            }
-
-            Console.WriteLine("RECONSTRUCTION FINISHED");
-
-        }
-
-        private async void TEST2_Click(object sender, RoutedEventArgs e)
-        {
-            idealneSolucje.Clear();
-            idealneWyniki.Clear();
-            wszystkieSolucje.Clear();
-            wszystkieLearningoweWyniki.Clear();
-            wszystkieWyniki.Clear();
-
-            finMin.IsChecked = false;
-            LoadWordSet("H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\malySet.txt");
-            //LoadWordSet("H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\duzySet.txt");
-
-            //dla czterech typow automatu //4
-            for (int typy = 0; typy < 4; typy++)
-            {
-                idealAutomat = new Automat();
-
-                //10 typow automatu z kazdego typu //10
-                for (int aut = 0; aut < 10; aut++)
-                {
-                    idealneSolucje.Clear();
-                    idealneWyniki.Clear();
-                    wszystkieSolucje.Clear();
-                    wszystkieLearningoweWyniki.Clear();
-                    wszystkieWyniki.Clear();
-
-                    String sciezka = "H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\APPROXIMATION\\";
-                    String sciezkaWynik = "H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\APPROXIMATION\\";
-                    String sciezkaZdjecie = "H:\\Windows7\\Documents\\Visual Studio 2013\\Projects\\AC\\APPROXIMATION\\";
-
-                    switch (typy)
-                    {
-                        case 0:
-                            sciezka = sciezka + "20states\\20_5_";
-                            sciezkaWynik = sciezkaWynik + "20states\\wyniki\\20_5_";
-                            break;
-                        case 1:
-                            sciezka = sciezka + "30states\\30_5_";
-                            sciezkaWynik = sciezkaWynik + "30states\\wyniki\\30_5_";
-                            break;
-                        case 2:
-                            sciezka = sciezka + "50states\\50_5_";
-                            sciezkaWynik = sciezkaWynik + "50states\\wyniki\\50_5_";
-                            break;
-                        case 3:
-                            sciezka = sciezka + "80states\\80_5_";
-                            sciezkaWynik = sciezkaWynik + "80states\\wyniki\\80_5_";
-                            break;
-                    }
-
-                    sciezkaZdjecie = sciezkaWynik;
-
-                    switch (aut)
-                    {
-                        case 0:
-                            sciezka = sciezka + "1automat.txt";
-                            sciezkaWynik = sciezkaWynik + "1automatWYNIK.txt";
-                            sciezkaZdjecie = sciezkaZdjecie + "1automatpicture";
-                            break;
-                        case 1:
-                            sciezka = sciezka + "2automat.txt";
-                            sciezkaWynik = sciezkaWynik + "2automatWYNIK.txt";
-                            sciezkaZdjecie = sciezkaZdjecie + "2automatpicture";
-                            break;
-                        case 2:
-                            sciezka = sciezka + "3automat.txt";
-                            sciezkaWynik = sciezkaWynik + "3automatWYNIK.txt";
-                            sciezkaZdjecie = sciezkaZdjecie + "3automatpicture";
-                            break;
-                        case 3:
-                            sciezka = sciezka + "4automat.txt";
-                            sciezkaWynik = sciezkaWynik + "4automatWYNIK.txt";
-                            sciezkaZdjecie = sciezkaZdjecie + "4automatpicture";
-                            break;
-                        case 4:
-                            sciezka = sciezka + "5automat.txt";
-                            sciezkaWynik = sciezkaWynik + "5automatWYNIK.txt";
-                            sciezkaZdjecie = sciezkaZdjecie + "5automatpicture";
-                            break;
-                        case 5:
-                            sciezka = sciezka + "6automat.txt";
-                            sciezkaWynik = sciezkaWynik + "6automatWYNIK.txt";
-                            sciezkaZdjecie = sciezkaZdjecie + "6automatpicture";
-                            break;
-                        case 6:
-                            sciezka = sciezka + "7automat.txt";
-                            sciezkaWynik = sciezkaWynik + "7automatWYNIK.txt";
-                            sciezkaZdjecie = sciezkaZdjecie + "7automatpicture";
-                            break;
-                        case 7:
-                            sciezka = sciezka + "8automat.txt";
-                            sciezkaWynik = sciezkaWynik + "8automatWYNIK.txt";
-                            sciezkaZdjecie = sciezkaZdjecie + "8automatpicture";
-                            break;
-                        case 8:
-                            sciezka = sciezka + "9automat.txt";
-                            sciezkaWynik = sciezkaWynik + "9automatWYNIK.txt";
-                            sciezkaZdjecie = sciezkaZdjecie + "9automatpicture";
-                            break;
-                        case 9:
-                            sciezka = sciezka + "10automat.txt";
-                            sciezkaWynik = sciezkaWynik + "10automatWYNIK.txt";
-                            sciezkaZdjecie = sciezkaZdjecie + "10automatpicture";
-                            break;
-                    }
-
-                    LoadAutomata(sciezka);
-
-                    Console.WriteLine("puszczam PSO dla kolejnego zestawu");
-
-                    int [] stany = {4,6,8,10,12};
-
-                    for (int s = 0; s < 5; s++ )
-                    {
-                        MinstatesTXT.Text = ""+stany[s];
-                        MaxstatesTXT.Text = ""+stany[s];
-
-                        if (valideData() == true)
-                        {
-                            progressRing.Visibility = Visibility.Visible;
-                            progressRingBackground.Visibility = Visibility.Visible;
-                            await PSO();
-                            progressRing.Visibility = Visibility.Collapsed;
-                            progressRingBackground.Visibility = Visibility.Collapsed;
-                        }
-                        else
-                        {
-                            MessageBox.Show("Not all data loaded !");
-                            return;
-                        }
-                    }
-
-                    zapiszWynik(sciezkaWynik, 1, sciezkaZdjecie);
-                }
-            }
-
-            Console.WriteLine("APPROXIMATION FINISHED");
         }
     }
 }

@@ -31,8 +31,6 @@
         <Label Name="progressRingBackground" Panel.ZIndex="3"  Grid.Row="0" Grid.Column="0" Grid.RowSpan="13" Grid.ColumnSpan="3" Background="#333" Margin="0" Opacity="0.9" Visibility="Collapsed"/>
                
         <Button Grid.Column="0" Grid.Row="7" Content="Load Ideal Automata" VerticalAlignment="Center" Click="LoadAutomata_Click"/>
-        <Button  Grid.Column="0" Grid.Row="0" Content="DO RECONSTRUCTION TESTS" VerticalAlignment="Center" Click="TEST_Click" />
-        <Button  Grid.Column="0" Grid.Row="1" Content="DO APPROX. TESTS" VerticalAlignment="Center" Click="TEST2_Click" />
         <Button  Grid.Column="0" Grid.Row="2" Content="Create Word Set" VerticalAlignment="Center" Click="CreateSet_Click"/>
         <Button  Grid.Column="0" Grid.Row="3" Content="Create Automaton" VerticalAlignment="Center" Click="CreateAutomat_Click" />
         <Label Panel.ZIndex="-1" Grid.Row="3" Background="#333" Grid.RowSpan="9"/>

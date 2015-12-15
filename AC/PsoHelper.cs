@@ -338,5 +338,59 @@ namespace AC
 
            return distance;
        }
+        
+
+        /// <summary>
+        /// Function returning matrix describing relations between words
+        /// </summary>
+        /// <param name="words"></param>
+        /// <param name="idealAutomat"></param>
+        /// <returns></returns>
+       public static int[][] FindRelationPairs(List<List<int>> words, Automat idealAutomat)
+       {
+           //pairsOfRelation
+           int[][] pairsOfRelation = new int[words.Count][];
+
+           for (int j = 0; j < words.Count; j++)
+           {
+               pairsOfRelation[j] = new int[words.Count];
+           }
+
+           int[] finishingStates = new int[words.Count];
+
+           Parallel.For(0, words.Count, i =>
+           {
+               int tmp = PsoHelper.WordComputationFinishingState(idealAutomat, words[i]);
+               finishingStates[i] = tmp;
+           }
+          );
+
+           for (int i = 0; i < words.Count; i++)
+           {
+               for (int j = 0; j < words.Count; j++)
+               {
+                   if (i != j)
+                   {
+                       if (finishingStates[i] == finishingStates[j])
+                       {
+                           pairsOfRelation[i][j] = 1;
+                           pairsOfRelation[j][i] = 1;
+                       }
+                       else
+                       {
+                           pairsOfRelation[i][j] = 0;
+                           pairsOfRelation[j][i] = 0;
+                       }
+                   }
+                   else
+                   {
+                       pairsOfRelation[i][j] = 1;
+                       pairsOfRelation[j][i] = 1;
+                   }
+               }
+           }
+
+           return pairsOfRelation;
+       }   
     }
 }

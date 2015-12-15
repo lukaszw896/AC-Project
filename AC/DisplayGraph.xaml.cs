@@ -4,7 +4,6 @@ using GraphVizWrapper.Queries;
 using MahApps.Metro.Controls;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -25,11 +24,8 @@ namespace AC
     /// </summary>
     public partial class DisplayGraph : MetroWindow
     {
-
-        
-        public  DisplayGraph(List<int>[][] orginalAutomaton, List<int>[][] foundAutomaton, double error, String path)
+        public DisplayGraph(List<int>[][] orginalAutomaton, List<int>[][] foundAutomaton, double error)
         {
-            
             InitializeComponent();
             // These three instances can be injected via the IGetStartProcessQuery, 
             //                                               IGetProcessStartInfoQuery and 
@@ -40,64 +36,57 @@ namespace AC
             /*var getStartProcessQuery = new GetStartProcessQuery();
             var getProcessStartInfoQuery = new GetProcessStartInfoQuery();
             var registerLayoutPluginCommand = new RegisterLayoutPluginCommand(getProcessStartInfoQuery, getStartProcessQuery);
-
             // GraphGeneration can be injected via the IGraphGeneration interface
-
             var wrapper = new GraphGeneration(getStartProcessQuery,
                                               getProcessStartInfoQuery,
                                               registerLayoutPluginCommand);*/
 
             List<byte[]> graphs = new List<byte[]>();
-            Wut(graphs, orginalAutomaton, foundAutomaton, path);
+            Wut(graphs, orginalAutomaton, foundAutomaton);
 
             //byte[] orginal = wrapper.GenerateGraph(GenerateDotString(orginalAutomaton), Enums.GraphReturnType.Png);
             //byte[] found = wrapper.GenerateGraph(GenerateDotString(foundAutomaton), Enums.GraphReturnType.Png);
 
-            
+
             //graphImage.Source = LoadImage(orginal);
         }
 
-        async void Wut(List<byte[]> graphs,List<int>[][] orginalAutomaton, List<int>[][] foundAutomaton, String path)
+        async void Wut(List<byte[]> graphs, List<int>[][] orginalAutomaton, List<int>[][] foundAutomaton)
         {
-             graphs = await DrawGraph(orginalAutomaton, foundAutomaton);
+            graphs = await DrawGraph(orginalAutomaton, foundAutomaton);
 
-             //orginalAutomatonImage.Source = 
-            LoadImage(graphs[0], path+".jpg");
-             //foundAutomatonImage.Source = 
-            LoadImage(graphs[1], path+"2.jpg");
-
-             
-
-             int a = 1;
-             a++;
+            orginalAutomatonImage.Source = LoadImage(graphs[0]);
+            foundAutomatonImage.Source = LoadImage(graphs[1]);
+            int a = 1;
+            a++;
         }
 
         public async Task<List<byte[]>> DrawGraph(List<int>[][] orginalAutomaton, List<int>[][] foundAutomaton)
         {
             List<byte[]> graphs = new List<byte[]>();
-            await Task.Run(() => 
-                {
-                    var getStartProcessQuery = new GetStartProcessQuery();
-            var getProcessStartInfoQuery = new GetProcessStartInfoQuery();
-            var registerLayoutPluginCommand = new RegisterLayoutPluginCommand(getProcessStartInfoQuery, getStartProcessQuery);
+            await Task.Run(() =>
+            {
+                var getStartProcessQuery = new GetStartProcessQuery();
+                var getProcessStartInfoQuery = new GetProcessStartInfoQuery();
+                var registerLayoutPluginCommand = new RegisterLayoutPluginCommand(getProcessStartInfoQuery, getStartProcessQuery);
 
-            // GraphGeneration can be injected via the IGraphGeneration interface
+                // GraphGeneration can be injected via the IGraphGeneration interface
 
-            var wrapper = new GraphGeneration(getStartProcessQuery,
-                                              getProcessStartInfoQuery,
-                                              registerLayoutPluginCommand);
+                var wrapper = new GraphGeneration(getStartProcessQuery,
+                                                  getProcessStartInfoQuery,
+                                                  registerLayoutPluginCommand);
 
 
 
-            byte[] orginal = wrapper.GenerateGraph(GenerateDotString(orginalAutomaton), Enums.GraphReturnType.Png);
-            byte[] found = wrapper.GenerateGraph(GenerateDotString(foundAutomaton), Enums.GraphReturnType.Png);
+                byte[] orginal = wrapper.GenerateGraph(GenerateDotString(orginalAutomaton), Enums.GraphReturnType.Png);
+                byte[] found = wrapper.GenerateGraph(GenerateDotString(foundAutomaton), Enums.GraphReturnType.Png);
 
-            graphs.Add(orginal);
-            graphs.Add(found);
-                }
+                graphs.Add(orginal);
+                graphs.Add(found);
+            }
             );
             return graphs;
-            
+
         }
 
         public string GenerateDotString(List<int>[][] automaton)
@@ -126,11 +115,11 @@ namespace AC
             }
 
             dotString += "}";
-                return dotString;
+            return dotString;
         }
-        private static void LoadImage(byte[] imageData,String path)
+        private static BitmapImage LoadImage(byte[] imageData)
         {
-            /*if (imageData == null || imageData.Length == 0) return null;
+            if (imageData == null || imageData.Length == 0) return null;
             var image = new BitmapImage();
             using (var mem = new MemoryStream(imageData))
             {
@@ -143,18 +132,7 @@ namespace AC
                 image.EndInit();
             }
             image.Freeze();
-            return image;*/
-
-            Bitmap bmp;
-            using (var ms = new MemoryStream(imageData))
-            {
-                bmp = new Bitmap(ms);
-                bmp.Save(path);
-            }
-
-
-
+            return image;
         }
-      
     }
 }
