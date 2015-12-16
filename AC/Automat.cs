@@ -13,8 +13,45 @@ namespace AC
     public class Automat
     {
         private int statesNumber;
+
+        public int StatesNumber
+        {
+            get
+            {
+                return this.statesNumber;
+            }
+            set
+            {
+                this.statesNumber = value;
+            }
+        }
         private int alphabetLength;
+
+        public int AlphabetLength
+        {
+            get
+            {
+                return this.alphabetLength;
+            }
+            set
+            {
+                this.alphabetLength = value;
+            }
+        }
+
         private List<int[]> transitionTableList;
+
+        public List<int[]> TransitiontableList
+        {
+            get
+            {
+                return this.transitionTableList;
+            }
+            set
+            {
+                this.transitionTableList = value;
+            }
+        }
 
 
         /// <summary>
@@ -41,50 +78,6 @@ namespace AC
             transitionTableList = new List<int[]>();
             transitionTableList = _transition;
         }
-
-        /// <summary>
-        /// Automat constructor from txt string
-        /// </summary>
-        /// <param name="input"></param>
-
-       /* public Automat(String input)
-        {
-            string[] inputs = input.Split(',');
-            statesNumber = int.Parse(inputs[0]);
-            alphabetLength = int.Parse(inputs[1]);
-
-            transitionTableList = new List<int[][]>();
-            for (int i = 0; i < alphabetLength; i++)
-            {
-                //init transition table
-                int[][] transitionTable = new int[statesNumber][];
-
-                for (int j = 0; j < statesNumber; j++)
-                {
-                    transitionTable[j] = new int[statesNumber];
-                }
-
-                for (int j = 0; j < statesNumber; j++)
-                {
-                    for (int k = 0; k < statesNumber; k++)
-                    {
-                        int index = 2 + (i * statesNumber) + j;
-                        int tmp = int.Parse(inputs[index]);
-                        if (tmp == k)
-                        {
-                            transitionTable[j][k] = 1;
-                        }
-                        else
-                        {
-                            transitionTable[j][k] = 0;
-                        }
-
-                    }
-                }
-                transitionTableList.Add(transitionTable);
-
-            }
-        }*/
 
         /// <summary>
         /// Method returns a List which represents automat as vector
@@ -155,9 +148,6 @@ namespace AC
                 transitionTableList.Add(transitionTable);
 
             }
-
-           // Automat returned = new Automat(statesNumber, alphabetLength, transitionTableList);
-            //return returned;
         }
 
         /// <summary>
@@ -207,35 +197,6 @@ namespace AC
 
             Automat returned = new Automat(_statesNumber, _alphabetLength, _transitionTableList);
             return returned;
-        }
-
-        public int getStatesNumber()
-        {
-            return statesNumber;
-        }
-        public int getAlphabetLength()
-        {
-            return alphabetLength;
-        }
-        public List<int[]> getTransitionTableList()
-        {
-            return transitionTableList;
-        }
-
-
-        public void setStatesNumber(int _states)
-        {
-            statesNumber = _states;
-        }
-        public void setAlphabetLength(int _alphabet)
-        {
-            alphabetLength = _alphabet;
-        }
-        public void setTransitionTableList(List<int[]> _transition)
-        {
-            transitionTableList.Clear();
-            transitionTableList = new List<int[]>();
-            transitionTableList = _transition;
         }
     }
 }

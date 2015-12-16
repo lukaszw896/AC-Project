@@ -27,19 +27,8 @@ namespace AC
 
     {
 
-        Automat idealAutomat;
-
-        List<Automat> idealneSolucje;
-        List<double> idealneWyniki;
-
-        List<List<Automat>> wszystkieSolucje;
-
+        Automat idealAutomaton;
         int valueC;
-
-        List<List<double>> wszystkiedoC;
-        List<List<double>> wszystkieodC;
-        List<List<double>> wszystkieLearningoweWyniki;
-        List<List<double>> wszystkieWyniki;
 
 
         List<List<int>> setOfWords;
@@ -118,16 +107,7 @@ namespace AC
 
             setOfWords = new List<List<int>>();
           
-            idealAutomat = new Automat();
-
-            idealneSolucje = new List<Automat>();
-            idealneWyniki = new List<double>();
-
-            wszystkieSolucje = new List<List<Automat>>();
-            wszystkieWyniki = new List<List<double>>();
-            wszystkieLearningoweWyniki = new List<List<double>>();
-            wszystkiedoC = new List<List<double>>();
-            wszystkieodC = new List<List<double>>();
+            idealAutomaton = new Automat();
               
         }
 
@@ -173,7 +153,7 @@ namespace AC
             automata.fromString(input);
             Console.WriteLine("zaladowano automat");
             //gotowy automat : mamy funkcje stany i alfabet        
-            idealAutomat = automata;
+            idealAutomaton = automata;
         }
 
 
@@ -312,7 +292,7 @@ namespace AC
                         break;
                     }
 
-                    dimensions = (int)Math.Pow(currentStateNumber, 2.0) * (int)idealAutomat.getAlphabetLength();
+                    dimensions = (int)Math.Pow(currentStateNumber, 2.0) * (int)idealAutomaton.AlphabetLength;
                     particlesGlobBest = 0;
 
                     ResetPsoData(particlesPos, particlesVel, particlesLocBest, particleError, particleBest, particlesStopNumber, particlesBestPos, particlesNumber, dimensions);
@@ -321,57 +301,9 @@ namespace AC
                 }
 
                 var watch = Stopwatch.StartNew();
-                //////
-                //ustalanie errorow
-                particleError.Clear();
 
-                Task<List<double>>[] taskArray = new Task<List<double>>[8];
-
-                int numOfParticlesPerTask = (int)Math.Ceiling((double)particlesNumber / 8.0);
-
-                int bottom = 0;
-                int top = numOfParticlesPerTask;
+                PsoFitnessComputation();
                 
-                for (int i = 0; i < 8; i++)
-                {
-                    int bottomCopy = bottom;
-                    int topCopy = top;
-                    taskArray[i] = Task<List<double>>.Factory.StartNew(() => CalculateError(bottomCopy, topCopy, roundAt, currentStateNumber, slowa, (int)idealAutomat.getAlphabetLength(), particlesPos, particlesVel, particleBest, particlesStopNumber, particlesBestPos));
-                    bottom = top;
-                    top += numOfParticlesPerTask;
-                    if (top > particlesNumber)
-                    {
-                        top = particlesNumber;
-                    }
-                }
-
-                Task.WaitAll(taskArray);
-                for (int i = 0; i < taskArray.Length; i++)
-                {
-                    for (int j = 0; j < taskArray[i].Result.Count; j++)
-                    {
-                        particleError.Add(taskArray[i].Result[j]);
-                    }
-                }
-
-                for (int i = 0; i < particlesNumber;i++ )
-                {
-                    if ((double)particleError[i] <= errTolerance)
-                    {
-                        continuePSO = false;
-                        Console.WriteLine("One of particle is very similar ! ");
-
-                        Automat solutiontmp = new Automat();
-                        List<double> discretePosition = new List<double>();
-                        discretePosition = PsoHelper.AutomatonDiscretisation(particlesPos[i], particlesVel[i], roundAt, currentStateNumber, (int)idealAutomat.getAlphabetLength());
-                        solutiontmp = Automat.fromVector(zListyNaStringa(discretePosition), currentStateNumber, (int)idealAutomat.getAlphabetLength());
-                        BestAutomatForStates.Add(solutiontmp);
-                        BestErrorsForAutomats.Add((double)particleError[i]);
-
-                        break;
-                    }
-                }
-
                 watch.Stop();
                 var elapsedMs = watch.ElapsedMilliseconds;
                 Console.WriteLine("Fitness function execution time: " + elapsedMs);
@@ -379,10 +311,8 @@ namespace AC
                 if (continuePSO == true)
                 {
                     CalculateLocalAndGlobalBest();
-                    //ustalanieBestow
 
                     CalculateNewParticleVelocity();
-
 
                     counter++;
 
@@ -409,53 +339,119 @@ namespace AC
                 {
                     addStates = true;
 
-                    double minimalFinalErrtmp = 100.0;
-                    int bestFinalAutomatIndextmp = 0;
-                    for (int i = 0; i < particlesNumber; i++)
-                    {
-                        if ((double)particleError[i] < minimalFinalErrtmp)
-                        {
-                            minimalFinalErrtmp = (double)particleError[i];
-                            bestFinalAutomatIndextmp = i;
-                        }
-                    }
-
-                    List<double> digitAutomattmp = PsoHelper.AutomatonDiscretisation(particlesPos[bestFinalAutomatIndextmp], particlesVel[bestFinalAutomatIndextmp], roundAt, currentStateNumber, (int)idealAutomat.getAlphabetLength());
-                    Automat solutiontmp = new Automat();
-                    solutiontmp = Automat.fromVector(zListyNaStringa(digitAutomattmp), currentStateNumber, (int)idealAutomat.getAlphabetLength());
-
-
-                    BestAutomatForStates.Add(solutiontmp);
-                    BestErrorsForAutomats.Add(minimalFinalErrtmp);
+                    SaveBestAutomatonForGivenStateNumber();
+                    
                 }
             }
 
-            //pso skonczone wybieramy najmniejsyz err
-
-
-            //mamy najlepsze automaty i szukamy solutiona
-
-            if (shouldStart == true)
-            {
-              solution =   FindTheBestSolution();
-            }
+                if (shouldStart == true)
+                {
+                 solution =   FindTheBestSolution();
+                }
 
             });
 
             if (shouldStart == true)
             {
-                List<int>[][] wynikDlaLukasza = doWydruku(solution);
-
-                List<int>[][] idealnyDlaLukasza = doWydruku(idealAutomat);
-
-                idealneSolucje.Add(solution);
-                idealneWyniki.Add(minimalFinalErr);
-
-                DisplayGraph displayGraph = new DisplayGraph(idealnyDlaLukasza, wynikDlaLukasza, minimalFinalErr);
-
-                displayGraph.Show();
+                DisplayResultAsGraph(solution);
             }
             
+        }
+
+        /// <summary>
+        /// In this function we are doing everythink what is needed to compute error for each of particles. Computations are run in parallel. If any of computed particles had error
+        /// equal to 0 than we stop our computations.
+        /// 
+        /// </summary>
+        private void PsoFitnessComputation()
+        {
+            particleError.Clear();
+
+            Task<List<double>>[] taskArray = new Task<List<double>>[8];
+
+            int numOfParticlesPerTask = (int)Math.Ceiling((double)particlesNumber / 8.0);
+
+            int bottom = 0;
+            int top = numOfParticlesPerTask;
+
+            for (int i = 0; i < 8; i++)
+            {
+                int bottomCopy = bottom;
+                int topCopy = top;
+                taskArray[i] = Task<List<double>>.Factory.StartNew(() => CalculateError(bottomCopy, topCopy,(int)idealAutomaton.AlphabetLength));
+                bottom = top;
+                top += numOfParticlesPerTask;
+                if (top > particlesNumber)
+                {
+                    top = particlesNumber;
+                }
+            }
+
+            Task.WaitAll(taskArray);
+            for (int i = 0; i < taskArray.Length; i++)
+            {
+                for (int j = 0; j < taskArray[i].Result.Count; j++)
+                {
+                    particleError.Add(taskArray[i].Result[j]);
+                }
+            }
+
+            for (int i = 0; i < particlesNumber; i++)
+            {
+                if ((double)particleError[i] <= errTolerance)
+                {
+                    continuePSO = false;
+                    Console.WriteLine("One of particle is very similar ! ");
+
+                    Automat solutiontmp = new Automat();
+                    List<double> discretePosition = new List<double>();
+                    discretePosition = PsoHelper.AutomatonDiscretisation(particlesPos[i], particlesVel[i], roundAt, currentStateNumber, (int)idealAutomaton.AlphabetLength);
+                    solutiontmp = Automat.fromVector(zListyNaStringa(discretePosition), currentStateNumber, (int)idealAutomaton.AlphabetLength);
+                    BestAutomatForStates.Add(solutiontmp);
+                    BestErrorsForAutomats.Add((double)particleError[i]);
+
+                    break;
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// This function takes the best automaton from all particles with given number of states and saves it.
+        /// </summary>
+        private void SaveBestAutomatonForGivenStateNumber()
+        {
+            double minimalFinalErrtmp = 100.0;
+            int bestFinalAutomatIndextmp = 0;
+            for (int i = 0; i < particlesNumber; i++)
+            {
+                if ((double)particleError[i] < minimalFinalErrtmp)
+                {
+                    minimalFinalErrtmp = (double)particleError[i];
+                    bestFinalAutomatIndextmp = i;
+                }
+            }
+
+            List<double> digitAutomattmp = PsoHelper.AutomatonDiscretisation(particlesPos[bestFinalAutomatIndextmp], particlesVel[bestFinalAutomatIndextmp], roundAt, currentStateNumber, (int)idealAutomaton.AlphabetLength);
+            Automat solutiontmp = new Automat();
+            solutiontmp = Automat.fromVector(zListyNaStringa(digitAutomattmp), currentStateNumber, (int)idealAutomaton.AlphabetLength);
+
+
+            BestAutomatForStates.Add(solutiontmp);
+            BestErrorsForAutomats.Add(minimalFinalErrtmp);
+        }
+
+        /// <summary>
+        /// Function passing automaton to DipslayGraph constructor (in desired format). Open new window where graphs will be written.
+        /// </summary>
+        /// <param name="solution"></param>
+        private void DisplayResultAsGraph(Automat solution)
+        {
+            List<int>[][] wynikDlaLukasza = doWydruku(solution);
+            List<int>[][] idealnyDlaLukasza = doWydruku(idealAutomaton);
+
+            DisplayGraph displayGraph = new DisplayGraph(idealnyDlaLukasza, wynikDlaLukasza, minimalFinalErr);
+            displayGraph.Show();
         }
 
         private void CalculateLocalAndGlobalBest()
@@ -559,7 +555,7 @@ namespace AC
         {
             Console.WriteLine("PSO FINISHED");
 
-            pairsOfRelation = PsoHelper.FindRelationPairs(testingSetOfWords, idealAutomat);
+            pairsOfRelation = PsoHelper.FindRelationPairs(testingSetOfWords, idealAutomaton);
 
 
             List<Automat> solucjekazde = new List<Automat>();
@@ -592,7 +588,7 @@ namespace AC
             {
                 setDoC.Add(testingSetOfWords[p]);
             }
-            pairsOfRelation = PsoHelper.FindRelationPairs(setDoC, idealAutomat);
+            pairsOfRelation = PsoHelper.FindRelationPairs(setDoC, idealAutomaton);
             for (int i = 0; i < BestAutomatForStates.Count; i++)
             {
                 Automat Tempsolution = (Automat)BestAutomatForStates[i];
@@ -605,7 +601,7 @@ namespace AC
             {
                 setDoC.Add(testingSetOfWords[p]);
             }
-            pairsOfRelation = PsoHelper.FindRelationPairs(setDoC, idealAutomat);
+            pairsOfRelation = PsoHelper.FindRelationPairs(setDoC, idealAutomaton);
             for (int i = 0; i < BestAutomatForStates.Count; i++)
             {
                 Automat Tempsolution = (Automat)BestAutomatForStates[i];
@@ -613,13 +609,6 @@ namespace AC
                 newErrorDoC = PsoHelper.CalculateParticleError(setDoC, Tempsolution, pairsOfRelation);
                 listOdC.Add(newErrorDoC);
             }
-
-            wszystkieSolucje.Add(solucjekazde);
-            wszystkieWyniki.Add(wynikiKazde);
-            wszystkieLearningoweWyniki.Add(learningwynikiKazde);
-
-            wszystkiedoC.Add(listDoC);
-            wszystkieodC.Add(listOdC);
 
             minimalFinalErr = 100.0;
             int bestFinalAutomatIndex = 0;
@@ -661,7 +650,7 @@ namespace AC
 
             BestErrorsForAutomats2Set = new List<double>();
 
-            pairsOfRelation = PsoHelper.FindRelationPairs(slowa, idealAutomat);
+            pairsOfRelation = PsoHelper.FindRelationPairs(slowa, idealAutomaton);
             roundAt = double.Parse(RountAtTxt.Text, CultureInfo.InvariantCulture);
 
             particlesNumber = int.Parse(ParticleAmountTxt.Text);
@@ -689,7 +678,7 @@ namespace AC
             minimumNumberOfStates = int.Parse(MinstatesTXT.Text);
             if (finMin.IsChecked == true)
             {
-                minimumNumberOfStates = PsoHelper.MinimumNumberOfStates(idealAutomat, learningSetOfWords);
+                minimumNumberOfStates = PsoHelper.MinimumNumberOfStates(idealAutomaton, learningSetOfWords);
             }
 
             currentStateNumber = minimumNumberOfStates - 1;
@@ -807,8 +796,15 @@ namespace AC
         }
 
 
-       List<double> CalculateError(int bottom, int up, double roundAt, int currentStateNumber, List<List<int>> slowa, int alphabetLength, List<List<double>> particlesPos, List<List<double>> particlesVel, 
-            List<double> particleBest, List<int> particlesStopNumber, List<List<double>> particlesBestPos)
+        /// <summary>
+        /// In this function we calculate error of one particle
+        /// </summary>
+        /// <param name="bottom"></param>
+        /// <param name="up"></param>
+        /// <param name="alphabetLength"></param>
+
+        /// <returns></returns>
+       List<double> CalculateError(int bottom, int up, int alphabetLength)
         {
             List<double> particleError = new List<double>();
             for (int i = bottom; i < up; i++)
@@ -922,7 +918,7 @@ namespace AC
 
         bool valideData()
         {
-            if (idealAutomat.getAlphabetLength() <= 0 || setOfWords.Count <2)
+            if (idealAutomaton.AlphabetLength <= 0 || setOfWords.Count <2)
             {
                 return false;
             }
@@ -973,8 +969,8 @@ namespace AC
                     }
                 }
 
-                idealAutomat = new Automat();
-                idealAutomat.fromString(a);
+                idealAutomaton = new Automat();
+                idealAutomaton.fromString(a);
                 Console.WriteLine("Automat Generated");
             }
         }
@@ -1006,7 +1002,7 @@ namespace AC
 
         List<int>[][] doWydruku(Automat wynik)
         {
-            int wymiar = wynik.getStatesNumber();
+            int wymiar = wynik.StatesNumber;
 
             List<int>[][] macierz = new List<int>[wymiar][];
             for (int i = 0; i < wymiar; i++)
@@ -1021,12 +1017,12 @@ namespace AC
 
 
 
-            for (int i = 0; i < wynik.getAlphabetLength(); i++)
+            for (int i = 0; i < wynik.AlphabetLength; i++)
             {
-                int[] transition = wynik.getTransitionTableList()[i];
-                for (int y = 0; y < wynik.getStatesNumber(); y++)
+                int[] transition = wynik.TransitiontableList[i];
+                for (int y = 0; y < wynik.StatesNumber; y++)
                 {
-                    for (int x = 0; x < wynik.getStatesNumber(); x++)
+                    for (int x = 0; x < wynik.StatesNumber; x++)
                     {
                         if (transition[x] == y)
                         {

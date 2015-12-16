@@ -22,9 +22,9 @@ namespace AC
         /// <returns></returns>
        public static bool AreWordsRelated(Automat automata, List<int> word1, List<int> word2)
         {
-            int numberOfStates = automata.getStatesNumber();
+            int numberOfStates = automata.StatesNumber;
             List<int[]> transitionTableList = new List<int[]>();
-            transitionTableList = automata.getTransitionTableList();
+            transitionTableList = automata.TransitiontableList;
             int word1Length = word1.Count;
             int word2Length = word2.Count;
 
@@ -122,9 +122,9 @@ namespace AC
         /// <returns></returns>
        public static int WordComputationFinishingState(Automat automata, List<int> word)
        {
-           int numberOfStates = automata.getStatesNumber();
+           int numberOfStates = automata.StatesNumber;
            List<int[]> transitionTableList = new List<int[]>();
-           transitionTableList = automata.getTransitionTableList();
+           transitionTableList = automata.TransitiontableList;
            int word1Length = word.Count;
 
 

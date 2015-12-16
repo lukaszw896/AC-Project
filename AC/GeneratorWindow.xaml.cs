@@ -229,16 +229,6 @@ namespace AC
                    }
             setOfWords.Add(separator2);
 
-            //console print
-            /*for(int i = 0 ; i < setOfWords.Count ; i++)
-            {
-                Console.WriteLine(i+". - "+setOfWords[i]);
-            }*/
-
-
-            //setOfWords = setOfSmallWords + setOfBigWords;
-
-
 
 
             List<List<int>> TestingSetWords = new List<List<int>>();
