@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Collections;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace AC
 {
@@ -114,10 +115,18 @@ namespace AC
         /// Method returns instance of Automat from input string
         /// </summary>
         /// <param name="input"></param>
-        public void fromString(String input)
+        public bool fromString(String input)
         {
             string[] inputs = input.Split(',');
-            statesNumber = int.Parse(inputs[0]);
+            try
+            {
+                statesNumber = int.Parse(inputs[0]);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.ToString());
+                return false;
+            }
             alphabetLength = int.Parse(inputs[1]);
 
             transitionTableList = new List<int[]>();
@@ -148,6 +157,7 @@ namespace AC
                 transitionTableList.Add(transitionTable);
 
             }
+            return true;
         }
 
         /// <summary>

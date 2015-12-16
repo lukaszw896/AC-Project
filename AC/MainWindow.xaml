@@ -27,13 +27,13 @@
             <RowDefinition/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <Controls:ProgressRing Name="progressRing" Panel.ZIndex="4"  Grid.Row="0" Grid.Column="0" Grid.RowSpan="13" Grid.ColumnSpan="3" Width="300" Background="#333"  IsActive="True" Visibility="Collapsed" />
-        <Label Name="progressRingBackground" Panel.ZIndex="3"  Grid.Row="0" Grid.Column="0" Grid.RowSpan="13" Grid.ColumnSpan="3" Background="#333" Margin="0" Opacity="0.9" Visibility="Collapsed"/>
+        <Controls:ProgressRing Name="progressRing" Panel.ZIndex="4"  Grid.Row="0" Grid.Column="0" Grid.RowSpan="14" Grid.ColumnSpan="3" Width="300" Background="#333"  IsActive="True" Visibility="Collapsed" />
+        <Label Name="progressRingBackground" Panel.ZIndex="3"  Grid.Row="0" Grid.Column="0" Grid.RowSpan="14" Grid.ColumnSpan="3" Background="#333" Margin="0" Opacity="0.9" Visibility="Collapsed"/>
                
         <Button Grid.Column="0" Grid.Row="7" Content="Load Ideal Automata" VerticalAlignment="Center" Click="LoadAutomata_Click"/>
         <Button  Grid.Column="0" Grid.Row="2" Content="Create Word Set" VerticalAlignment="Center" Click="CreateSet_Click"/>
         <Button  Grid.Column="0" Grid.Row="3" Content="Create Automaton" VerticalAlignment="Center" Click="CreateAutomat_Click" />
-        <Label Panel.ZIndex="-1" Grid.Row="3" Background="#333" Grid.RowSpan="9"/>
+        <Label Panel.ZIndex="-1" Grid.Row="2" Background="#333" Grid.RowSpan="10"/>
         <Button Grid.Column="0" Grid.Row="5" Content="Load Word Set" VerticalAlignment="Center" Click="LoadSet_Click"/>
         
         <Label Background="#FF0F0000" Grid.Column="1" Grid.ColumnSpan="2" Grid.RowSpan="6" />

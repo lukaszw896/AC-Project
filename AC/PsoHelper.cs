@@ -195,7 +195,6 @@ namespace AC
                            errorCounter = errorCounter + 1.0;
                        }
                    }
-
                }
            }
 

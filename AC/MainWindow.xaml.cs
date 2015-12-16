@@ -158,15 +158,20 @@ namespace AC
         /// <summary>
         /// funkcja wyciaga z pliku z automatem dane, i tworzy instancje automatu
         /// </summary>
-        void LoadAutomata(String path)
+        bool LoadAutomata(String path)
         {
             String input = File.ReadAllText(path);
 
             Automat automata = new Automat();
-            automata.fromString(input);
-            Console.WriteLine("zaladowano automat");
-            //gotowy automat : mamy funkcje stany i alfabet        
-            inputAutomaton = automata;
+
+            if (automata.fromString(input))
+            {
+                Console.WriteLine("zaladowano automat");
+                //gotowy automat : mamy funkcje stany i alfabet        
+                inputAutomaton = automata;
+                return true;
+            }
+            return false;
         }
 
 
@@ -175,7 +180,7 @@ namespace AC
         /// Loading wordset from given file
         /// </summary>
         /// <param name="path"></param>
-        void LoadWordSet(String path)
+        bool LoadWordSet(String path)
         {
             String input = File.ReadAllText(path);
 
@@ -188,7 +193,13 @@ namespace AC
 
                 foreach (char a in words[i])
                 {
-                    word.Add(int.Parse(a.ToString()));
+                    try
+                    {
+                        word.Add(int.Parse(a.ToString()));
+                    }catch(Exception e){
+                        MessageBox.Show(e.ToString());
+                        return false;
+                    }
                 }
                 fullSetOfWords.Add(word);
             }
@@ -196,6 +207,7 @@ namespace AC
 
             Console.WriteLine("zaladowano slowa ( " + fullSetOfWords.Count + " )");
             SplitWordsToSets();
+            return true;
         }
 
 
@@ -349,6 +361,26 @@ namespace AC
                 continuePSO = false;
                 shouldStart = false;
             }
+
+            try
+            {
+                double c1TMP = double.Parse(c1Txt.Text,CultureInfo.CurrentCulture);
+                if (!(c1TMP >= 0 && c1TMP <= 1))
+                {
+                    MessageBox.Show("Value of C1 have to be from range 0 to 1");
+                    c1Txt.Text = "0.2";
+                    shouldStart = false;
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.ToString());
+                c1Txt.Text = "0.2";
+                shouldStart = false;
+            }
+            
+
+            
         }
 
         /// <summary>
@@ -981,8 +1013,10 @@ namespace AC
 
             if (result == true)
             {
-                LoadWordSet(dlg.FileName);
-                MessageBox.Show("Word Set Loaded!");
+                if (LoadWordSet(dlg.FileName))
+                {
+                    MessageBox.Show("Word Set Loaded!");
+                }
             }
             else
             {
@@ -1005,8 +1039,10 @@ namespace AC
 
             if (result == true)
             {
-                LoadAutomata(dlg.FileName);
-                MessageBox.Show("Automata Loaded!");
+                if (LoadAutomata(dlg.FileName))
+                {
+                    MessageBox.Show("Automata Loaded!");
+                }
             }
             else
             {
