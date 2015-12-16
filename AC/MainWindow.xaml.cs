@@ -131,6 +131,9 @@ namespace AC
               
         }
 
+
+
+
         /// <summary>
         /// ladujemy plik z automatem
         /// </summary>
@@ -156,6 +159,9 @@ namespace AC
         }
 
 
+
+
+
         /// <summary>
         /// funkcja wyciaga z pliku z automatem dane, i tworzy instancje automatu
         /// </summary>
@@ -168,9 +174,10 @@ namespace AC
             Console.WriteLine("zaladowano automat");
             //gotowy automat : mamy funkcje stany i alfabet        
             idealAutomat = automata;
-
-            //ArrayList test = automata.toVector();
         }
+
+
+
         /// <summary>
         /// Otwieramy okno w ktorym generujemy plik slow
         /// </summary>
@@ -190,59 +197,8 @@ namespace AC
 
         }
 
-        private void CreateAutomat_Click(object sender, RoutedEventArgs e)
-        {
-            AutomatGenerator generator2 = new AutomatGenerator();
-
-            Nullable<bool> result = generator2.ShowDialog();
-
-            if (result == true)
-            {
-                int nrstates = generator2.getStates();
-                int nralphabet = generator2.getAlp();
-                List<int[]> listtransition = generator2.gettrans();
-
-                String a = nrstates + "," + nralphabet;
-
-                for (int j = 0; j < nrstates; j++)
-                {
-                    int[] row = listtransition[j];
-                    for (int i = 0; i < nralphabet; i++)
-                    {
-                        a = a + "," + (row[i] + 1);
-                    }
-                }
-
-                idealAutomat = new Automat();
-                idealAutomat.fromString(a);
-                Console.WriteLine("Automat Generated");
-            }
-        }
 
 
-        /// <summary>
-        /// ladujemy plik z slowami
-        /// </summary>
-        private void LoadSet_Click(object sender, RoutedEventArgs e)
-        {
-            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog()
-            {
-                Filter = "Text Files(*.txt)|*.txt"
-            };
-
-            Nullable<bool> result = dlg.ShowDialog();
-
-            if (result == true)
-            {
-                LoadWordSet(dlg.FileName);
-                MessageBox.Show("Word Set Loaded!");
-            }
-            else
-            {
-                MessageBox.Show("Loading Aborted!");
-                return;
-            }
-        }
 
         void LoadWordSet(String path)
         {
@@ -422,95 +378,10 @@ namespace AC
 
                 if (continuePSO == true)
                 {
+                    CalculateLocalAndGlobalBest();
                     //ustalanieBestow
 
-                    double smallestError = 100.0;
-                    for (int i = 0; i < particlesNumber; i++)
-                    {
-
-                        if ((double)particleError[i] < smallestError)
-                        {
-                            smallestError = (double)particleError[i];
-                            particlesGlobBest = i;
-                        }
-
-                        List<double> distances = new List<double>();
-                        List<int> indexes = new List<int>();
-                        for (int j = 0; j < particlesNumber; j++)
-                        {
-                            //tutaj od razu szukamu ktore particle sa najblizsze
-                            // i z nich wylaniamy local besta analogicznie jak globala
-                            // ale dla neighbournumber czy jakos tak
-                            if (true)
-                            {
-                                double dist = PsoHelper.FindDistance(particlesPos[i], particlesPos[j]);
-                                if (distances.Count < numberOfNeighbors)
-                                {
-                                    distances.Add(dist);
-                                    indexes.Add(j);
-                                }
-                                else
-                                {
-                                    int maxInd = 0;
-                                    double tempmaxVal = 0.0;
-                                    for (int p = 0; p < distances.Count; p++)
-                                    {
-                                        if (distances[p] > tempmaxVal)
-                                        {
-                                            tempmaxVal = distances[p];
-                                            maxInd = p;
-                                        }
-                                    }
-                                    if (tempmaxVal > dist)
-                                    {
-                                        distances[maxInd] = dist;
-                                        indexes[maxInd] = j;
-                                    }
-                                }
-                            }
-                        }
-
-                        // teraz mam liste najblizszych particlow i szykamy tego z najmneijszym errorem.
-                        double minLocErr = 100.0;
-                        int minLocIndex = 0;
-                        for (int j = 0; j < distances.Count; j++)
-                        {
-                            if (distances[j] < minLocErr)
-                            {
-                                minLocErr = distances[j];
-                                minLocIndex = indexes[j];
-                            }
-                        }
-                        particlesLocBest[i] = minLocIndex;
-
-                    }
-
-
-                    //teraz kazdy particle ma swojego globala i locala
-                    // obliczamy nowa predkosc dla kazdego
-
-                    for (int i = 0; i < particlesNumber; i++)
-                    {
-                        if (freez == true && i == particlesGlobBest)
-                        {
-                            //lol zamorozony best
-                        }
-                        else
-                        {
-                            particlesVel[i] = PsoHelper.CalculateVelocity(maxSpeed, particlesPos[particlesGlobBest], particlesPos[particlesLocBest[i]],
-                            particlesVel[i], particlesPos[i], c1, c2);
-                            //jest predkosc to mozemy aplikowac ja do pozycji
-
-                            particlesPos[i] = calculatePosition(particlesVel[i], particlesPos[i]);
-
-                            if (particlesStopNumber[i] >= maxStopError)
-                            {
-                                Console.WriteLine("Particle " + i + " has the same error " + particlesStopNumber[i] + " times. Restoring best");
-                                particlesStopNumber[i] = 0;
-                                particlesPos[i] = particlesBestPos[i];
-                            }
-                        }
-                    }
+                    CalculateNewParticleVelocity();
 
 
                     counter++;
@@ -566,89 +437,9 @@ namespace AC
 
             if (shouldStart == true)
             {
-                Console.WriteLine("PSO FINISHED");
-
-                pairsOfRelation = PsoHelper.FindRelationPairs(testingSetOfWords,idealAutomat);
-
-
-                List<Automat> solucjekazde = new List<Automat>();
-                List<double> wynikiKazde = new List<double>();
-                List<double> learningwynikiKazde = new List<double>();
-
-                List<double> listDoC = new List<double>();
-                List<double> listOdC = new List<double>();
-
-
-              
-
-                for (int i = 0; i < BestAutomatForStates.Count; i++)
-                {
-                    double newError = 100.0;
-                   // double newErrorDoC = 100.0;
-                   // double newErrorOdC = 100.0;
-                    Automat Tempsolution = (Automat)BestAutomatForStates[i];
-
-                    newError = PsoHelper.CalculateParticleError(testingSetOfWords, Tempsolution, pairsOfRelation);
-
-                    solucjekazde.Add(Tempsolution);
-                    wynikiKazde.Add(newError);
-                    learningwynikiKazde.Add(BestErrorsForAutomats[i]);
-                    BestErrorsForAutomats2Set.Add(newError);
-                    
-                }
-                List<List<int>> setDoC = new List<List<int>>();
-                for (int p = 0; p < numberOfWordsSmallerEqualC; p++)
-                {
-                    setDoC.Add(testingSetOfWords[p]);
-                }
-                pairsOfRelation = PsoHelper.FindRelationPairs(setDoC, idealAutomat);
-                for (int i = 0; i < BestAutomatForStates.Count; i++)
-                {
-                    Automat Tempsolution = (Automat)BestAutomatForStates[i];
-                    double newErrorDoC = 100.0;
-                    newErrorDoC = PsoHelper.CalculateParticleError(setDoC, Tempsolution, pairsOfRelation);
-                    listDoC.Add(newErrorDoC);
-                }
-                setDoC.Clear();
-                for (int p = numberOfWordsSmallerEqualC; p < testingSetOfWords.Count - 1; p++)
-                {
-                    setDoC.Add(testingSetOfWords[p]);
-                }
-                pairsOfRelation = PsoHelper.FindRelationPairs(setDoC, idealAutomat);
-                for (int i = 0; i < BestAutomatForStates.Count; i++)
-                {
-                    Automat Tempsolution = (Automat)BestAutomatForStates[i];
-                    double newErrorDoC = 100.0;
-                    newErrorDoC = PsoHelper.CalculateParticleError(setDoC, Tempsolution, pairsOfRelation);
-                    listOdC.Add(newErrorDoC);
-                }
-
-                wszystkieSolucje.Add(solucjekazde);
-                wszystkieWyniki.Add(wynikiKazde);
-                wszystkieLearningoweWyniki.Add(learningwynikiKazde);
-
-                wszystkiedoC.Add(listDoC);
-                wszystkieodC.Add(listOdC);
-
-                minimalFinalErr = 100.0;
-                int bestFinalAutomatIndex = 0;
-                for (int i = 0; i < BestAutomatForStates.Count; i++)
-                {
-                    if ((double)BestErrorsForAutomats2Set[i] < minimalFinalErr)
-                    {
-                        minimalFinalErr = (double)BestErrorsForAutomats2Set[i];
-                        bestFinalAutomatIndex = i;
-                    }
-                }
-
-
-
-                solution = (Automat)BestAutomatForStates[bestFinalAutomatIndex];
-
-                Console.WriteLine("SOLUTION error : " + minimalFinalErr);
-                Console.WriteLine("" + (zListyNaStringa(solution.toVector())));
-
+              solution =   FindTheBestSolution();
             }
+
             });
 
             if (shouldStart == true)
@@ -665,6 +456,189 @@ namespace AC
                 displayGraph.Show();
             }
             
+        }
+
+        private void CalculateLocalAndGlobalBest()
+        {
+            double smallestError = 100.0;
+            for (int i = 0; i < particlesNumber; i++)
+            {
+
+                if ((double)particleError[i] < smallestError)
+                {
+                    smallestError = (double)particleError[i];
+                    particlesGlobBest = i;
+                }
+
+                List<double> distances = new List<double>();
+                List<int> indexes = new List<int>();
+                for (int j = 0; j < particlesNumber; j++)
+                {
+                    //tutaj od razu szukamu ktore particle sa najblizsze
+                    // i z nich wylaniamy local besta analogicznie jak globala
+                    // ale dla neighbournumber czy jakos tak
+                    if (true)
+                    {
+                        double dist = PsoHelper.FindDistance(particlesPos[i], particlesPos[j]);
+                        if (distances.Count < numberOfNeighbors)
+                        {
+                            distances.Add(dist);
+                            indexes.Add(j);
+                        }
+                        else
+                        {
+                            int maxInd = 0;
+                            double tempmaxVal = 0.0;
+                            for (int p = 0; p < distances.Count; p++)
+                            {
+                                if (distances[p] > tempmaxVal)
+                                {
+                                    tempmaxVal = distances[p];
+                                    maxInd = p;
+                                }
+                            }
+                            if (tempmaxVal > dist)
+                            {
+                                distances[maxInd] = dist;
+                                indexes[maxInd] = j;
+                            }
+                        }
+                    }
+                }
+
+                // teraz mam liste najblizszych particlow i szykamy tego z najmneijszym errorem.
+                double minLocErr = 100.0;
+                int minLocIndex = 0;
+                for (int j = 0; j < distances.Count; j++)
+                {
+                    if ((double)particleError[indexes[j]] < minLocErr)
+                    {
+                        minLocErr = (double)particleError[indexes[j]];
+                        minLocIndex = indexes[j];
+                    }
+                }
+                particlesLocBest[i] = minLocIndex;
+
+            }
+        }
+
+        /// <summary>
+        /// Function calculating new particle velocity based on global and local best
+        /// </summary>
+        private void CalculateNewParticleVelocity()
+        {
+            for (int i = 0; i < particlesNumber; i++)
+            {
+                if (freez == true && i == particlesGlobBest)
+                {
+                    //lol zamorozony best
+                }
+                else
+                {
+                    particlesVel[i] = PsoHelper.CalculateVelocity(maxSpeed, particlesPos[particlesGlobBest], particlesPos[particlesLocBest[i]],
+                    particlesVel[i], particlesPos[i], c1, c2);
+                    //jest predkosc to mozemy aplikowac ja do pozycji
+
+                    particlesPos[i] = calculatePosition(particlesVel[i], particlesPos[i]);
+
+                    if (particlesStopNumber[i] >= maxStopError)
+                    {
+                        Console.WriteLine("Particle " + i + " has the same error " + particlesStopNumber[i] + " times. Restoring best");
+                        particlesStopNumber[i] = 0;
+                        particlesPos[i] = particlesBestPos[i];
+                    }
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Funtcion finding the best solution from all found automatons
+        /// </summary>
+        private Automat FindTheBestSolution()
+        {
+            Console.WriteLine("PSO FINISHED");
+
+            pairsOfRelation = PsoHelper.FindRelationPairs(testingSetOfWords, idealAutomat);
+
+
+            List<Automat> solucjekazde = new List<Automat>();
+            List<double> wynikiKazde = new List<double>();
+            List<double> learningwynikiKazde = new List<double>();
+
+            List<double> listDoC = new List<double>();
+            List<double> listOdC = new List<double>();
+
+
+
+
+            for (int i = 0; i < BestAutomatForStates.Count; i++)
+            {
+                double newError = 100.0;
+                // double newErrorDoC = 100.0;
+                // double newErrorOdC = 100.0;
+                Automat Tempsolution = (Automat)BestAutomatForStates[i];
+
+                newError = PsoHelper.CalculateParticleError(testingSetOfWords, Tempsolution, pairsOfRelation);
+
+                solucjekazde.Add(Tempsolution);
+                wynikiKazde.Add(newError);
+                learningwynikiKazde.Add(BestErrorsForAutomats[i]);
+                BestErrorsForAutomats2Set.Add(newError);
+
+            }
+            List<List<int>> setDoC = new List<List<int>>();
+            for (int p = 0; p < numberOfWordsSmallerEqualC; p++)
+            {
+                setDoC.Add(testingSetOfWords[p]);
+            }
+            pairsOfRelation = PsoHelper.FindRelationPairs(setDoC, idealAutomat);
+            for (int i = 0; i < BestAutomatForStates.Count; i++)
+            {
+                Automat Tempsolution = (Automat)BestAutomatForStates[i];
+                double newErrorDoC = 100.0;
+                newErrorDoC = PsoHelper.CalculateParticleError(setDoC, Tempsolution, pairsOfRelation);
+                listDoC.Add(newErrorDoC);
+            }
+            setDoC.Clear();
+            for (int p = numberOfWordsSmallerEqualC; p < testingSetOfWords.Count - 1; p++)
+            {
+                setDoC.Add(testingSetOfWords[p]);
+            }
+            pairsOfRelation = PsoHelper.FindRelationPairs(setDoC, idealAutomat);
+            for (int i = 0; i < BestAutomatForStates.Count; i++)
+            {
+                Automat Tempsolution = (Automat)BestAutomatForStates[i];
+                double newErrorDoC = 100.0;
+                newErrorDoC = PsoHelper.CalculateParticleError(setDoC, Tempsolution, pairsOfRelation);
+                listOdC.Add(newErrorDoC);
+            }
+
+            wszystkieSolucje.Add(solucjekazde);
+            wszystkieWyniki.Add(wynikiKazde);
+            wszystkieLearningoweWyniki.Add(learningwynikiKazde);
+
+            wszystkiedoC.Add(listDoC);
+            wszystkieodC.Add(listOdC);
+
+            minimalFinalErr = 100.0;
+            int bestFinalAutomatIndex = 0;
+            for (int i = 0; i < BestAutomatForStates.Count; i++)
+            {
+                if ((double)BestErrorsForAutomats2Set[i] < minimalFinalErr)
+                {
+                    minimalFinalErr = (double)BestErrorsForAutomats2Set[i];
+                    bestFinalAutomatIndex = i;
+                }
+            }
+
+
+
+            Automat solution = (Automat)BestAutomatForStates[bestFinalAutomatIndex];
+
+            Console.WriteLine("SOLUTION error : " + minimalFinalErr);
+            Console.WriteLine("" + (zListyNaStringa(solution.toVector())));
+            return solution;
         }
 
 
@@ -971,6 +945,61 @@ namespace AC
             else
             {
                 MessageBox.Show("Not all data loaded !");
+                return;
+            }
+        }
+
+
+        private void CreateAutomat_Click(object sender, RoutedEventArgs e)
+        {
+            AutomatGenerator generator2 = new AutomatGenerator();
+
+            Nullable<bool> result = generator2.ShowDialog();
+
+            if (result == true)
+            {
+                int nrstates = generator2.getStates();
+                int nralphabet = generator2.getAlp();
+                List<int[]> listtransition = generator2.gettrans();
+
+                String a = nrstates + "," + nralphabet;
+
+                for (int j = 0; j < nrstates; j++)
+                {
+                    int[] row = listtransition[j];
+                    for (int i = 0; i < nralphabet; i++)
+                    {
+                        a = a + "," + (row[i] + 1);
+                    }
+                }
+
+                idealAutomat = new Automat();
+                idealAutomat.fromString(a);
+                Console.WriteLine("Automat Generated");
+            }
+        }
+
+
+        /// <summary>
+        /// ladujemy plik z slowami
+        /// </summary>
+        private void LoadSet_Click(object sender, RoutedEventArgs e)
+        {
+            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog()
+            {
+                Filter = "Text Files(*.txt)|*.txt"
+            };
+
+            Nullable<bool> result = dlg.ShowDialog();
+
+            if (result == true)
+            {
+                LoadWordSet(dlg.FileName);
+                MessageBox.Show("Word Set Loaded!");
+            }
+            else
+            {
+                MessageBox.Show("Loading Aborted!");
                 return;
             }
         }
